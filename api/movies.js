@@ -135,12 +135,10 @@ if (request.query.type === "trailers") {
       });
 
     } catch (error) {
-
       console.error(
         `Trailer lookup failed for movie ${movie.id}`,
         error
       );
-
     }
   }
 
@@ -153,4 +151,15 @@ if (request.query.type === "trailers") {
     results: trailerMovies.slice(0, 30)
   });
 }
+
+
+return response.status(200).json(data);
+
+  } catch (error) {
+    console.error(error);
+
+    return response.status(500).json({
+      error: "Something went wrong"
+    });
+  }
 }
