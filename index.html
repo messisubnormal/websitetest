@@ -99,12 +99,19 @@
   display: flex;
   flex-wrap: nowrap;
   gap: 20px;
-  overflow-x: hidden;
+
+  overflow-x: auto;
   overflow-y: visible;
+
   scroll-behavior: smooth;
 
   padding: 20px 12px;
+
+  scrollbar-width: none;
   background: transparent;
+}
+.trailer-grid::-webkit-scrollbar {
+  display: none;
 }
 
 .trailer-card {
@@ -168,6 +175,10 @@
   pointer-events: none;
 }
 
+.trailer-card {
+  flex: 0 0 calc((100% - 40px) / 3);
+}
+
 .trailer-title {
   font-size: 16px;
   font-weight: 700;
@@ -194,7 +205,7 @@
   inset: 0;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.25s ease;
+  transition: opacity 1s ease;
 }
 
 .trailer-video {
@@ -214,7 +225,7 @@
 }
 
 .trailer-thumbnail {
-  transition: opacity 0.25s ease;
+  transition: opacity 1s ease;
 }
 .trailer-carousel {
   padding-left: 12px;
