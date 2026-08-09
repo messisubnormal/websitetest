@@ -86,12 +86,6 @@ if (request.query.type === "trailers") {
 
   for (const movie of data.results) {
     
-  if (
-  movie.release_date &&
-  new Date(movie.release_date + "T00:00:00") <= today
-) {
-  continue;
-}
     try {
 
       const videosResponse = await fetch(
