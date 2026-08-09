@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Find Your Next Favourite Movie</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(37, 99, 235, 0.28), transparent 30%),
+        radial-gradient(circle at 85% 25%, rgba(59, 130, 246, 0.18), transparent 30%),
+        linear-gradient(135deg, #020617, #071b3a 50%, #06152d);
+      color: #ffffff;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    /* NAVIGATION */
+
+    nav {
+      height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 50px;
+
+      background: rgba(2, 6, 23, 0.72);
+      border-bottom: 1px solid rgba(96, 165, 250, 0.18);
+
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: #dbeafe;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: #60a5fa;
+    }
+
+    /* MAIN */
+
+    main {
+      max-width: 1450px;
+      margin: auto;
+      padding: 45px 50px 90px;
+    }
+
+    section {
+      margin-bottom: 65px;
+    }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 22px;
+      letter-spacing: 0.2px;
+    }
+
+    /* TRAILERS */
+
+    .trailers {
+  position: relative;
+}
+
+.trailer-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 20px;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+}
+
+.trailer-card {
+  position: relative;
+  flex: 0 0 calc((100% - 40px) / 3);
+  aspect-ratio: 16 / 9;
+
+  border-radius: 12px;
+  overflow: hidden;
+
+  background: #0f172a;
+
+  border: 1px solid rgba(96, 165, 250, 0.2);
+
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+
+  cursor: pointer;
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.trailer-card:hover {
+  transform: scale(1.03);
+
+  box-shadow:
+    0 18px 45px rgba(37, 99, 235, 0.3);
+}
+
+.trailer-card iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+    /* MOVIES */
+
+    .movie-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 24px;
+    }
+
+    .movie {
+      cursor: pointer;
+      min-width: 0;
+    }
+
+    .poster {
+      width: 100%;
+      aspect-ratio: 2 / 3;
+
+      border-radius: 8px;
+      overflow: hidden;
+
+      background:
+        linear-gradient(
+          145deg,
+          #172554,
+          #0f172a
+        );
+
+      border: 1px solid rgba(96, 165, 250, 0.15);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      color: rgba(255, 255, 255, 0.35);
+      font-size: 13px;
+
+      transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+    }
+
+    .poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.movie:hover .poster {
+  transform: translateY(-5px);
+  box-shadow:
+    0 12px 30px rgba(37, 99, 235, 0.25);
+}
+
+    .movie-title {
+      margin-top: 11px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #f8fafc;
+
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .rating {
+      margin-top: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #facc15;
+    }
+
+.movie-carousel {
+  position: relative;
+}
+
+.carousel-arrow {
+  position: absolute;
+  top: 42%;
+  transform: translateY(-50%);
+
+  z-index: 10;
+
+  width: 38px;
+  height: 90px;
+
+  border: none;
+  border-radius: 6px;
+
+  background: rgba(20, 80, 150, 0.45);
+  color: white;
+
+  font-size: 32px;
+  font-family: Arial, sans-serif;
+  line-height: 1;
+
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 0 3px 0;
+
+  transition: background 0.2s ease;
+}
+
+.carousel-arrow:hover {
+  background: rgba(40, 110, 200, 1);
+}
+
+.carousel-left {
+  left: -20px;
+}
+
+.carousel-right {
+  right: -20px;
+}
+
+.carousel-arrow.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.carousel-arrow {
+  transition: opacity 0.25s ease;
+}
+    /* MOBILE */
+
+    @media (max-width: 1100px) {
+      .movie-grid {
+        grid-template-columns: repeat(5, 1fr);
+      }
+
+      .trailers {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .trailer:first-child {
+        grid-column: span 2;
+      }
+    }
+
+    @media (max-width: 800px) {
+      nav {
+        padding: 0 25px;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      main {
+        padding: 35px 25px 70px;
+      }
+
+      .movie-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .trailers {
+        grid-template-columns: 1fr;
+      }
+
+      .trailer:first-child {
+        grid-column: auto;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .logo {
+        font-size: 17px;
+      }
+
+      main {
+        padding: 30px 16px 60px;
+      }
+
+      .movie-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+      }
+
+      .section-title {
+        font-size: 21px;
+      }
+    }
+
+.movie-carousel {
+  position: relative;
+}
+
+.movie-carousel .movie-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 20px;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+
+  padding-top: 8px;
+  margin-top: -8px;
+}
+
+.movie-carousel .movie {
+  flex: 0 0 180px;
+}
+    .release-date {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #93c5fd;
+  font-weight: 500;
+}
+  
+  </style>
+</head>
+
+<body>
+
+  <nav>
+    <div class="logo">FIND YOUR NEXT FAVOURITE MOVIE</div>
+
+    <ul class="nav-links">
+      <li><a href="#">HOME</a></li>
+      <li><a href="#">TOP RATED</a></li>
+      <li><a href="#">PERSONAL RECOMMENDATIONS</a></li>
+      <li><a href="#">NEWS</a></li>
+      <li><a href="#">STREAMING RECOMMENDATIONS</a></li>
+    </ul>
+  </nav>
+
+
+  <main>
+
+    <!-- TRAILERS -->
+
+<section>
+ 
+  <div class="movie-carousel trailer-carousel">
+
+    <button
+      class="carousel-arrow carousel-left"
+      id="trailers-left"
+      aria-label="Previous trailers"
+    >
+      ‹
+    </button>
+
+    <div class="trailer-grid" id="trailer-grid">
+      <div class="trailer-card">LOADING...</div>
+      <div class="trailer-card">LOADING...</div>
+      <div class="trailer-card">LOADING...</div>
+    </div>
+
+    <button
+      class="carousel-arrow carousel-right"
+      id="trailers-right"
+      aria-label="Next trailers"
+    >
+      ›
+    </button>
+
+  </div>
+</section>
+
+    
+    <!-- MOST POPULAR -->
+
+<section>
+  <h2 class="section-title">Most Popular This Week</h2>
+
+  <div class="movie-carousel">
+
+    <button class="carousel-arrow carousel-left" id="popular-left">
+      ‹
+    </button>
+
+    <div class="movie-grid" id="popular-movies">
+      <div class="poster">LOADING...</div>
+    </div>
+
+    <button class="carousel-arrow carousel-right" id="popular-right">
+      ›
+    </button>
+
+  </div>
+</section>
+
+    <!-- TOP BOX OFFICE -->
+
+<section>
+  <h2 class="section-title">Top Box Office</h2>
+
+  <div class="movie-carousel">
+
+    <button class="carousel-arrow carousel-left" id="box-office-left">
+      ‹
+    </button>
+
+    <div class="movie-grid" id="now-playing-movies">
+      <div class="poster">LOADING...</div>
+    </div>
+
+    <button class="carousel-arrow carousel-right" id="box-office-right">
+      ›
+    </button>
+
+  </div>
+</section>
+
+
+
+    <!-- UPCOMING -->
+
+<!-- UPCOMING -->
+
+<section>
+  <h2 class="section-title">Upcoming Releases</h2>
+
+  <div class="movie-carousel">
+
+    <button class="carousel-arrow carousel-left" id="upcoming-left">
+      ‹
+    </button>
+
+    <div class="movie-grid" id="upcoming-movies">
+      <div class="poster">LOADING...</div>
+    </div>
+
+    <button class="carousel-arrow carousel-right" id="upcoming-right">
+      ›
+    </button>
+
+  </div>
+</section>
+
+
+  </main>
+<script>
+  async function loadPopularMovies() {
+    const container = document.getElementById("popular-movies");
+
+    try {
+      const response = await fetch("/api/movies");
+      const data = await response.json();
+
+      container.innerHTML = "";
+
+      data.results.slice(0, 50).forEach(movie => {
+        const movieElement = document.createElement("div");
+        movieElement.className = "movie";
+
+        movieElement.onclick = () => {
+  window.location.href = `movie.html?id=${movie.id}`;
+};
+
+        const poster = movie.poster_path
+          ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+          : "";
+
+        movieElement.innerHTML = `
+          <div class="poster">
+            ${
+              poster
+                ? `<img src="${poster}" alt="${movie.title}">`
+                : "NO POSTER"
+            }
+          </div>
+
+          <div class="movie-title">${movie.title}</div>
+          <div class="rating">
+            ★ ${movie.vote_average.toFixed(1)}
+          </div>
+        `;
+
+        container.appendChild(movieElement);
+      });
+
+    } catch (error) {
+      container.innerHTML = "<p>Unable to load movies.</p>";
+      console.error(error);
+    }
+  }
+async function loadUpcomingMovies() {
+  const container = document.getElementById("upcoming-movies");
+
+  try {
+    const response = await fetch("/api/movies?type=upcoming");
+    const data = await response.json();
+
+    container.innerHTML = "";
+
+    data.results.slice(0, 50).forEach(movie => {
+      const movieElement = document.createElement("div");
+      movieElement.className = "movie";
+
+      movieElement.onclick = () => {
+        window.location.href = `movie.html?id=${movie.id}`;
+      };
+
+      const poster = movie.poster_path
+        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+        : "";
+
+      movieElement.innerHTML = `
+        <div class="poster">
+          ${
+            poster
+              ? `<img src="${poster}" alt="${movie.title}">`
+              : "NO POSTER"
+          }
+        </div>
+
+        <div class="movie-title">${movie.title}</div>
+
+       <div class="rating">
+  ${movie.vote_average > 0 ? `★ ${movie.vote_average.toFixed(1)}` : ""}
+</div>
+
+ <div class="release-date">
+  ${movie.release_date
+    ? new Date(movie.release_date + "T00:00:00").toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric"
+      })
+    : ""}
+</div>
+      `;
+
+      container.appendChild(movieElement);
+    });
+
+  } catch (error) {
+    container.innerHTML = "<p>Unable to load movies.</p>";
+    console.error(error);
+  }
+}
+  async function loadNowPlayingMovies() {
+  const container = document.getElementById("now-playing-movies");
+
+  try {
+    const response = await fetch("/api/movies?type=now-playing");
+    const data = await response.json();
+
+    container.innerHTML = "";
+
+    data.results.slice(0, 50)
+      .forEach(movie => {
+
+        const movieElement = document.createElement("div");
+        movieElement.className = "movie";
+
+        movieElement.onclick = () => {
+          window.location.href = `movie.html?id=${movie.id}`;
+        };
+
+        const poster = movie.poster_path
+          ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+          : "";
+
+        movieElement.innerHTML = `
+          <div class="poster">
+            ${
+              poster
+                ? `<img src="${poster}" alt="${movie.title}">`
+                : "NO POSTER"
+            }
+          </div>
+
+          <div class="movie-title">${movie.title}</div>
+
+          <div class="rating">
+            ${movie.vote_average > 0
+              ? `★ ${movie.vote_average.toFixed(1)}`
+              : ""}
+          </div>
+        `;
+
+        container.appendChild(movieElement);
+      });
+
+  } catch (error) {
+    container.innerHTML = "<p>Unable to load movies.</p>";
+    console.error(error);
+  }
+}
+  
+loadPopularMovies();
+loadUpcomingMovies();
+loadNowPlayingMovies();
+
+const popularMovies = document.getElementById("popular-movies");
+const popularLeft = document.getElementById("popular-left");
+const popularRight = document.getElementById("popular-right");
+
+popularRight.addEventListener("click", () => {
+  popularMovies.scrollBy({
+    left: 600,
+    behavior: "smooth"
+  });
+});
+
+popularLeft.addEventListener("click", () => {
+  popularMovies.scrollBy({
+    left: -600,
+    behavior: "smooth"
+  });
+});
+
+const boxOfficeMovies = document.getElementById("now-playing-movies");
+const boxOfficeLeft = document.getElementById("box-office-left");
+const boxOfficeRight = document.getElementById("box-office-right");
+
+boxOfficeRight.addEventListener("click", () => {
+  boxOfficeMovies.scrollBy({
+    left: 600,
+    behavior: "smooth"
+  });
+});
+
+boxOfficeLeft.addEventListener("click", () => {
+  boxOfficeMovies.scrollBy({
+    left: -600,
+    behavior: "smooth"
+  });
+});
+
+const upcomingMovies = document.getElementById("upcoming-movies");
+const upcomingLeft = document.getElementById("upcoming-left");
+const upcomingRight = document.getElementById("upcoming-right");
+
+upcomingRight.addEventListener("click", () => {
+  upcomingMovies.scrollBy({
+    left: 600,
+    behavior: "smooth"
+  });
+});
+
+upcomingLeft.addEventListener("click", () => {
+  upcomingMovies.scrollBy({
+    left: -600,
+    behavior: "smooth"
+  });
+});
+
+function updateCarouselVisibility(container, leftButton, rightButton) {
+  const atStart = container.scrollLeft <= 5;
+  const atEnd =
+    container.scrollLeft + container.clientWidth >=
+    container.scrollWidth - 5;
+
+  leftButton.classList.toggle("hidden", atStart);
+  rightButton.classList.toggle("hidden", atEnd);
+}
+
+setTimeout(() => {
+  updateCarouselVisibility(
+    popularMovies,
+    popularLeft,
+    popularRight
+  );
+}, 500);
+
+popularMovies.addEventListener("scroll", () => {
+  updateCarouselVisibility(
+    popularMovies,
+    popularLeft,
+    popularRight
+  );
+});
+
+  setTimeout(() => {
+  updateCarouselVisibility(
+    boxOfficeMovies,
+    boxOfficeLeft,
+    boxOfficeRight
+  );
+}, 500);
+
+boxOfficeMovies.addEventListener("scroll", () => {
+  updateCarouselVisibility(
+    boxOfficeMovies,
+    boxOfficeLeft,
+    boxOfficeRight
+  );
+});
+
+  setTimeout(() => {
+  updateCarouselVisibility(
+    upcomingMovies,
+    upcomingLeft,
+    upcomingRight
+  );
+}, 500);
+
+upcomingMovies.addEventListener("scroll", () => {
+  updateCarouselVisibility(
+    upcomingMovies,
+    upcomingLeft,
+    upcomingRight
+  );
+});
+  
+</script>
+</body>
+</html>
