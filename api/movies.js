@@ -84,17 +84,7 @@ if (request.query.type === "trailers") {
 
   const trailerMovies = [];
 
-  const today = new Date();
-
   for (const movie of data.results) {
-
-    // Extra protection: never show a trailer for an already released movie
-    if (
-      !movie.release_date ||
-      new Date(movie.release_date + "T00:00:00") <= today
-    ) {
-      continue;
-    }
 
     try {
 
@@ -118,8 +108,7 @@ if (request.query.type === "trailers") {
         .filter(video =>
           video.site === "YouTube" &&
           video.type === "Trailer" &&
-          video.official === true &&
-          video.key
+          video.official === true
         )
         .sort((a, b) =>
           new Date(b.published_at) - new Date(a.published_at)
@@ -131,22 +120,6 @@ if (request.query.type === "trailers") {
 
       const trailer = trailers[0];
 
-      const publishedDate = new Date(trailer.published_at);
-
-      const ageInDays =
-        (today - publishedDate) / (1000 * 60 * 60 * 24);
-
-      // Do not keep old trailers on the homepage
-      if (ageInDays > 120) {
-        continue;
-      }
-
-      // Freshness score:
-      // brand-new trailer = 1
-      // 120-day-old trailer = 0
-      const freshnessScore =
-        Math.max(0, 1 - ageInDays / 120);
-
       trailerMovies.push({
         id: movie.id,
         title: movie.title,
@@ -154,14 +127,11 @@ if (request.query.type === "trailers") {
         backdrop_path: movie.backdrop_path,
         release_date: movie.release_date,
         popularity: movie.popularity,
-
         trailer: {
           key: trailer.key,
           name: trailer.name,
           published_at: trailer.published_at
-        },
-
-        freshnessScore
+        }
       });
 
     } catch (error) {
@@ -174,34 +144,10 @@ if (request.query.type === "trailers") {
     }
   }
 
-  // Find the highest popularity among the selected movies
-  const maxPopularity = Math.max(
-    ...trailerMovies.map(movie => movie.popularity),
-    1
-  );
-
-  // Combine freshness + popularity
-  trailerMovies.forEach(movie => {
-
-    const popularityScore =
-      movie.popularity / maxPopularity;
-
-    movie.trailerScore =
-      (movie.freshnessScore * 0.70) +
-      (popularityScore * 0.30);
-
-  });
-
-  // Highest combined score first
   trailerMovies.sort((a, b) =>
-    b.trailerScore - a.trailerScore
+    new Date(b.trailer.published_at) -
+    new Date(a.trailer.published_at)
   );
-
-  // Remove internal scoring properties before sending to the frontend
-  trailerMovies.forEach(movie => {
-    delete movie.freshnessScore;
-    delete movie.trailerScore;
-  });
 
   return response.status(200).json({
     results: trailerMovies.slice(0, 30)
