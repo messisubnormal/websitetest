@@ -626,6 +626,48 @@ loadPopularMovies();
 loadUpcomingMovies();
 loadNowPlayingMovies();
 
+  async function loadTrailers() {
+  const container = document.getElementById("trailer-grid");
+
+  try {
+    const response = await fetch("/api/movies?type=trailers");
+
+    if (!response.ok) {
+      throw new Error("Trailer request failed");
+    }
+
+    const data = await response.json();
+
+    container.innerHTML = "";
+
+    data.results.slice(0, 30).forEach(movie => {
+
+      const trailer = movie.trailer;
+
+      const trailerElement = document.createElement("div");
+      trailerElement.className = "trailer-card";
+
+      trailerElement.innerHTML = `
+        <img
+          src="https://image.tmdb.org/t/p/w780${movie.backdrop_path}"
+          alt="${movie.title}"
+        >
+      `;
+
+      container.appendChild(trailerElement);
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    container.innerHTML =
+      "<div class='trailer-card'>Unable to load trailers.</div>";
+  }
+}
+
+loadTrailers();
+
 const popularMovies = document.getElementById("popular-movies");
 const popularLeft = document.getElementById("popular-left");
 const popularRight = document.getElementById("popular-right");
