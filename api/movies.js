@@ -126,14 +126,6 @@ if (request.query.type === "trailers") {
 
       const trailer = trailers[0];
       
-      const trailerDate = new Date(trailer.published_at);
-
-const trailerAge =
-  (today - trailerDate) / (1000 * 60 * 60 * 24);
-
-if (trailerAge > 120) {
-  continue;
-}
 
       trailerMovies.push({
         id: movie.id,
