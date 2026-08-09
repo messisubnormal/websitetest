@@ -205,7 +205,7 @@
   inset: 0;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 1s ease;
+  transition: opacity 0.75s ease;
 }
 
 .trailer-video {
@@ -225,7 +225,7 @@
 }
 
 .trailer-thumbnail {
-  transition: opacity 1s ease;
+  transition: opacity 0.75s ease;
 }
 .trailer-carousel {
   padding-left: 12px;
@@ -953,6 +953,24 @@ upcomingMovies.addEventListener("scroll", () => {
     upcomingLeft,
     upcomingRight
   );
+});
+
+const trailerGrid = document.getElementById("trailer-grid");
+const trailersLeft = document.getElementById("trailers-left");
+const trailersRight = document.getElementById("trailers-right");
+
+trailersRight.addEventListener("click", () => {
+  trailerGrid.scrollBy({
+    left: 600,
+    behavior: "smooth"
+  });
+});
+
+trailersLeft.addEventListener("click", () => {
+  trailerGrid.scrollBy({
+    left: -600,
+    behavior: "smooth"
+  });
 });
   
 </script>
