@@ -96,8 +96,11 @@
   flex-wrap: nowrap;
   gap: 20px;
   overflow-x: hidden;
-  overflow-y: hidden;
+  overflow-y: visible;
   scroll-behavior: smooth;
+
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .trailer-card {
@@ -141,6 +144,45 @@
   object-fit: contain;
   display: block;
   background: #000;
+}
+
+.trailer-info {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  padding: 45px 16px 14px;
+
+  background:
+    linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.9),
+      rgba(0, 0, 0, 0)
+    );
+
+  pointer-events: none;
+}
+
+.trailer-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: white;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trailer-name {
+  margin-top: 4px;
+
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.75);
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
     /* MOVIES */
 
@@ -655,12 +697,22 @@ loadNowPlayingMovies();
       const trailerElement = document.createElement("div");
       trailerElement.className = "trailer-card";
 
-      trailerElement.innerHTML = `
-        <img
-          src="https://image.tmdb.org/t/p/w780${movie.backdrop_path}"
-          alt="${movie.title}"
-        >
-      `;
+     trailerElement.innerHTML = `
+  <img
+    src="https://image.tmdb.org/t/p/w780${movie.backdrop_path}"
+    alt="${movie.title}"
+  >
+
+  <div class="trailer-info">
+    <div class="trailer-title">
+      ${movie.title}
+    </div>
+
+    <div class="trailer-name">
+      ${trailer.name}
+    </div>
+  </div>
+`;
 
       container.appendChild(trailerElement);
     });
