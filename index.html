@@ -972,6 +972,18 @@ trailersLeft.addEventListener("click", () => {
     behavior: "smooth"
   });
 });
+
+function updateTrailerArrows() {
+  updateCarouselVisibility(
+    trailerGrid,
+    trailersLeft,
+    trailersRight
+  );
+}
+
+setTimeout(updateTrailerArrows, 500);
+
+trailerGrid.addEventListener("scroll", updateTrailerArrows);
   
 </script>
 </body>
