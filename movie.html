@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Movie</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #07152f, #0b2a5c, #123d7a);
+      color: white;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 25px 6%;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: white;
+      text-decoration: none;
+    }
+
+    .movie-page {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 30px;
+    }
+
+    .movie-content {
+      display: flex;
+      gap: 45px;
+      align-items: flex-start;
+    }
+
+    .movie-poster {
+      width: 280px;
+      aspect-ratio: 2 / 3;
+      border-radius: 12px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: #10264d;
+    }
+
+    .movie-poster img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .movie-info {
+      flex: 1;
+    }
+
+    .movie-title {
+      font-size: 42px;
+      margin: 0 0 30px;
+    }
+
+    .movie-summary {
+  max-width: 700px;
+  margin: -15px 0 20px;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.78);
+  font-size: 16px;
+}
+
+    .ratings {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 35px;
+      flex-wrap: wrap;
+    }
+
+    .rating-box {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      padding: 20px 25px;
+      min-width: 150px;
+    }
+
+    .rating-label {
+      font-size: 14px;
+      opacity: 0.7;
+      margin-bottom: 8px;
+    }
+
+    .rating-number {
+      font-size: 27px;
+      font-weight: bold;
+    }
+
+    .your-rating {
+      margin-top: 5px;
+    }
+
+    .stars {
+      font-size: 28px;
+      letter-spacing: 4px;
+      margin-top: 8px;
+      cursor: pointer;
+    }
+
+    .title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.movie-runtime {
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: nowrap;
+}
+
+.movie-credits {
+  margin-top: 0px;
+  margin-bottom: 30px;
+  font-size: 15px;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.movie-credits p {
+  margin-bottom: 5px;
+}
+
+.movie-credits strong {
+  color: #ffffff;
+}
+
+    .review {
+  margin-top: 50px;
+  background: #f1f0eb;
+  color: #172033;
+  border-radius: 14px;
+  padding: 35px 40px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.22);
+}
+
+.review h2 {
+  margin: 0 0 20px;
+  font-size: 22px;
+  color: #102a56;
+  text-align: center;
+}
+
+.review p {
+  margin: 35px 0 0;
+  text-align: center;
+  line-height: 1.8;
+  color: #303846;
+  font-size: 17px;
+  font-style: italic;
+}
+
+    .loading {
+      text-align: center;
+      margin-top: 100px;
+      font-size: 20px;
+    }
+
+    @media (max-width: 700px) {
+      .movie-content {
+        flex-direction: column;
+      }
+
+      .movie-poster {
+        width: 220px;
+      }
+
+      .movie-title {
+        font-size: 32px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <a href="index.html" class="logo">Find Your Next Favourite Movie</a>
+  </header>
+
+  <main class="movie-page">
+
+    <div id="loading" class="loading">
+      Loading movie...
+    </div>
+
+    <div id="movie-content" class="movie-content" style="display:none;">
+
+      <div class="movie-poster">
+        <img id="movie-poster" src="" alt="">
+      </div>
+
+      <div class="movie-info">
+
+      <div class="title-row">
+  <h1 id="movie-title" class="movie-title"></h1>
+  <span id="movie-runtime" class="movie-runtime"></span>
+</div>
+
+<p id="movie-summary" class="movie-summary"></p>
+
+<div class="movie-credits">
+  <p>
+    <strong>Director:</strong>
+    <span id="movie-director">—</span>
+  </p>
+
+  <p>
+    <strong>Writers:</strong>
+    <span id="movie-writers">—</span>
+  </p>
+</div>
+
+<div class="ratings">
+
+          <div class="rating-box">
+            <div class="rating-label">Website Rating</div>
+            <div id="website-rating" class="rating-number">—</div>
+          </div>
+
+          <div class="rating-box">
+            <div class="rating-label">User Rating</div>
+            <div id="user-rating" class="rating-number">—</div>
+          </div>
+
+          <div class="rating-box your-rating">
+            <div class="rating-label">Your Rating</div>
+
+            <div class="stars">
+              ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+    
+    <div class="review">
+          <h2>Review</h2>
+
+          <p id="movie-review">
+            Our review will be available shortly
+          </p>
+     </div>
+    
+
+  </main>
+
+<script>
+
+  async function loadMovie() {
+
+    const params = new URLSearchParams(window.location.search);
+    const movieId = params.get("id");
+
+    if (!movieId) {
+      document.getElementById("loading").textContent =
+        "Movie not found.";
+      return;
+    }
+
+    try {
+
+      const response = await fetch(
+        `/api/movies?id=${movieId}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Movie request failed");
+      }
+
+      const movie = await response.json();
+
+      document.title =
+        `${movie.title} — Find Your Next Favourite Movie`;
+
+      document.getElementById("movie-title").textContent =
+  `${movie.title} (${movie.release_date ? movie.release_date.substring(0, 4) : ""})`;
+
+      document.getElementById("movie-summary").textContent =
+        movie.overview;
+
+      document.getElementById("movie-poster").src =
+        `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
+
+      document.getElementById("movie-poster").alt =
+        movie.title;
+
+
+      // RUNTIME
+
+      if (movie.runtime) {
+
+        const hours = Math.floor(movie.runtime / 60);
+        const minutes = movie.runtime % 60;
+
+        let runtimeText = "";
+
+        if (hours > 0) {
+          runtimeText += `${hours}h`;
+        }
+
+        if (minutes > 0) {
+          runtimeText += ` ${minutes}min`;
+        }
+
+        document.getElementById("movie-runtime").textContent =
+          runtimeText.trim();
+
+      }
+
+
+      // DIRECTOR
+
+      const director = movie.credits?.crew?.find(
+        person => person.job === "Director"
+      );
+
+      document.getElementById("movie-director").textContent =
+        director ? director.name : "—";
+
+
+      // WRITERS
+
+      const writers = movie.credits?.crew
+        ?.filter(person =>
+          person.department === "Writing" ||
+          person.job === "Writer" ||
+          person.job === "Screenplay"
+        )
+        .map(person => person.name)
+        .filter((name, index, array) =>
+          array.indexOf(name) === index
+        );
+
+      document.getElementById("movie-writers").textContent =
+        writers && writers.length
+          ? writers.join(", ")
+          : "—";
+
+
+      document.getElementById("website-rating").textContent =
+        "—";
+
+      document.getElementById("user-rating").textContent =
+        "—";
+
+      document.getElementById("loading").style.display =
+        "none";
+
+      document.getElementById("movie-content").style.display =
+        "flex";
+
+    } catch (error) {
+
+      console.error(error);
+
+      document.getElementById("loading").textContent =
+        "Unable to load this movie.";
+
+    }
+
+  }
+
+  loadMovie();
+
+</script>
+
+</body>
+</html>
