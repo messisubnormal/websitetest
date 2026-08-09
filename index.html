@@ -188,6 +188,30 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+  .trailer-video-container {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.trailer-video {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+.trailer-card.playing .trailer-video-container {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.trailer-card.playing .trailer-thumbnail {
+  opacity: 0;
+}
     /* MOVIES */
 
     .movie-grid {
@@ -679,7 +703,7 @@ loadPopularMovies();
 loadUpcomingMovies();
 loadNowPlayingMovies();
 
-  async function loadTrailers() {
+async function loadTrailers() {
   const container = document.getElementById("trailer-grid");
 
   try {
@@ -700,22 +724,82 @@ loadNowPlayingMovies();
       const trailerElement = document.createElement("div");
       trailerElement.className = "trailer-card";
 
-     trailerElement.innerHTML = `
-  <img
-    src="https://image.tmdb.org/t/p/w780${movie.backdrop_path}"
-    alt="${movie.title}"
-  >
+      trailerElement.innerHTML = `
+        <img
+          class="trailer-thumbnail"
+          src="https://image.tmdb.org/t/p/w780${movie.backdrop_path}"
+          alt="${movie.title}"
+        >
 
-  <div class="trailer-info">
-    <div class="trailer-title">
-      ${movie.title}
-    </div>
+        <div class="trailer-video-container"></div>
 
-    <div class="trailer-name">
-      ${trailer.name}
-    </div>
-  </div>
-`;
+        <div class="trailer-info">
+          <div class="trailer-title">
+            ${movie.title}
+          </div>
+
+          <div class="trailer-name">
+            ${trailer.name}
+          </div>
+        </div>
+      `;
+
+      let iframe = null;
+      let hoverTimeout = null;
+
+      trailerElement.addEventListener("mouseenter", () => {
+
+        hoverTimeout = setTimeout(() => {
+
+          const videoContainer =
+            trailerElement.querySelector(".trailer-video-container");
+
+          iframe = document.createElement("iframe");
+
+          iframe.src =
+            `https://www.youtube.com/embed/${trailer.key}` +
+            `?autoplay=1` +
+            `&mute=1` +
+            `&controls=1` +
+            `&rel=0` +
+            `&modestbranding=1`;
+
+          iframe.allow =
+            "autoplay; fullscreen; picture-in-picture";
+
+          iframe.allowFullscreen = true;
+
+          iframe.className = "trailer-video";
+
+          videoContainer.appendChild(iframe);
+
+          trailerElement.classList.add("playing");
+
+        }, 250);
+
+      });
+
+      trailerElement.addEventListener("mouseleave", () => {
+
+        clearTimeout(hoverTimeout);
+
+        trailerElement.classList.remove("playing");
+
+        const videoContainer =
+          trailerElement.querySelector(".trailer-video-container");
+
+        videoContainer.innerHTML = "";
+
+        iframe = null;
+      });
+
+      trailerElement.addEventListener("dblclick", () => {
+
+        if (iframe && iframe.requestFullscreen) {
+          iframe.requestFullscreen();
+        }
+
+      });
 
       container.appendChild(trailerElement);
     });
