@@ -272,7 +272,7 @@
   border: none;
   border-radius: 9px;
   padding: 11px 22px;
-  background: #102a56;
+  background: #707f9a;
   color: #ffffff;
   font-size: 15px;
   cursor: pointer;
@@ -805,6 +805,118 @@ starsContainer.querySelectorAll("button").forEach(button => {
 });
 
 loadUserRating();
+
+const reviewForm = document.getElementById("user-review-form");
+const commentName = document.getElementById("comment-name");
+const commentText = document.getElementById("comment-text");
+const commentMessage = document.getElementById("comment-message");
+const commentsList = document.getElementById("user-comments-list");
+
+async function loadUserComments() {
+  try {
+    const response = await fetch(
+      `/api/user-comments.js?movie_id=${movieId}`
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || "Could not load reviews.");
+    }
+
+    commentsList.innerHTML = "";
+
+    if (!data.comments || data.comments.length === 0) {
+      commentsList.innerHTML =
+        `<p class="no-comments">No reviews yet. Be the first to share your thoughts!</p>`;
+      return;
+    }
+
+    data.comments.forEach(comment => {
+      const commentBox = document.createElement("div");
+      commentBox.className = "user-comment";
+
+      const name = document.createElement("p");
+      name.className = "user-comment-name";
+      name.textContent = comment.name;
+
+      const text = document.createElement("p");
+      text.className = "user-comment-text";
+      text.textContent = comment.review;
+
+      const date = document.createElement("span");
+      date.className = "user-comment-date";
+
+      if (comment.created_at) {
+        date.textContent = new Date(comment.created_at).toLocaleDateString();
+      }
+
+      commentBox.appendChild(name);
+      commentBox.appendChild(text);
+      commentBox.appendChild(date);
+
+      commentsList.appendChild(commentBox);
+    });
+
+  } catch (error) {
+    console.error("Error loading comments:", error);
+
+    commentsList.innerHTML =
+      `<p class="no-comments">Could not load reviews.</p>`;
+  }
+}
+
+
+reviewForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const name = commentName.value.trim();
+  const review = commentText.value.trim();
+
+  if (!name || !review) {
+    commentMessage.textContent =
+      "Please enter your name and review.";
+    return;
+  }
+
+  commentMessage.textContent = "Posting review...";
+
+  try {
+    const response = await fetch("/api/user-comments.js", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        movie_id: movieId,
+        name: name,
+        review: review
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || "Could not post review.");
+    }
+
+    commentName.value = "";
+    commentText.value = "";
+
+    commentMessage.textContent = "Review posted!";
+
+    await loadUserComments();
+
+  } catch (error) {
+    console.error("Error posting review:", error);
+
+    commentMessage.textContent =
+      error.message || "Could not post review.";
+  }
+});
+
+
+loadUserComments();
 
 </script>
 
