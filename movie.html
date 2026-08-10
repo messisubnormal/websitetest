@@ -167,9 +167,14 @@
 }
 
 .review p.has-review {
+  margin: 35px 0 0;
   text-align: left;
+  line-height: 1.8;
+  color: #303846;
+  font-size: 17px;
   font-family: "Times New Roman", Times, serif;
   font-style: normal;
+  text-indent: 30px;
 }
 
     .loading {
@@ -424,10 +429,21 @@ if (reviewData.review) {
   const reviewElement =
     document.getElementById("movie-review");
 
-  reviewElement.textContent =
-    reviewData.review;
+  reviewElement.innerHTML = "";
 
-  reviewElement.classList.add("has-review");
+  const paragraphs = reviewData.review
+    .split(/\n\s*\n/)
+    .map(paragraph => paragraph.trim())
+    .filter(paragraph => paragraph.length > 0);
+
+  paragraphs.forEach(paragraph => {
+    const p = document.createElement("p");
+
+    p.className = "has-review";
+    p.textContent = paragraph;
+
+    reviewElement.appendChild(p);
+  });
 }
 
         }
