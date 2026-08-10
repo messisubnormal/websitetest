@@ -8,9 +8,14 @@ export default async function handler(request, response) {
       });
     }
 
-    const adminSecret = request.headers["x-admin-secret"];
+    const cookies = request.headers.cookie || "";
 
-    if (!adminSecret || adminSecret !== process.env.ADMIN_SECRET) {
+    const isAuthenticated = cookies
+      .split(";")
+      .map(cookie => cookie.trim())
+      .includes("admin_authenticated=true");
+
+    if (!isAuthenticated) {
       return response.status(401).json({
         error: "Unauthorized"
       });
