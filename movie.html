@@ -75,42 +75,50 @@
   font-size: 16px;
 }
 
-    .ratings {
-      display: flex;
-      gap: 20px;
-      margin-bottom: 35px;
-      flex-wrap: wrap;
-    }
+.ratings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 20px;
+}
 
-    .rating-box {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 12px;
-      padding: 20px 25px;
-      min-width: 150px;
-    }
+.rating-box {
+  background: #244a7d;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 18px 24px;
+  min-height: 60px;
+  box-sizing: border-box;
+}
 
-    .rating-label {
-      font-size: 14px;
-      opacity: 0.7;
-      margin-bottom: 8px;
-    }
+.rating-label {
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: #cbd5e1;
+}
 
-    .rating-number {
-      font-size: 27px;
-      font-weight: bold;
-    }
+.rating-number {
+  font-size: 27px;
+  font-weight: 700;
+  color: white;
+}
 
-    .your-rating {
-      margin-top: 5px;
-    }
+.your-rating {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 65px;
+}
+
+.your-rating .rating-label {
+  margin: 0;
+}
 
 .stars {
   display: flex;
-  justify-content: center;
   align-items: center;
   gap: 0;
-  margin-top: 5px;
 }
 
 .stars button {
@@ -130,7 +138,7 @@
 }
 
 .stars button.active {
-  color: #102a56;
+  color: #f5c542;
 }
     .title-row {
   display: flex;
@@ -216,6 +224,16 @@
         font-size: 32px;
       }
     }
+
+    @media (max-width: 700px) {
+  .ratings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .your-rating {
+    grid-column: auto;
+  }
+}
   </style>
 </head>
 
@@ -258,31 +276,35 @@
   </p>
 </div>
 
-<div class="rating-box">
-  <div class="rating-label">Website Rating</div>
-  <div id="website-rating" class="rating-number">—</div>
-</div>
+<div class="ratings-grid">
 
-<div class="rating-box">
-  <div class="rating-label">User Rating</div>
-  <div id="user-rating" class="rating-number">—</div>
-</div>
-
-<div class="rating-box your-rating">
-  <div class="rating-label">Your Rating</div>
-
-  <div id="your-rating-stars" class="stars">
-    <button type="button" data-rating="1">☆</button>
-    <button type="button" data-rating="2">☆</button>
-    <button type="button" data-rating="3">☆</button>
-    <button type="button" data-rating="4">☆</button>
-    <button type="button" data-rating="5">☆</button>
-    <button type="button" data-rating="6">☆</button>
-    <button type="button" data-rating="7">☆</button>
-    <button type="button" data-rating="8">☆</button>
-    <button type="button" data-rating="9">☆</button>
-    <button type="button" data-rating="10">☆</button>
+  <div class="rating-box">
+    <div class="rating-label">Website Rating</div>
+    <div id="website-rating" class="rating-number">—</div>
   </div>
+
+  <div class="rating-box">
+    <div class="rating-label">User Rating</div>
+    <div id="user-rating" class="rating-number">—</div>
+  </div>
+
+  <div class="rating-box your-rating">
+    <div class="rating-label">Your Rating</div>
+
+    <div id="your-rating-stars" class="stars">
+      <button type="button" data-rating="1">☆</button>
+      <button type="button" data-rating="2">☆</button>
+      <button type="button" data-rating="3">☆</button>
+      <button type="button" data-rating="4">☆</button>
+      <button type="button" data-rating="5">☆</button>
+      <button type="button" data-rating="6">☆</button>
+      <button type="button" data-rating="7">☆</button>
+      <button type="button" data-rating="8">☆</button>
+      <button type="button" data-rating="9">☆</button>
+      <button type="button" data-rating="10">☆</button>
+    </div>
+  </div>
+
 </div>
 
         </div>
