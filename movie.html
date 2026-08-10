@@ -105,12 +105,30 @@
       margin-top: 5px;
     }
 
-    .stars {
-      font-size: 28px;
-      letter-spacing: 4px;
-      margin-top: 8px;
-      cursor: pointer;
-    }
+.stars {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+}
+
+.stars button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-size: 28px;
+  color: #102a56;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.stars button:hover {
+  transform: scale(1.1);
+}
+
+.stars button.active {
+  color: #102a56;
+}
 
     .title-row {
   display: flex;
@@ -238,25 +256,32 @@
   </p>
 </div>
 
-<div class="ratings">
+<div class="rating-box">
+  <div class="rating-label">Website Rating</div>
+  <div id="website-rating" class="rating-number">—</div>
+</div>
 
-          <div class="rating-box">
-            <div class="rating-label">Website Rating</div>
-            <div id="website-rating" class="rating-number">—</div>
-          </div>
+<div class="rating-box">
+  <div class="rating-label">User Rating</div>
+  <div id="user-rating" class="rating-number">—</div>
+</div>
 
-          <div class="rating-box">
-            <div class="rating-label">User Rating</div>
-            <div id="user-rating" class="rating-number">—</div>
-          </div>
+<div class="rating-box your-rating">
+  <div class="rating-label">Your Rating</div>
 
-          <div class="rating-box your-rating">
-            <div class="rating-label">Your Rating</div>
-
-            <div class="stars">
-              ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆ ☆
-            </div>
-          </div>
+  <div id="your-rating-stars" class="stars">
+    <button type="button" data-rating="1">☆</button>
+    <button type="button" data-rating="2">☆</button>
+    <button type="button" data-rating="3">☆</button>
+    <button type="button" data-rating="4">☆</button>
+    <button type="button" data-rating="5">☆</button>
+    <button type="button" data-rating="6">☆</button>
+    <button type="button" data-rating="7">☆</button>
+    <button type="button" data-rating="8">☆</button>
+    <button type="button" data-rating="9">☆</button>
+    <button type="button" data-rating="10">☆</button>
+  </div>
+</div>
 
         </div>
 
