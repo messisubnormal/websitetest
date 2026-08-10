@@ -279,6 +279,10 @@
 
     try {
 
+      // =========================
+      // LOAD MOVIE FROM TMDB
+      // =========================
+
       const response = await fetch(
         `/api/movies?id=${movieId}`
       );
@@ -293,10 +297,10 @@
         `${movie.title} — Find Your Next Favourite Movie`;
 
       document.getElementById("movie-title").textContent =
-  `${movie.title} (${movie.release_date ? movie.release_date.substring(0, 4) : ""})`;
+        `${movie.title} (${movie.release_date ? movie.release_date.substring(0, 4) : ""})`;
 
       document.getElementById("movie-summary").textContent =
-        movie.overview;
+        movie.overview || "";
 
       document.getElementById("movie-poster").src =
         `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
@@ -305,7 +309,9 @@
         movie.title;
 
 
+      // =========================
       // RUNTIME
+      // =========================
 
       if (movie.runtime) {
 
@@ -324,11 +330,12 @@
 
         document.getElementById("movie-runtime").textContent =
           runtimeText.trim();
-
       }
 
 
+      // =========================
       // DIRECTOR
+      // =========================
 
       const director = movie.credits?.crew?.find(
         person => person.job === "Director"
@@ -338,7 +345,9 @@
         director ? director.name : "—";
 
 
+      // =========================
       // WRITERS
+      // =========================
 
       const writers = movie.credits?.crew
         ?.filter(person =>
@@ -357,38 +366,84 @@
           : "—";
 
 
-      // WEBSITE RATING + REVIEW
+      // =========================
+      // DEFAULT WEBSITE RATING
+      // =========================
 
-const reviewResponse = await fetch(
-  `/api/reviews?id=${movieId}`
-);
+      document.getElementById("website-rating").textContent =
+        movie.vote_average
+          ? `${movie.vote_average.toFixed(1)} (Provisional)`
+          : "—";
 
-console.log("REVIEW API STATUS:", reviewResponse.status);
+      document.getElementById("user-rating").textContent =
+        "—";
 
-if (reviewResponse.ok) {
 
-  const reviewData = await reviewResponse.json();
+      // =========================
+      // LOAD OUR REVIEW
+      // =========================
 
-  console.log("REVIEW DATA:", reviewData);
+      try {
 
-  document.getElementById("website-rating").textContent =
-    `${reviewData.rating}`;
+        const reviewResponse = await fetch(
+          `/api/reviews?id=${movieId}`
+        );
 
-  document.getElementById("movie-review").textContent =
-    reviewData.review;
+        console.log(
+          "Review API status:",
+          reviewResponse.status
+        );
 
-} else {
+        if (reviewResponse.ok) {
 
-  document.getElementById("website-rating").textContent =
-    `${movie.vote_average.toFixed(1)} (Provisional)`;
+          const reviewData =
+            await reviewResponse.json();
 
-}
+          console.log(
+            "Review data:",
+            reviewData
+          );
+
+          // Replace provisional TMDB rating
+          // with our actual website rating
+
+          if (reviewData.rating !== null) {
+            document.getElementById("website-rating").textContent =
+              reviewData.rating;
+          }
+
+          // Replace placeholder review
+
+          if (reviewData.review) {
+            document.getElementById("movie-review").textContent =
+              reviewData.review;
+          }
+
+        }
+
+      } catch (reviewError) {
+
+        console.error(
+          "Review loading failed:",
+          reviewError
+        );
+
+        // Keep the provisional TMDB rating.
+        // The movie page itself still works.
+
+      }
+
+
+      // =========================
+      // SHOW PAGE
+      // =========================
 
       document.getElementById("loading").style.display =
         "none";
 
       document.getElementById("movie-content").style.display =
         "flex";
+
 
     } catch (error) {
 
@@ -400,6 +455,7 @@ if (reviewResponse.ok) {
     }
 
   }
+
 
   loadMovie();
 
