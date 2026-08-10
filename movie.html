@@ -420,10 +420,15 @@
 
           // Replace placeholder review
 
-          if (reviewData.review) {
-            document.getElementById("movie-review").textContent =
-              reviewData.review;
-          }
+if (reviewData.review) {
+  const reviewElement =
+    document.getElementById("movie-review");
+
+  reviewElement.textContent =
+    reviewData.review;
+
+  reviewElement.classList.add("has-review");
+}
 
         }
 
