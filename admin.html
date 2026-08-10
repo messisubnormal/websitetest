@@ -1,1 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <title>Review Editor</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 700px;
+      margin: 60px auto;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+    }
+
+    label {
+      display: block;
+      margin-top: 20px;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px;
+      font-size: 16px;
+    }
+
+    textarea {
+      min-height: 180px;
+      resize: vertical;
+    }
+
+    button {
+      margin-top: 25px;
+      padding: 12px 24px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #message {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>Review Editor</h1>
+
+  <label for="movie-id">Movie ID</label>
+  <input
+    id="movie-id"
+    type="number"
+    placeholder="Example: 550"
+  >
+
+  <label for="rating">Rating</label>
+  <input
+    id="rating"
+    type="number"
+    min="0"
+    max="10"
+    step="0.1"
+    placeholder="Example: 8.5"
+  >
+
+  <label for="review">Review</label>
+  <textarea
+    id="review"
+    placeholder="Write your review..."
+  ></textarea>
+
+  <button id="save-button">
+    Save Review
+  </button>
+
+  <div id="message"></div>
+
+</body>
+</html>
