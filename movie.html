@@ -357,11 +357,30 @@
           : "—";
 
 
-      document.getElementById("website-rating").textContent =
-        "—";
+      // WEBSITE RATING + REVIEW
 
-      document.getElementById("user-rating").textContent =
-        "—";
+const reviewResponse = await fetch(
+  `/api/reviews?id=${movieId}`
+);
+
+if (reviewResponse.ok) {
+
+  const reviewData = await reviewResponse.json();
+
+  document.getElementById("website-rating").textContent =
+    `${reviewData.rating} (Your rating)`;
+
+  document.getElementById("movie-review").textContent =
+    reviewData.review;
+
+} else {
+
+  // No review yet → use TMDB rating provisionally
+
+  document.getElementById("website-rating").textContent =
+    `${movie.vote_average.toFixed(1)} (Provisional rating)`;
+
+}
 
       document.getElementById("loading").style.display =
         "none";
