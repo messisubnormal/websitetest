@@ -326,10 +326,9 @@
 
 <script>
 
-  async function loadMovie() {
+  const movieId = new URLSearchParams(window.location.search).get("id");
 
-    const params = new URLSearchParams(window.location.search);
-    const movieId = params.get("id");
+  async function loadMovie() {
 
     if (!movieId) {
       document.getElementById("loading").textContent =
