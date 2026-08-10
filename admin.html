@@ -45,6 +45,10 @@
       cursor: pointer;
     }
 
+    #editor {
+      display: none;
+    }
+
     #message {
       margin-top: 20px;
     }
@@ -55,34 +59,218 @@
 
   <h1>Review Editor</h1>
 
-  <label for="movie-id">Movie ID</label>
-  <input
-    id="movie-id"
-    type="number"
-    placeholder="Example: 550"
-  >
+  <!-- LOGIN -->
 
-  <label for="rating">Rating</label>
-  <input
-    id="rating"
-    type="number"
-    min="0"
-    max="10"
-    step="0.1"
-    placeholder="Example: 8.5"
-  >
+  <div id="login">
 
-  <label for="review">Review</label>
-  <textarea
-    id="review"
-    placeholder="Write your review..."
-  ></textarea>
+    <label for="password">
+      Admin password
+    </label>
 
-  <button id="save-button">
-    Save Review
-  </button>
+    <input
+      id="password"
+      type="password"
+      autocomplete="current-password"
+    >
 
-  <div id="message"></div>
+    <button id="login-button">
+      Login
+    </button>
+
+    <div id="login-message"></div>
+
+  </div>
+
+
+  <!-- EDITOR -->
+
+  <div id="editor">
+
+    <label for="movie-id">
+      Movie ID
+    </label>
+
+    <input
+      id="movie-id"
+      type="number"
+      placeholder="Example: 550"
+    >
+
+    <label for="rating">
+      Rating
+    </label>
+
+    <input
+      id="rating"
+      type="number"
+      min="0"
+      max="10"
+      step="0.1"
+      placeholder="Example: 8.5"
+    >
+
+    <label for="review">
+      Review
+    </label>
+
+    <textarea
+      id="review"
+      placeholder="Write your review..."
+    ></textarea>
+
+    <button id="save-button">
+      Save Review
+    </button>
+
+    <div id="message"></div>
+
+  </div>
+
+
+  <script>
+
+    const loginSection =
+      document.getElementById("login");
+
+    const editorSection =
+      document.getElementById("editor");
+
+    const loginMessage =
+      document.getElementById("login-message");
+
+    const message =
+      document.getElementById("message");
+
+
+    // =========================
+    // LOGIN
+    // =========================
+
+    document
+      .getElementById("login-button")
+      .addEventListener("click", async () => {
+
+        const password =
+          document.getElementById("password").value;
+
+        if (!password) {
+          loginMessage.textContent =
+            "Please enter your password.";
+          return;
+        }
+
+        try {
+
+          const response = await fetch(
+            "/api/admin-login",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              credentials: "include",
+              body: JSON.stringify({
+                password
+              })
+            }
+          );
+
+          const data =
+            await response.json();
+
+          if (!response.ok) {
+            loginMessage.textContent =
+              data.error || "Login failed.";
+            return;
+          }
+
+          loginSection.style.display =
+            "none";
+
+          editorSection.style.display =
+            "block";
+
+        } catch (error) {
+
+          console.error(error);
+
+          loginMessage.textContent =
+            "Unable to connect to the server.";
+
+        }
+
+      });
+
+
+    // =========================
+    // SAVE REVIEW
+    // =========================
+
+    document
+      .getElementById("save-button")
+      .addEventListener("click", async () => {
+
+        const movieId =
+          document.getElementById("movie-id").value;
+
+        const rating =
+          document.getElementById("rating").value;
+
+        const review =
+          document.getElementById("review").value;
+
+        if (!movieId || rating === "") {
+
+          message.textContent =
+            "Movie ID and rating are required.";
+
+          return;
+        }
+
+        try {
+
+          const response = await fetch(
+            "/api/save-review",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              credentials: "include",
+              body: JSON.stringify({
+                movie_id: Number(movieId),
+                rating: Number(rating),
+                review
+              })
+            }
+          );
+
+          const data =
+            await response.json();
+
+          if (!response.ok) {
+
+            message.textContent =
+              data.error || "Unable to save review.";
+
+            return;
+          }
+
+          message.textContent =
+            "Review saved successfully.";
+
+        } catch (error) {
+
+          console.error(error);
+
+          message.textContent =
+            "Unable to connect to the server.";
+
+        }
+
+      });
+
+  </script>
 
 </body>
 </html>
