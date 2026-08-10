@@ -290,8 +290,30 @@
           return;
         }
 
-        message.textContent =
-          "Logged in successfully!";
+       message.innerHTML = `
+  <div style="font-size: 20px; margin-bottom: 20px;">
+    Welcome, ${data.user.username}!
+  </div>
+
+  <a
+    href="index.html"
+    class="submit-button"
+    style="
+      display: block;
+      box-sizing: border-box;
+      text-align: center;
+      text-decoration: none;
+    "
+  >
+    Go to Homepage
+  </a>
+`;
+
+loginForm.style.display = "none";
+registerForm.style.display = "none";
+
+loginTab.style.display = "none";
+registerTab.style.display = "none";
 
       } catch (error) {
         console.error(error);
