@@ -363,22 +363,24 @@ const reviewResponse = await fetch(
   `/api/reviews?id=${movieId}`
 );
 
+console.log("REVIEW API STATUS:", reviewResponse.status);
+
 if (reviewResponse.ok) {
 
   const reviewData = await reviewResponse.json();
 
+  console.log("REVIEW DATA:", reviewData);
+
   document.getElementById("website-rating").textContent =
-    `${reviewData.rating} (Your rating)`;
+    `${reviewData.rating}`;
 
   document.getElementById("movie-review").textContent =
     reviewData.review;
 
 } else {
 
-  // No review yet → use TMDB rating provisionally
-
   document.getElementById("website-rating").textContent =
-    `${movie.vote_average.toFixed(1)} (Provisional rating)`;
+    `${movie.vote_average.toFixed(1)} (Provisional)`;
 
 }
 
