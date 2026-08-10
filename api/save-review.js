@@ -8,6 +8,14 @@ export default async function handler(request, response) {
       });
     }
 
+    const adminSecret = request.headers["x-admin-secret"];
+
+    if (!adminSecret || adminSecret !== process.env.ADMIN_SECRET) {
+      return response.status(401).json({
+        error: "Unauthorized"
+      });
+    }
+
     const { movie_id, rating, review } = request.body;
 
     if (!movie_id || rating === undefined) {
