@@ -534,6 +534,100 @@ if (reviewData.review) {
 
 
   loadMovie();
+  
+const starsContainer = document.getElementById("your-rating-stars");
+const userRatingElement = document.getElementById("user-rating");
+
+async function loadUserRating() {
+  try {
+    const response = await fetch(
+      `/api/user-rating.js?movie_id=${movieId}`
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      console.error("Could not load user rating:", data);
+      return;
+    }
+
+    // Show the average user rating
+    if (data.averageRating !== null) {
+      userRatingElement.textContent =
+        `${data.averageRating.toFixed(1)} (${data.ratingCount})`;
+    } else {
+      userRatingElement.textContent = "—";
+    }
+
+    // Highlight the logged-in user's rating
+    if (data.userRating !== null) {
+      highlightStars(data.userRating);
+    }
+
+    // If not logged in, disable the stars
+    if (!data.loggedIn) {
+      starsContainer.querySelectorAll("button").forEach(button => {
+        button.disabled = true;
+        button.title = "Log in to rate this movie";
+      });
+    }
+
+  } catch (error) {
+    console.error("Error loading user rating:", error);
+  }
+}
+
+function highlightStars(rating) {
+  starsContainer.querySelectorAll("button").forEach(button => {
+    const buttonRating = Number(button.dataset.rating);
+
+    button.textContent =
+      buttonRating <= rating ? "★" : "☆";
+
+    button.classList.toggle(
+      "active",
+      buttonRating <= rating
+    );
+  });
+}
+
+starsContainer.querySelectorAll("button").forEach(button => {
+  button.addEventListener("click", async () => {
+
+    const rating = Number(button.dataset.rating);
+
+    try {
+      const response = await fetch("/api/user-rating.js", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          movie_id: movieId,
+          rating: rating
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.error || "Could not save rating.");
+        return;
+      }
+
+      highlightStars(rating);
+
+      // Reload the average so the Users Rating updates immediately
+      await loadUserRating();
+
+    } catch (error) {
+      console.error("Error saving rating:", error);
+      alert("Could not save your rating.");
+    }
+  });
+});
+
+loadUserRating();
 
 </script>
 
