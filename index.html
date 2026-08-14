@@ -1016,37 +1016,23 @@ setTimeout(updateTrailerArrows, 500);
 
 trailerGrid.addEventListener("scroll", updateTrailerArrows);
 
-  function addWishlistButtons() {
-  document.querySelectorAll(".movie").forEach(movieElement => {
-    const poster = movieElement.querySelector(".poster");
+ document.addEventListener("mouseover", function (event) {
+  const poster = event.target.closest(".poster");
 
-    if (!poster) return;
+  if (!poster) return;
 
-    if (poster.querySelector(".wishlist-overlay")) return;
+  if (poster.querySelector(".wishlist-test")) return;
 
-    poster.style.position = "relative";
+  const button = document.createElement("button");
 
-    const bookmark = document.createElement("button");
+  button.className = "wishlist-test";
+  button.type = "button";
+  button.textContent = "♡";
 
-    bookmark.className = "wishlist-overlay";
-    bookmark.type = "button";
-    bookmark.textContent = "♡";
-    bookmark.setAttribute("aria-label", "Add to wishlist");
+  poster.style.position = "relative";
+  poster.appendChild(button);
+});
 
-    bookmark.addEventListener("click", event => {
-      event.preventDefault();
-      event.stopPropagation();
-
-      console.log(
-        "Wishlist clicked:",
-        movieElement.dataset.movieId
-      );
-    });
-
-    poster.appendChild(bookmark);
-  });
-}
-  addWishlistButtons();
 </script>
 </body>
 </html>
