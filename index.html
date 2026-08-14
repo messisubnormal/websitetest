@@ -460,6 +460,61 @@
   background: transparent !important;
   box-shadow: none !important;
 }
+
+ /* WISHLIST BOOKMARK */
+
+.poster {
+  position: relative;
+}
+
+.wishlist-bookmark {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+
+  width: 34px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  background: transparent;
+
+  color: #ffffff;
+  font-size: 28px;
+  line-height: 1;
+
+  cursor: pointer;
+
+  opacity: 0;
+  pointer-events: none;
+
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+
+  z-index: 5;
+
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+}
+
+/* Show empty bookmark when hovering the poster */
+.poster:hover .wishlist-bookmark {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Saved movies keep the bookmark visible */
+.wishlist-bookmark.saved {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.wishlist-bookmark:hover {
+  transform: scale(1.12);
+}
   
   </style>
 </head>
@@ -606,16 +661,16 @@
           ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
           : "";
 
-        movieElement.innerHTML = `
-          <div class="poster">
-            ${
-              poster
-                ? `<img src="${poster}" alt="${movie.title}">`
-                : "NO POSTER"
-            }
-          </div>
+       movieElement.innerHTML = `
+  <div class="poster">
+    ${
+      poster
+        ? `<img src="${poster}" alt="${movie.title}">`
+        : "NO POSTER"
+    }
+  </div>
 
-          <div class="movie-title">${movie.title}</div>
+  <div class="movie-title">${movie.title}</div>
           <div class="rating">
             ★ ${movie.vote_average.toFixed(1)}
           </div>
@@ -650,17 +705,20 @@ async function loadUpcomingMovies() {
         ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
         : "";
 
-      movieElement.innerHTML = `
-        <div class="poster">
-          ${
-            poster
-              ? `<img src="${poster}" alt="${movie.title}">`
-              : "NO POSTER"
-          }
-        </div>
+      <div class="poster">
+  ${
+    poster
+      ? `<img src="${poster}" alt="${movie.title}">`
+      : "NO POSTER"
+  }
 
-        <div class="movie-title">${movie.title}</div>
-
+  <button
+    class="wishlist-bookmark"
+    data-movie-id="${movie.id}"
+    aria-label="Add to wishlist"
+    type="button"
+  >♡</button>
+</div>
        <div class="rating">
   ${movie.vote_average > 0 ? `★ ${movie.vote_average.toFixed(1)}` : ""}
 </div>
@@ -707,16 +765,20 @@ async function loadUpcomingMovies() {
           ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
           : "";
 
-        movieElement.innerHTML = `
-          <div class="poster">
-            ${
-              poster
-                ? `<img src="${poster}" alt="${movie.title}">`
-                : "NO POSTER"
-            }
-          </div>
+<div class="poster">
+  ${
+    poster
+      ? `<img src="${poster}" alt="${movie.title}">`
+      : "NO POSTER"
+  }
 
-          <div class="movie-title">${movie.title}</div>
+  <button
+    class="wishlist-bookmark"
+    data-movie-id="${movie.id}"
+    aria-label="Add to wishlist"
+    type="button"
+  >♡</button>
+</div>
 
           <div class="rating">
             ${movie.vote_average > 0
