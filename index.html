@@ -1034,15 +1034,9 @@ trailerGrid.addEventListener("scroll", updateTrailerArrows);
 
     if (!poster) return;
 
-    // Don't create it twice
     if (poster.querySelector(".wishlist-overlay")) return;
 
-    // Make the poster the positioning reference
     poster.style.position = "relative";
-
-    const movieId = movieElement
-      .querySelector(".wishlist-overlay")
-      ?.dataset.movieId;
 
     const bookmark = document.createElement("button");
 
@@ -1051,13 +1045,14 @@ trailerGrid.addEventListener("scroll", updateTrailerArrows);
     bookmark.textContent = "♡";
     bookmark.setAttribute("aria-label", "Add to wishlist");
 
-    const movieLink = movieElement.onclick;
-
     bookmark.addEventListener("click", event => {
-      event.stopPropagation();
       event.preventDefault();
+      event.stopPropagation();
 
-      console.log("Wishlist clicked:", movieElement);
+      console.log(
+        "Wishlist clicked:",
+        movieElement.dataset.movieId
+      );
     });
 
     poster.appendChild(bookmark);
