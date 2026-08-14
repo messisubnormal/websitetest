@@ -460,54 +460,7 @@
   background: transparent !important;
   box-shadow: none !important;
 }
-
-
-    /* WISHLIST BOOKMARK */
-
-.poster {
-  position: relative;
-}
-
-.wishlist-bookmark {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 30px;
-  height: 36px;
-
-  padding: 0;
-  border: 0;
-  background: transparent;
-
-  color: #ffffff;
-  font-size: 25px;
-  line-height: 1;
-
-  cursor: pointer;
-  z-index: 2;
-
-  opacity: 0;
-  pointer-events: none;
-
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-/* Only show the empty bookmark when hovering the poster */
-.poster:hover .wishlist-bookmark {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* Saved movies stay visible */
-.wishlist-bookmark.saved {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.wishlist-bookmark:hover {
-  transform: scale(1.12);
-}
+  
   </style>
 </head>
 
@@ -644,6 +597,7 @@
       data.results.slice(0, 50).forEach(movie => {
         const movieElement = document.createElement("div");
         movieElement.className = "movie";
+        movieElement.dataset.movieId = movie.id;
 
         movieElement.onclick = () => {
   window.location.href = `movie.html?id=${movie.id}`;
@@ -654,22 +608,15 @@
           : "";
 
         movieElement.innerHTML = `
-  <div class="poster">
-    ${
-      poster
-        ? `<img src="${poster}" alt="${movie.title}">`
-        : "NO POSTER"
-    }
+          <div class="poster">
+            ${
+              poster
+                ? `<img src="${poster}" alt="${movie.title}">`
+                : "NO POSTER"
+            }
+          </div>
 
-    <button
-      class="wishlist-bookmark"
-      data-movie-id="${movie.id}"
-      type="button"
-      aria-label="Add to wishlist"
-    >♡</button>
-  </div>
-
-  <div class="movie-title">${movie.title}</div>
+          <div class="movie-title">${movie.title}</div>
           <div class="rating">
             ★ ${movie.vote_average.toFixed(1)}
           </div>
@@ -695,6 +642,7 @@ async function loadUpcomingMovies() {
     data.results.slice(0, 50).forEach(movie => {
       const movieElement = document.createElement("div");
       movieElement.className = "movie";
+      movieElement.dataset.movieId = movie.id;
 
       movieElement.onclick = () => {
         window.location.href = `movie.html?id=${movie.id}`;
@@ -704,20 +652,14 @@ async function loadUpcomingMovies() {
         ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
         : "";
 
-      <div class="poster">
-  ${
-    poster
-      ? `<img src="${poster}" alt="${movie.title}">`
-      : "NO POSTER"
-  }
-
-  <button
-    class="wishlist-bookmark"
-    data-movie-id="${movie.id}"
-    type="button"
-    aria-label="Add to wishlist"
-  >♡</button>
-</div>
+      movieElement.innerHTML = `
+        <div class="poster">
+          ${
+            poster
+              ? `<img src="${poster}" alt="${movie.title}">`
+              : "NO POSTER"
+          }
+        </div>
 
         <div class="movie-title">${movie.title}</div>
 
@@ -758,6 +700,7 @@ async function loadUpcomingMovies() {
 
         const movieElement = document.createElement("div");
         movieElement.className = "movie";
+        movieElement.dataset.movieId = movie.id;
 
         movieElement.onclick = () => {
           window.location.href = `movie.html?id=${movie.id}`;
@@ -767,20 +710,14 @@ async function loadUpcomingMovies() {
           ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
           : "";
 
-        <div class="poster">
-  ${
-    poster
-      ? `<img src="${poster}" alt="${movie.title}">`
-      : "NO POSTER"
-  }
-
-  <button
-    class="wishlist-bookmark"
-    data-movie-id="${movie.id}"
-    type="button"
-    aria-label="Add to wishlist"
-  >♡</button>
-</div>
+        movieElement.innerHTML = `
+          <div class="poster">
+            ${
+              poster
+                ? `<img src="${poster}" alt="${movie.title}">`
+                : "NO POSTER"
+            }
+          </div>
 
           <div class="movie-title">${movie.title}</div>
 
@@ -1057,7 +994,42 @@ function updateTrailerArrows() {
 setTimeout(updateTrailerArrows, 500);
 
 trailerGrid.addEventListener("scroll", updateTrailerArrows);
-  
+
+  function addWishlistButtons() {
+  document.querySelectorAll(".movie").forEach(movieElement => {
+    const poster = movieElement.querySelector(".poster");
+
+    if (!poster) return;
+
+    // Don't create it twice
+    if (poster.querySelector(".wishlist-overlay")) return;
+
+    // Make the poster the positioning reference
+    poster.style.position = "relative";
+
+    const movieId = movieElement
+      .querySelector(".wishlist-overlay")
+      ?.dataset.movieId;
+
+    const bookmark = document.createElement("button");
+
+    bookmark.className = "wishlist-overlay";
+    bookmark.type = "button";
+    bookmark.textContent = "♡";
+    bookmark.setAttribute("aria-label", "Add to wishlist");
+
+    const movieLink = movieElement.onclick;
+
+    bookmark.addEventListener("click", event => {
+      event.stopPropagation();
+      event.preventDefault();
+
+      console.log("Wishlist clicked:", movieElement);
+    });
+
+    poster.appendChild(bookmark);
+  });
+}
 </script>
 </body>
 </html>
