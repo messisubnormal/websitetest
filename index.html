@@ -460,39 +460,27 @@
   background: transparent !important;
   box-shadow: none !important;
 }
-    .wishlist-overlay {
+    .wishlist-test {
   position: absolute;
   top: 8px;
   right: 8px;
-  z-index: 20;
+  z-index: 50;
 
   width: 32px;
   height: 38px;
-  padding: 0;
 
   border: none;
   background: transparent;
 
   color: white;
-  font-size: 26px;
-  line-height: 1;
-
+  font-size: 28px;
   cursor: pointer;
 
-  opacity: 0;
-  pointer-events: none;
-
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.9));
+  display: none;
 }
 
-.poster:hover .wishlist-overlay {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.wishlist-overlay.saved {
-  opacity: 1;
-  pointer-events: auto;
+.poster:hover .wishlist-test {
+  display: block;
 }
   
   </style>
