@@ -460,7 +460,54 @@
   background: transparent !important;
   box-shadow: none !important;
 }
-  
+
+
+    /* WISHLIST BOOKMARK */
+
+.poster {
+  position: relative;
+}
+
+.wishlist-bookmark {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 36px;
+
+  padding: 0;
+  border: 0;
+  background: transparent;
+
+  color: #ffffff;
+  font-size: 25px;
+  line-height: 1;
+
+  cursor: pointer;
+  z-index: 2;
+
+  opacity: 0;
+  pointer-events: none;
+
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Only show the empty bookmark when hovering the poster */
+.poster:hover .wishlist-bookmark {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Saved movies stay visible */
+.wishlist-bookmark.saved {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.wishlist-bookmark:hover {
+  transform: scale(1.12);
+}
   </style>
 </head>
 
@@ -607,15 +654,22 @@
           : "";
 
         movieElement.innerHTML = `
-          <div class="poster">
-            ${
-              poster
-                ? `<img src="${poster}" alt="${movie.title}">`
-                : "NO POSTER"
-            }
-          </div>
+  <div class="poster">
+    ${
+      poster
+        ? `<img src="${poster}" alt="${movie.title}">`
+        : "NO POSTER"
+    }
 
-          <div class="movie-title">${movie.title}</div>
+    <button
+      class="wishlist-bookmark"
+      data-movie-id="${movie.id}"
+      type="button"
+      aria-label="Add to wishlist"
+    >♡</button>
+  </div>
+
+  <div class="movie-title">${movie.title}</div>
           <div class="rating">
             ★ ${movie.vote_average.toFixed(1)}
           </div>
@@ -650,14 +704,20 @@ async function loadUpcomingMovies() {
         ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
         : "";
 
-      movieElement.innerHTML = `
-        <div class="poster">
-          ${
-            poster
-              ? `<img src="${poster}" alt="${movie.title}">`
-              : "NO POSTER"
-          }
-        </div>
+      <div class="poster">
+  ${
+    poster
+      ? `<img src="${poster}" alt="${movie.title}">`
+      : "NO POSTER"
+  }
+
+  <button
+    class="wishlist-bookmark"
+    data-movie-id="${movie.id}"
+    type="button"
+    aria-label="Add to wishlist"
+  >♡</button>
+</div>
 
         <div class="movie-title">${movie.title}</div>
 
@@ -707,14 +767,20 @@ async function loadUpcomingMovies() {
           ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
           : "";
 
-        movieElement.innerHTML = `
-          <div class="poster">
-            ${
-              poster
-                ? `<img src="${poster}" alt="${movie.title}">`
-                : "NO POSTER"
-            }
-          </div>
+        <div class="poster">
+  ${
+    poster
+      ? `<img src="${poster}" alt="${movie.title}">`
+      : "NO POSTER"
+  }
+
+  <button
+    class="wishlist-bookmark"
+    data-movie-id="${movie.id}"
+    type="button"
+    aria-label="Add to wishlist"
+  >♡</button>
+</div>
 
           <div class="movie-title">${movie.title}</div>
 
