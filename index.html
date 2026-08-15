@@ -533,6 +533,40 @@
 .wishlist-test:hover {
   transform: scale(1.1);
 }
+
+    .wishlist-message {
+  position: absolute;
+  top: 46px;
+  right: 8px;
+
+  padding: 4px 7px;
+
+  background: rgba(2, 6, 23, 0.88);
+  color: #93c5fd;
+
+  font-size: 10px;
+  font-weight: 600;
+
+  white-space: nowrap;
+
+  border-radius: 4px;
+
+  pointer-events: none;
+
+  animation: wishlistMessageIn 0.2s ease;
+}
+
+@keyframes wishlistMessageIn {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
   
   </style>
 </head>
@@ -1249,22 +1283,29 @@ let wishlistMovieIds = new Set();
       }
 
       if (data.saved) {
-        wishlistMovieIds.add(Number(movieId));
-        button.classList.add("saved");
-        button.setAttribute(
-          "aria-label",
-          "Remove from wishlist"
-        );
-      } else {
-        wishlistMovieIds.delete(Number(movieId));
-        button.classList.remove("saved");
-        button.setAttribute(
-          "aria-label",
-          "Add to wishlist"
-        );
-      }
+  wishlistMovieIds.add(Number(movieId));
+  button.classList.add("saved");
 
-      updateWishlistButtonAppearance(button);
+  button.setAttribute(
+    "aria-label",
+    "Remove from wishlist"
+  );
+
+  updateWishlistButtonAppearance(button);
+  showWishlistMessage(button, "Added to wishlist");
+
+} else {
+  wishlistMovieIds.delete(Number(movieId));
+  button.classList.remove("saved");
+
+  button.setAttribute(
+    "aria-label",
+    "Add to wishlist"
+  );
+
+  updateWishlistButtonAppearance(button);
+  showWishlistMessage(button, "Removed from wishlist");
+}
 
     } catch (error) {
       console.error("Wishlist:", error);
@@ -1287,7 +1328,7 @@ let wishlistMovieIds = new Set();
       <path
         d="M4 2.5C4 1.67 4.67 1 5.5 1H18.5C19.33 1 20 1.67 20 2.5V26L12 21.2L4 26V2.5Z"
         fill="${saved ? "currentColor" : "rgba(0,0,0,0.45)"}"
-        stroke="white"
+        stroke="${saved ? "#3b82f6" : "white"}"
         stroke-width="1.5"
         stroke-linejoin="round"
       />
@@ -1319,6 +1360,25 @@ let wishlistMovieIds = new Set();
       );
 
       updateWishlistButtonAppearance(button);
+      showWishlistMessage(button, "Added to wishlist");
+      showWishlistMessage(button, "Removed from wishlist");
+      function showWishlistMessage(button, message) {
+  const existing = button.parentElement.querySelector(".wishlist-message");
+
+  if (existing) {
+    existing.remove();
+  }
+
+  const label = document.createElement("div");
+  label.className = "wishlist-message";
+  label.textContent = message;
+
+  button.parentElement.appendChild(label);
+
+  setTimeout(() => {
+    label.remove();
+  }, 1800);
+}
     });
 }
 
