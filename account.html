@@ -105,6 +105,93 @@
       color: #102a56;
       text-decoration: none;
     }
+    .profile-icon {
+  width: 90px;
+  height: 90px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  background: #dbeafe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 45px;
+}
+
+.profile-username {
+  margin-bottom: 8px;
+}
+
+.profile-email {
+  margin-bottom: 30px;
+  color: #64748b;
+  text-align: center;
+}
+
+.profile-section {
+  margin-top: 35px;
+}
+
+.profile-section h2 {
+  color: #102a56;
+  margin-bottom: 15px;
+  font-size: 22px;
+}
+
+.profile-movie-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.profile-movie-card {
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.profile-movie-poster {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  display: block;
+  border-radius: 8px;
+}
+
+.profile-movie-title {
+  margin-top: 7px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #172033;
+  line-height: 1.2;
+}
+
+.profile-movie-rating {
+  margin-top: 4px;
+  font-size: 13px;
+  color: #102a56;
+  font-weight: bold;
+}
+
+.show-more-button {
+  display: block;
+  margin: 18px auto 0;
+  padding: 9px 20px;
+  border: none;
+  border-radius: 6px;
+  background: #102a56;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.show-more-button:hover {
+  opacity: 0.9;
+}
+
+.empty-profile-section {
+  color: #64748b;
+  text-align: center;
+  margin: 20px 0;
+}
   </style>
 </head>
 
@@ -199,114 +286,329 @@
     document.getElementById("message").style.display = "none";
 
     profileView.innerHTML = `
-  <div style="text-align: center;">
+  <div class="profile">
 
-    <div style="
-      width: 90px;
-      height: 90px;
-      margin: 0 auto 18px;
-      border-radius: 50%;
-      background: #dbeafe;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 45px;
-    ">
+    <div class="profile-icon">
       👤
     </div>
 
-    <h1 style="margin-bottom: 8px;">
+    <h1 class="profile-username">
       ${data.user.username}
     </h1>
 
-    <p style="
-      margin-bottom: 30px;
-      color: #64748b;
-    ">
+    <p class="profile-email">
       ${data.user.email}
     </p>
 
-    <div id="wishlist-section" style="
-      margin-top: 30px;
-      text-align: left;
-    ">
+    <!-- WISHLIST -->
 
-      <h2 style="
-        color: #102a56;
-        margin-bottom: 15px;
-      ">
-        My Wishlist
-      </h2>
+    <section class="profile-section">
 
-      <div id="wishlist-grid" style="
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 12px;
-      ">
-        Loading wishlist...
-      </div>
+      <h2>My Wishlist</h2>
 
-    </div>
+      <div id="wishlist-grid" class="profile-movie-grid"></div>
+
+      <button
+        id="wishlist-more"
+        class="show-more-button"
+        type="button"
+        style="display: none;"
+      >
+        Show More
+      </button>
+
+    </section>
+
+    <!-- RATINGS -->
+
+    <section class="profile-section">
+
+      <h2>My Ratings</h2>
+
+      <div id="ratings-grid" class="profile-movie-grid"></div>
+
+      <button
+        id="ratings-more"
+        class="show-more-button"
+        type="button"
+        style="display: none;"
+      >
+        Show More
+      </button>
+
+    </section>
 
   </div>
 `;
-    const wishlistGrid = document.getElementById("wishlist-grid");
+
+const wishlistGrid =
+  document.getElementById("wishlist-grid");
+
+const wishlistMore =
+  document.getElementById("wishlist-more");
+
+const ratingsGrid =
+  document.getElementById("ratings-grid");
+
+const ratingsMore =
+  document.getElementById("ratings-more");
+
+
+// ========================================
+// LOAD MOVIE INFORMATION
+// ========================================
+
+async function getMovie(movieId) {
+  const response = await fetch(
+    `/api/movies.js?id=${movieId}`
+  );
+
+  if (!response.ok) {
+    throw new Error(`Could not load movie ${movieId}`);
+  }
+
+  return await response.json();
+}
+
+
+// ========================================
+// CREATE MOVIE CARD
+// ========================================
+
+function createMovieCard(movie, rating = null) {
+
+  const card = document.createElement("div");
+
+  card.className = "profile-movie-card";
+
+  const poster = movie.poster_path
+    ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+    : "";
+
+  card.innerHTML = `
+    <img
+      src="${poster}"
+      alt="${movie.title}"
+      class="profile-movie-poster"
+    >
+
+    <div class="profile-movie-title">
+      ${movie.title}
+    </div>
+
+    ${
+      rating !== null
+        ? `<div class="profile-movie-rating">
+             ★ ${rating}/10
+           </div>`
+        : ""
+    }
+  `;
+
+  card.addEventListener("click", () => {
+    window.location.href =
+      `/movie.html?id=${movie.id}`;
+  });
+
+  return card;
+}
+
+
+// ========================================
+// SHOW FIRST 3 + SHOW MORE
+// ========================================
+
+function setupShowMore(
+  grid,
+  button,
+  cards
+) {
+
+  let expanded = false;
+
+  function render() {
+
+    grid.innerHTML = "";
+
+    const visibleCards =
+      expanded
+        ? cards
+        : cards.slice(0, 3);
+
+    visibleCards.forEach(card => {
+      grid.appendChild(card);
+    });
+
+    if (cards.length > 3) {
+
+      button.style.display = "block";
+
+      button.textContent =
+        expanded
+          ? "Show Less"
+          : "Show More";
+
+    } else {
+
+      button.style.display = "none";
+    }
+  }
+
+  button.addEventListener("click", () => {
+
+    expanded = !expanded;
+
+    render();
+  });
+
+  render();
+}
+
+
+// ========================================
+// LOAD WISHLIST
+// ========================================
 
 try {
-  const response = await fetch("/api/wishlist.js");
 
-  if (response.status === 401) {
-    wishlistGrid.textContent = "Please log in.";
-    return;
-  }
+  const response =
+    await fetch("/api/wishlist.js");
 
   if (!response.ok) {
     throw new Error("Could not load wishlist.");
   }
 
-  const wishlistData = await response.json();
+  const wishlistData =
+    await response.json();
 
-  if (!wishlistData.movies || wishlistData.movies.length === 0) {
-    wishlistGrid.textContent = "Your wishlist is empty.";
+  if (
+    !wishlistData.movies ||
+    wishlistData.movies.length === 0
+  ) {
+
+    wishlistGrid.innerHTML =
+      `<p class="empty-profile-section">
+        Your wishlist is empty.
+      </p>`;
+
   } else {
-    wishlistGrid.innerHTML = "";
 
-    wishlistData.movies.forEach(movie => {
-      const card = document.createElement("div");
+    const wishlistCards = [];
 
-      card.style.cursor = "pointer";
-      card.style.background = "#e5e7eb";
-      card.style.borderRadius = "8px";
-      card.style.padding = "10px";
-      card.style.textAlign = "center";
+    for (const item of wishlistData.movies) {
 
-      card.innerHTML = `
-        <div style="
-          aspect-ratio: 2 / 3;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #64748b;
-          font-size: 12px;
-        ">
-          Movie ${movie.movie_id}
-        </div>
-      `;
+      try {
 
-      card.addEventListener("click", () => {
-        window.location.href =
-          `/movie.html?id=${movie.movie_id}`;
-      });
+        const movie =
+          await getMovie(item.movie_id);
 
-      wishlistGrid.appendChild(card);
-    });
+        wishlistCards.push(
+          createMovieCard(movie)
+        );
+
+      } catch (error) {
+
+        console.error(
+          "Could not load wishlist movie:",
+          item.movie_id,
+          error
+        );
+      }
+    }
+
+    setupShowMore(
+      wishlistGrid,
+      wishlistMore,
+      wishlistCards
+    );
   }
 
 } catch (error) {
-  console.error("Wishlist loading error:", error);
 
-  wishlistGrid.textContent =
-    "Could not load your wishlist.";
+  console.error(
+    "Wishlist loading error:",
+    error
+  );
+
+  wishlistGrid.innerHTML =
+    `<p class="empty-profile-section">
+      Could not load your wishlist.
+    </p>`;
+}
+
+
+// ========================================
+// LOAD RATINGS
+// ========================================
+
+try {
+
+  const response =
+    await fetch("/api/user-rating.js");
+
+  if (!response.ok) {
+    throw new Error("Could not load ratings.");
+  }
+
+  const ratingData =
+    await response.json();
+
+  if (
+    !ratingData.ratings ||
+    ratingData.ratings.length === 0
+  ) {
+
+    ratingsGrid.innerHTML =
+      `<p class="empty-profile-section">
+        You haven't rated any movies yet.
+      </p>`;
+
+  } else {
+
+    const ratingCards = [];
+
+    for (const item of ratingData.ratings) {
+
+      try {
+
+        const movie =
+          await getMovie(item.movie_id);
+
+        ratingCards.push(
+          createMovieCard(
+            movie,
+            item.rating
+          )
+        );
+
+      } catch (error) {
+
+        console.error(
+          "Could not load rated movie:",
+          item.movie_id,
+          error
+        );
+      }
+    }
+
+    setupShowMore(
+      ratingsGrid,
+      ratingsMore,
+      ratingCards
+    );
+  }
+
+} catch (error) {
+
+  console.error(
+    "Ratings loading error:",
+    error
+  );
+
+  ratingsGrid.innerHTML =
+    `<p class="empty-profile-section">
+      Could not load your ratings.
+    </p>`;
 }
 
   } catch (error) {
