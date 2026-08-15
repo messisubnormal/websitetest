@@ -963,6 +963,8 @@ async function loadUserRating() {
 
     const data = await response.json();
 
+    console.log("USER RATING DATA:", data);
+
     if (!response.ok || !data.success) {
       console.error("Could not load user rating:", data);
       return;
