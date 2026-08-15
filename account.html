@@ -105,6 +105,37 @@
       color: #102a56;
       text-decoration: none;
     }
+
+    .profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.profile-home-link {
+  color: #102a56;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.profile-home-link:hover {
+  text-decoration: underline;
+}
+
+.profile-logout-button {
+  border: none;
+  background: transparent;
+  color: #102a56;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 6px 0;
+  font-size: 14px;
+}
+
+.profile-logout-button:hover {
+  text-decoration: underline;
+}
     .profile-icon {
   width: 90px;
   height: 90px;
@@ -288,6 +319,25 @@
     profileView.innerHTML = `
   <div class="profile">
 
+    <div class="profile-header">
+
+      <a
+        href="/"
+        class="profile-home-link"
+      >
+        ← Home
+      </a>
+
+      <button
+        id="logout-button"
+        class="profile-logout-button"
+        type="button"
+      >
+        Log Out
+      </button>
+
+    </div>
+
     <div class="profile-icon">
       👤
     </div>
@@ -340,6 +390,31 @@
 
   </div>
 `;
+    const logoutButton =
+  document.getElementById("logout-button");
+
+logoutButton.addEventListener("click", async () => {
+
+  try {
+
+    const response =
+      await fetch("/api/logout.js", {
+        method: "POST"
+      });
+
+    if (!response.ok) {
+      throw new Error("Logout failed");
+    }
+
+    window.location.href = "/";
+
+  } catch (error) {
+
+    console.error("Logout error:", error);
+
+    alert("Could not log out. Please try again.");
+  }
+});
 
 const wishlistGrid =
   document.getElementById("wishlist-grid");
