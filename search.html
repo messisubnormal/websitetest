@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Search Movies — Find Your Next Favourite Movie</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+
+      background:
+        radial-gradient(
+          circle at 15% 10%,
+          rgba(37, 99, 235, 0.28),
+          transparent 30%
+        ),
+        radial-gradient(
+          circle at 85% 25%,
+          rgba(59, 130, 246, 0.18),
+          transparent 30%
+        ),
+        linear-gradient(
+          135deg,
+          #020617,
+          #071b3a 50%,
+          #06152d
+        );
+
+      color: white;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    /* NAVIGATION */
+
+    nav {
+      height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 50px;
+
+      background: rgba(2, 6, 23, 0.72);
+      border-bottom: 1px solid rgba(96, 165, 250, 0.18);
+
+      backdrop-filter: blur(12px);
+
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      color: white;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: #dbeafe;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.15;
+      text-align: center;
+      white-space: nowrap;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      min-height: 40px;
+
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: #60a5fa;
+    }
+
+    .account-link {
+      color: #dbeafe;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      margin-left: 28px;
+    }
+
+    .account-link:hover {
+      color: #60a5fa;
+    }
+
+    /* SEARCH */
+
+    .nav-search {
+      display: flex;
+      align-items: center;
+    }
+
+    #search-form {
+      display: flex;
+      align-items: center;
+      height: 34px;
+    }
+
+    #search-input {
+      width: 150px;
+      height: 34px;
+
+      padding: 0 12px;
+
+      border: 1px solid rgba(96, 165, 250, 0.3);
+      border-right: none;
+      border-radius: 7px 0 0 7px;
+
+      background: rgba(15, 23, 42, 0.8);
+      color: white;
+
+      font-size: 12px;
+      outline: none;
+    }
+
+    #search-input::placeholder {
+      color: rgba(219, 234, 254, 0.55);
+    }
+
+    #search-input:focus {
+      border-color: rgba(96, 165, 250, 0.7);
+    }
+
+    #search-form button {
+      width: 36px;
+      height: 34px;
+
+      border: 1px solid rgba(96, 165, 250, 0.3);
+      border-radius: 0 7px 7px 0;
+
+      background: rgba(37, 99, 235, 0.35);
+      color: white;
+
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    #search-form button:hover {
+      background: rgba(37, 99, 235, 0.6);
+    }
+
+    /* MAIN */
+
+    main {
+      max-width: 1450px;
+      margin: auto;
+      padding: 45px 50px 90px;
+    }
+
+    .search-title {
+      margin: 0 0 30px;
+      font-size: 28px;
+    }
+
+    .search-title span {
+      color: #93c5fd;
+    }
+
+    .movie-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 24px;
+    }
+
+    .movie {
+      cursor: pointer;
+      min-width: 0;
+    }
+
+    .poster {
+      width: 100%;
+      aspect-ratio: 2 / 3;
+
+      border-radius: 8px;
+      overflow: hidden;
+
+      background:
+        linear-gradient(
+          145deg,
+          #172554,
+          #0f172a
+        );
+
+      border: 1px solid rgba(96, 165, 250, 0.15);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      color: rgba(255, 255, 255, 0.35);
+      font-size: 13px;
+
+      transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+    }
+
+    .poster img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .movie:hover .poster {
+      transform: translateY(-5px);
+
+      box-shadow:
+        0 12px 30px rgba(37, 99, 235, 0.25);
+    }
+
+    .movie-title {
+      margin-top: 11px;
+
+      font-size: 14px;
+      font-weight: 600;
+      color: #f8fafc;
+
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .rating {
+      margin-top: 6px;
+
+      font-size: 14px;
+      font-weight: 600;
+      color: #facc15;
+    }
+
+    .release-date {
+      margin-top: 6px;
+
+      font-size: 12px;
+      color: #93c5fd;
+      font-weight: 500;
+    }
+
+    .message {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 16px;
+    }
+
+    /* MOBILE */
+
+    @media (max-width: 1100px) {
+      .movie-grid {
+        grid-template-columns: repeat(5, 1fr);
+      }
+    }
+
+    @media (max-width: 800px) {
+
+      nav {
+        padding: 0 25px;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      main {
+        padding: 35px 25px 70px;
+      }
+
+      .movie-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 500px) {
+
+      .logo {
+        font-size: 17px;
+      }
+
+      main {
+        padding: 30px 16px 60px;
+      }
+
+      .movie-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+
+<nav>
+
+  <a href="/index.html" class="logo">
+    FIND YOUR NEXT FAVOURITE MOVIE
+  </a>
+
+  <ul class="nav-links">
+
+    <li>
+      <a href="#">TOP RATED</a>
+    </li>
+
+    <li>
+      <a href="#">
+        PERSONAL<br>
+        RECOMMENDATIONS
+      </a>
+    </li>
+
+    <li>
+      <a href="#">NEWS</a>
+    </li>
+
+    <li>
+      <a href="#">
+        STREAMING<br>
+        RECOMMENDATIONS
+      </a>
+    </li>
+
+    <li>
+      <a href="#">FORUM</a>
+    </li>
+
+    <li>
+      <a href="#">
+        HELP<br>
+        IN PRODUCTION
+      </a>
+    </li>
+
+    <li class="nav-search">
+
+      <form id="search-form">
+
+        <input
+          type="search"
+          id="search-input"
+          placeholder="Search movies..."
+          autocomplete="off"
+        >
+
+        <button type="submit">
+          ⌕
+        </button>
+
+      </form>
+
+    </li>
+
+  </ul>
+
+  <div id="account-nav">
+
+    <a
+      href="/account.html"
+      class="account-link"
+    >
+      LOG IN
+    </a>
+
+  </div>
+
+</nav>
+
+
+<main>
+
+  <h1 class="search-title">
+    Search results for:
+    <span id="search-query"></span>
+  </h1>
+
+  <div
+    id="search-results"
+    class="movie-grid"
+  >
+    <p class="message">
+      Searching...
+    </p>
+  </div>
+
+</main>
+
+
+<script>
+
+const params =
+  new URLSearchParams(window.location.search);
+
+const query =
+  params.get("query");
+
+
+const searchQueryElement =
+  document.getElementById("search-query");
+
+const resultsContainer =
+  document.getElementById("search-results");
+
+
+/* SEARCH BAR */
+
+const searchForm =
+  document.getElementById("search-form");
+
+const searchInput =
+  document.getElementById("search-input");
+
+
+searchInput.value = query || "";
+
+
+searchForm.addEventListener("submit", event => {
+
+  event.preventDefault();
+
+  const newQuery =
+    searchInput.value.trim();
+
+  if (!newQuery) {
+    return;
+  }
+
+  window.location.href =
+    `/search.html?query=${encodeURIComponent(newQuery)}`;
+
+});
+
+
+/* LOAD SEARCH RESULTS */
+
+async function loadSearchResults() {
+
+  if (!query || !query.trim()) {
+
+    searchQueryElement.textContent = "";
+
+    resultsContainer.innerHTML =
+      `<p class="message">
+        Please enter a movie title.
+      </p>`;
+
+    return;
+  }
+
+  searchQueryElement.textContent =
+    query;
+
+
+  try {
+
+    const response =
+      await fetch(
+        `/api/movies?query=${encodeURIComponent(query)}`
+      );
+
+
+    if (!response.ok) {
+      throw new Error("Search request failed");
+    }
+
+
+    const data =
+      await response.json();
+
+
+    resultsContainer.innerHTML = "";
+
+
+    if (
+      !data.results ||
+      data.results.length === 0
+    ) {
+
+      resultsContainer.innerHTML =
+        `<p class="message">
+          No movies found.
+        </p>`;
+
+      return;
+    }
+
+
+    data.results.forEach(movie => {
+
+      const movieElement =
+        document.createElement("div");
+
+      movieElement.className =
+        "movie";
+
+
+      movieElement.onclick = () => {
+
+        window.location.href =
+          `movie.html?id=${movie.id}`;
+
+      };
+
+
+      const poster =
+        movie.poster_path
+          ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+          : "";
+
+
+      const year =
+        movie.release_date
+          ? movie.release_date.substring(0, 4)
+          : "";
+
+
+      movieElement.innerHTML = `
+
+        <div class="poster">
+
+          ${
+            poster
+              ? `<img
+                  src="${poster}"
+                  alt="${movie.title}"
+                >`
+              : "NO POSTER"
+          }
+
+        </div>
+
+
+        <div class="movie-title">
+
+          ${movie.title}
+
+          ${
+            year
+              ? ` (${year})`
+              : ""
+          }
+
+        </div>
+
+
+        <div class="rating">
+
+          ${
+            movie.vote_average > 0
+              ? `★ ${movie.vote_average.toFixed(1)}`
+              : ""
+          }
+
+        </div>
+
+      `;
+
+
+      resultsContainer.appendChild(
+        movieElement
+      );
+
+    });
+
+
+  } catch (error) {
+
+    console.error(
+      "Search error:",
+      error
+    );
+
+    resultsContainer.innerHTML =
+      `<p class="message">
+        Unable to search for movies.
+      </p>`;
+
+  }
+
+}
+
+
+/* ACCOUNT */
+
+async function updateAccountNav() {
+
+  const accountNav =
+    document.getElementById("account-nav");
+
+  if (!accountNav) {
+    return;
+  }
+
+
+  try {
+
+    const response =
+      await fetch("/api/current-user.js");
+
+
+    if (!response.ok) {
+      return;
+    }
+
+
+    const data =
+      await response.json();
+
+
+    if (!data.loggedIn) {
+      return;
+    }
+
+
+    accountNav.innerHTML = `
+
+      <a
+        href="/account.html"
+        class="account-link"
+      >
+        MY PROFILE
+      </a>
+
+    `;
+
+
+  } catch (error) {
+
+    console.error(
+      "Could not check account status:",
+      error
+    );
+
+  }
+
+}
+
+
+loadSearchResults();
+
+updateAccountNav();
+
+</script>
+
+</body>
+</html>
