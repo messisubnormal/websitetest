@@ -86,6 +86,28 @@
   color: #60a5fa;
 }
 
+    .profile-nav-icon {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  text-decoration: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.profile-nav-icon:hover {
+  opacity: 0.8;
+  transform: scale(1.05);
+}
+
+.profile-nav-icon svg {
+  width: 30px;
+  height: 30px;
+  display: block;
+}
+
     /* MAIN */
 
     main {
@@ -511,7 +533,9 @@
       <li><a href="#">NEWS</a></li>
       <li><a href="#">STREAMING RECOMMENDATIONS</a></li>
     </ul>
-    <a href="/account.html" class="account-link">LOG IN</a>
+    <div id="account-nav">
+  <a href="/account.html" class="account-link">LOG IN</a>
+</div>
   </nav>
 
   <main>
@@ -1130,6 +1154,62 @@ document.addEventListener("mouseover", function (event) {
     }
   });
 });
+
+  async function updateAccountNav() {
+  const accountNav = document.getElementById("account-nav");
+
+  if (!accountNav) return;
+
+  try {
+    const response = await fetch("/api/current-user.js");
+
+    if (!response.ok) {
+      return;
+    }
+
+    const data = await response.json();
+
+    if (!data.loggedIn) {
+      return;
+    }
+
+    accountNav.innerHTML = `
+      <a
+        href="/account.html"
+        class="profile-nav-icon"
+        aria-label="My Profile"
+        title="My Profile"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <circle
+            cx="12"
+            cy="8"
+            r="3.5"
+            stroke="currentColor"
+            stroke-width="1.8"
+          />
+
+          <path
+            d="M5 20C5.8 16.6 8.2 14.5 12 14.5C15.8 14.5 18.2 16.6 19 20"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+          />
+        </svg>
+      </a>
+    `;
+
+  } catch (error) {
+    console.error("Could not check account status:", error);
+  }
+}
+
+updateAccountNav();
 
 </script>
 </body>
