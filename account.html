@@ -199,51 +199,115 @@
     document.getElementById("message").style.display = "none";
 
     profileView.innerHTML = `
-      <div style="text-align: center;">
+  <div style="text-align: center;">
 
+    <div style="
+      width: 90px;
+      height: 90px;
+      margin: 0 auto 18px;
+      border-radius: 50%;
+      background: #dbeafe;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 45px;
+    ">
+      👤
+    </div>
+
+    <h1 style="margin-bottom: 8px;">
+      ${data.user.username}
+    </h1>
+
+    <p style="
+      margin-bottom: 30px;
+      color: #64748b;
+    ">
+      ${data.user.email}
+    </p>
+
+    <div id="wishlist-section" style="
+      margin-top: 30px;
+      text-align: left;
+    ">
+
+      <h2 style="
+        color: #102a56;
+        margin-bottom: 15px;
+      ">
+        My Wishlist
+      </h2>
+
+      <div id="wishlist-grid" style="
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      ">
+        Loading wishlist...
+      </div>
+
+    </div>
+
+  </div>
+`;
+    const wishlistGrid = document.getElementById("wishlist-grid");
+
+try {
+  const response = await fetch("/api/wishlist.js");
+
+  if (response.status === 401) {
+    wishlistGrid.textContent = "Please log in.";
+    return;
+  }
+
+  if (!response.ok) {
+    throw new Error("Could not load wishlist.");
+  }
+
+  const wishlistData = await response.json();
+
+  if (!wishlistData.movies || wishlistData.movies.length === 0) {
+    wishlistGrid.textContent = "Your wishlist is empty.";
+  } else {
+    wishlistGrid.innerHTML = "";
+
+    wishlistData.movies.forEach(movie => {
+      const card = document.createElement("div");
+
+      card.style.cursor = "pointer";
+      card.style.background = "#e5e7eb";
+      card.style.borderRadius = "8px";
+      card.style.padding = "10px";
+      card.style.textAlign = "center";
+
+      card.innerHTML = `
         <div style="
-          width: 90px;
-          height: 90px;
-          margin: 0 auto 18px;
-          border-radius: 50%;
-          background: #dbeafe;
+          aspect-ratio: 2 / 3;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 45px;
-        ">
-          👤
-        </div>
-
-        <h1 style="margin-bottom: 8px;">
-          ${data.user.username}
-        </h1>
-
-        <p style="
-          margin-bottom: 25px;
           color: #64748b;
+          font-size: 12px;
         ">
-          ${data.user.email}
-        </p>
-
-        <div style="
-          display: flex;
-          gap: 12px;
-          flex-direction: column;
-        ">
-
-          <button class="submit-button" type="button">
-            My Wishlist
-          </button>
-
-          <button class="submit-button" type="button">
-            My Ratings
-          </button>
-
+          Movie ${movie.movie_id}
         </div>
+      `;
 
-      </div>
-    `;
+      card.addEventListener("click", () => {
+        window.location.href =
+          `/movie.html?id=${movie.movie_id}`;
+      });
+
+      wishlistGrid.appendChild(card);
+    });
+  }
+
+} catch (error) {
+  console.error("Wishlist loading error:", error);
+
+  wishlistGrid.textContent =
+    "Could not load your wishlist.";
+}
 
   } catch (error) {
     console.error("Could not check login:", error);
