@@ -5,9 +5,21 @@ export default async function handler(request, response) {
     let url;
 
     if (movieId) {
-      url = `https://api.themoviedb.org/3/movie/${movieId}?language=en-US&append_to_response=credits`;
+  url = `https://api.themoviedb.org/3/movie/${movieId}?language=en-US&append_to_response=credits`;
 
-    } else if (request.query.type === "upcoming") {
+} else if (request.query.query) {
+
+  const searchQuery =
+    encodeURIComponent(request.query.query);
+
+  url =
+    `https://api.themoviedb.org/3/search/movie` +
+    `?language=en-US` +
+    `&query=${searchQuery}` +
+    `&page=1` +
+    `&include_adult=false`;
+
+} else if (request.query.type === "upcoming") {
 
       const today = new Date();
       const sixMonths = new Date();
