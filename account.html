@@ -112,6 +112,9 @@
 
   <div class="account-box">
 
+  <div id="profile-view" style="display: none;">
+</div>
+
     <h1>Account</h1>
 
     <div class="tabs">
@@ -175,6 +178,79 @@
   </div>
 
   <script>
+    async function checkLoggedInUser() {
+  try {
+    const response = await fetch("/api/current-user.js");
+
+    if (!response.ok) return;
+
+    const data = await response.json();
+
+    if (!data.loggedIn) return;
+
+    const profileView = document.getElementById("profile-view");
+
+    profileView.style.display = "block";
+
+    document.querySelector(".account-box h1").style.display = "none";
+    document.querySelector(".tabs").style.display = "none";
+    document.getElementById("login-form").style.display = "none";
+    document.getElementById("register-form").style.display = "none";
+    document.getElementById("message").style.display = "none";
+
+    profileView.innerHTML = `
+      <div style="text-align: center;">
+
+        <div style="
+          width: 90px;
+          height: 90px;
+          margin: 0 auto 18px;
+          border-radius: 50%;
+          background: #dbeafe;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 45px;
+        ">
+          👤
+        </div>
+
+        <h1 style="margin-bottom: 8px;">
+          ${data.user.username}
+        </h1>
+
+        <p style="
+          margin-bottom: 25px;
+          color: #64748b;
+        ">
+          ${data.user.email}
+        </p>
+
+        <div style="
+          display: flex;
+          gap: 12px;
+          flex-direction: column;
+        ">
+
+          <button class="submit-button" type="button">
+            My Wishlist
+          </button>
+
+          <button class="submit-button" type="button">
+            My Ratings
+          </button>
+
+        </div>
+
+      </div>
+    `;
+
+  } catch (error) {
+    console.error("Could not check login:", error);
+  }
+}
+
+checkLoggedInUser();
     const loginTab = document.getElementById("login-tab");
     const registerTab = document.getElementById("register-tab");
 
