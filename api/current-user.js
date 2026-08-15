@@ -1,7 +1,31 @@
 import { neon } from "@neondatabase/serverless";
 
 export default async function handler(request, response) {
+
+export default async function handler(request, response) {
   try {
+
+    // =========================
+    // LOG OUT
+    // =========================
+
+    if (request.method === "POST") {
+
+      response.setHeader(
+        "Set-Cookie",
+        "user_id=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0"
+      );
+
+      return response.status(200).json({
+        success: true
+      });
+    }
+
+
+    // =========================
+    // CHECK CURRENT USER
+    // =========================
+
     if (request.method !== "GET") {
       return response.status(405).json({
         error: "Method not allowed"
@@ -16,17 +40,19 @@ export default async function handler(request, response) {
       .find(cookie => cookie.startsWith("user_id="));
 
     if (!userIdCookie) {
-      return response.status(200).json({
+      return response.status(401).json({
         loggedIn: false
       });
     }
 
     const userId = Number(
-      decodeURIComponent(userIdCookie.split("=")[1])
+      decodeURIComponent(
+        userIdCookie.split("=")[1]
+      )
     );
 
     if (!Number.isInteger(userId)) {
-      return response.status(200).json({
+      return response.status(401).json({
         loggedIn: false
       });
     }
@@ -41,7 +67,7 @@ export default async function handler(request, response) {
     `;
 
     if (users.length === 0) {
-      return response.status(200).json({
+      return response.status(401).json({
         loggedIn: false
       });
     }
@@ -52,7 +78,8 @@ export default async function handler(request, response) {
     });
 
   } catch (error) {
-    console.error(error);
+
+    console.error("Current user error:", error);
 
     return response.status(500).json({
       error: "Something went wrong"
