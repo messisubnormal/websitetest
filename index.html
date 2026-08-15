@@ -1096,60 +1096,6 @@ setTimeout(updateTrailerArrows, 500);
 
 trailerGrid.addEventListener("scroll", updateTrailerArrows);
 
-  button.addEventListener("click", async (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    const saved = button.classList.contains("saved");
-
-    try {
-      let response;
-
-      if (saved) {
-        response = await fetch(
-          `/api/wishlist.js?movie_id=${movieId}`,
-          {
-            method: "DELETE"
-          }
-        );
-      } else {
-        response = await fetch("/api/wishlist.js", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            movie_id: Number(movieId)
-          })
-        });
-      }
-
-      const data = await response.json();
-
-      if (response.status === 401) {
-        alert("Please log in first.");
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error(data.error || "Wishlist update failed");
-      }
-
-      if (data.saved) {
-        button.textContent = "🔖";
-        button.classList.add("saved");
-      } else {
-        button.textContent = "♡";
-        button.classList.remove("saved");
-      }
-
-    } catch (error) {
-      console.error("Wishlist:", error);
-      alert("Could not update your wishlist.");
-    }
-  });
-});
-
   async function updateAccountNav() {
   const accountNav = document.getElementById("account-nav");
 
