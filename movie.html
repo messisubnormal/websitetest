@@ -217,6 +217,40 @@
 .stars button.active {
   color: #f5c542;
 }
+    .zero-rating {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-right: 6px;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  color: #cbd5e1;
+  cursor: pointer;
+}
+
+.zero-rating:hover {
+  color: #ffffff;
+  transform: scale(1.1);
+}
+
+.zero-rating.active {
+  color: #f5c542;
+}
+
+    .your-rating-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#your-rating-number {
+  min-width: 25px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+}
     .title-row {
   display: flex;
   align-items: baseline;
@@ -611,18 +645,35 @@
   <div class="rating-box your-rating">
     <div class="rating-label">Your Rating</div>
 
-    <div id="your-rating-stars" class="stars">
-      <button type="button" data-rating="1">☆</button>
-      <button type="button" data-rating="2">☆</button>
-      <button type="button" data-rating="3">☆</button>
-      <button type="button" data-rating="4">☆</button>
-      <button type="button" data-rating="5">☆</button>
-      <button type="button" data-rating="6">☆</button>
-      <button type="button" data-rating="7">☆</button>
-      <button type="button" data-rating="8">☆</button>
-      <button type="button" data-rating="9">☆</button>
-      <button type="button" data-rating="10">☆</button>
-    </div>
+  <div class="your-rating-controls">
+
+  <button
+    type="button"
+    id="zero-rating"
+    class="zero-rating"
+    data-rating="0"
+  >
+    0
+  </button>
+
+  <div id="your-rating-stars" class="stars">
+    <button type="button" data-rating="1">☆</button>
+    <button type="button" data-rating="2">☆</button>
+    <button type="button" data-rating="3">☆</button>
+    <button type="button" data-rating="4">☆</button>
+    <button type="button" data-rating="5">☆</button>
+    <button type="button" data-rating="6">☆</button>
+    <button type="button" data-rating="7">☆</button>
+    <button type="button" data-rating="8">☆</button>
+    <button type="button" data-rating="9">☆</button>
+    <button type="button" data-rating="10">☆</button>
+  </div>
+
+  <span id="your-rating-number"></span>
+
+</div>
+
+</div>
   </div>
 
 </div>
@@ -954,6 +1005,7 @@ if (reviewData.review) {
   
 const starsContainer = document.getElementById("your-rating-stars");
 const userRatingElement = document.getElementById("user-rating");
+const yourRatingNumber = document.getElementById("your-rating-number");
 
 async function loadUserRating() {
   try {
@@ -997,17 +1049,42 @@ if (data.averageRating !== null) {
 }
 
 function highlightStars(rating) {
-  starsContainer.querySelectorAll("button").forEach(button => {
-    const buttonRating = Number(button.dataset.rating);
 
-    button.textContent =
-      buttonRating <= rating ? "★" : "☆";
+  const numericRating = Number(rating);
 
-    button.classList.toggle(
+  const zeroButton =
+    document.getElementById("zero-rating");
+
+  // Highlight 0 when the rating is exactly 0
+  if (zeroButton) {
+    zeroButton.classList.toggle(
       "active",
-      buttonRating <= rating
+      numericRating === 0
     );
-  });
+  }
+
+  // Highlight stars 1–10
+  starsContainer
+    .querySelectorAll("button")
+    .forEach(button => {
+
+      const buttonRating =
+        Number(button.dataset.rating);
+
+      button.textContent =
+        buttonRating <= numericRating
+          ? "★"
+          : "☆";
+
+      button.classList.toggle(
+        "active",
+        buttonRating <= numericRating
+      );
+    });
+
+  // Show the selected number
+  yourRatingNumber.textContent =
+    `${numericRating}/10`;
 }
 
 starsContainer.querySelectorAll("button").forEach(button => {
@@ -1045,6 +1122,55 @@ starsContainer.querySelectorAll("button").forEach(button => {
     }
   });
 });
+
+  document
+  .getElementById("zero-rating")
+  .addEventListener("click", async () => {
+
+    const rating = 0;
+
+    try {
+
+      const response = await fetch(
+        "/api/user-rating.js",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            movie_id: movieId,
+            rating: rating
+          })
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(
+          data.error ||
+          "Could not save rating."
+        );
+        return;
+      }
+
+      highlightStars(0);
+
+      await loadUserRating();
+
+    } catch (error) {
+
+      console.error(
+        "Error saving rating:",
+        error
+      );
+
+      alert(
+        "Could not save your rating."
+      );
+    }
+  });
 
 loadUserRating();
 
