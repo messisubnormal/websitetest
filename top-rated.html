@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Top Rated Movies</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      min-height: 100vh;
+
+      background:
+        radial-gradient(
+          circle at 15% 10%,
+          rgba(37, 99, 235, 0.28),
+          transparent 30%
+        ),
+        radial-gradient(
+          circle at 85% 25%,
+          rgba(59, 130, 246, 0.18),
+          transparent 30%
+        ),
+        linear-gradient(
+          135deg,
+          #020617,
+          #071b3a 50%,
+          #06152d
+        );
+
+      color: white;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    /* NAVIGATION */
+
+    nav {
+      height: 76px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      padding: 0 50px;
+
+      background: rgba(2, 6, 23, 0.72);
+      border-bottom: 1px solid rgba(96, 165, 250, 0.18);
+
+      backdrop-filter: blur(12px);
+
+      position: sticky;
+      top: 0;
+      z-index: 10;
+
+      min-width: 0;
+    }
+
+    .logo {
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+
+      white-space: nowrap;
+
+      color: white;
+      text-decoration: none;
+
+      min-width: 0;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+
+      list-style: none;
+      min-width: 0;
+    }
+
+    .nav-links a {
+      color: #dbeafe;
+      text-decoration: none;
+
+      font-size: 12px;
+      font-weight: 600;
+
+      line-height: 1.15;
+      text-align: center;
+
+      white-space: nowrap;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      min-height: 40px;
+
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: #60a5fa;
+    }
+
+    .account-link {
+      color: #dbeafe;
+      text-decoration: none;
+
+      font-size: 13px;
+      font-weight: 600;
+
+      white-space: nowrap;
+
+      margin-left: 28px;
+    }
+
+    .account-link:hover {
+      color: #60a5fa;
+    }
+
+    /* SEARCH */
+
+    .nav-search {
+      display: flex;
+      align-items: center;
+    }
+
+    #search-form {
+      display: flex;
+      align-items: center;
+      height: 32px;
+    }
+
+    #search-input {
+      width: 130px;
+      height: 32px;
+
+      padding: 0 12px;
+
+      border: 1px solid rgba(96, 165, 250, 0.3);
+      border-right: none;
+
+      border-radius: 7px 0 0 7px;
+
+      background: rgba(15, 23, 42, 0.8);
+      color: white;
+
+      font-size: 12px;
+
+      outline: none;
+    }
+
+    #search-input::placeholder {
+      color: rgba(219, 234, 254, 0.55);
+    }
+
+    #search-input:focus {
+      border-color: rgba(96, 165, 250, 0.7);
+    }
+
+    #search-form button {
+      width: 32px;
+      height: 32px;
+
+      border: 1px solid rgba(96, 165, 250, 0.3);
+
+      border-radius: 0 7px 7px 0;
+
+      background: rgba(37, 99, 235, 0.35);
+
+      color: white;
+
+      font-size: 18px;
+
+      cursor: pointer;
+    }
+
+    #search-form button:hover {
+      background: rgba(37, 99, 235, 0.6);
+    }
+
+    /* MAIN */
+
+    main {
+      max-width: 1450px;
+
+      margin: auto;
+
+      padding: 45px 50px 90px;
+    }
+
+    .page-title {
+      font-size: 30px;
+      font-weight: 700;
+
+      margin-bottom: 10px;
+    }
+
+    .page-description {
+      color: #93c5fd;
+
+      font-size: 14px;
+
+      margin-bottom: 40px;
+    }
+
+    /* MOVIES */
+
+    .movie-grid {
+      display: grid;
+
+      grid-template-columns:
+        repeat(6, minmax(0, 1fr));
+
+      gap: 28px 24px;
+    }
+
+    .movie {
+      cursor: pointer;
+      min-width: 0;
+    }
+
+    .poster {
+      width: 100%;
+
+      aspect-ratio: 2 / 3;
+
+      border-radius: 8px;
+
+      overflow: hidden;
+
+      background:
+        linear-gradient(
+          145deg,
+          #172554,
+          #0f172a
+        );
+
+      border: 1px solid rgba(96, 165, 250, 0.15);
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      color: rgba(255, 255, 255, 0.35);
+
+      font-size: 13px;
+
+      transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+
+      position: relative;
+    }
+
+    .poster img {
+      width: 100%;
+      height: 100%;
+
+      object-fit: cover;
+
+      display: block;
+    }
+
+    .movie:hover .poster {
+      transform: translateY(-5px);
+
+      box-shadow:
+        0 12px 30px rgba(37, 99, 235, 0.25);
+    }
+
+    .movie-title {
+      margin-top: 11px;
+
+      font-size: 14px;
+      font-weight: 600;
+
+      color: #f8fafc;
+
+      white-space: nowrap;
+
+      overflow: hidden;
+
+      text-overflow: ellipsis;
+    }
+
+    .rating {
+      margin-top: 6px;
+
+      font-size: 14px;
+      font-weight: 600;
+
+      color: #facc15;
+    }
+
+    /* WISHLIST */
+
+    .wishlist-test {
+      position: absolute;
+
+      top: 8px;
+      right: 8px;
+
+      z-index: 50;
+
+      width: 30px;
+      height: 36px;
+
+      border: none;
+
+      background: transparent;
+
+      color: #4169E1;
+
+      cursor: pointer;
+
+      display: none;
+
+      align-items: center;
+      justify-content: center;
+
+      padding: 0;
+    }
+
+    .wishlist-test svg {
+      width: 26px;
+      height: 32px;
+
+      display: block;
+
+      filter:
+        drop-shadow(
+          0 2px 4px rgba(0, 0, 0, 0.65)
+        );
+    }
+
+    .poster:hover .wishlist-test,
+    .wishlist-test.saved {
+      display: flex;
+    }
+
+    .wishlist-test:hover {
+      transform: scale(1.1);
+    }
+
+    .wishlist-message {
+      position: absolute;
+
+      top: 46px;
+      right: 8px;
+
+      padding: 4px 7px;
+
+      background: rgba(2, 6, 23, 0.88);
+
+      color: #93c5fd;
+
+      font-size: 10px;
+      font-weight: 600;
+
+      white-space: nowrap;
+
+      border-radius: 4px;
+
+      pointer-events: none;
+    }
+
+    /* MOBILE */
+
+    @media (max-width: 1100px) {
+      .movie-grid {
+        grid-template-columns:
+          repeat(5, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 800px) {
+      nav {
+        padding: 0 25px;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      main {
+        padding:
+          35px 25px 70px;
+      }
+
+      .movie-grid {
+        grid-template-columns:
+          repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 500px) {
+      .logo {
+        font-size: 17px;
+      }
+
+      main {
+        padding:
+          30px 16px 60px;
+      }
+
+      .movie-grid {
+        grid-template-columns:
+          repeat(2, minmax(0, 1fr));
+
+        gap: 18px;
+      }
+
+      .page-title {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<nav>
+
+  <a href="/index.html" class="logo">
+    FIND YOUR NEXT FAVOURITE MOVIE
+  </a>
+
+  <ul class="nav-links">
+
+    <li>
+      <a href="/top-rated.html">
+        TOP RATED
+      </a>
+    </li>
+
+    <li>
+      <a href="#">
+        PERSONAL<br>
+        RECOMMENDATIONS
+      </a>
+    </li>
+
+    <li>
+      <a href="#">
+        NEWS
+      </a>
+    </li>
+
+    <li>
+      <a href="#">
+        STREAMING<br>
+        RECOMMENDATIONS
+      </a>
+    </li>
+
+    <li>
+      <a href="#">
+        FORUM
+      </a>
+    </li>
+
+    <li>
+      <a href="#">
+        HELP<br>
+        IN PRODUCTION
+      </a>
+    </li>
+
+    <li class="nav-search">
+
+      <form id="search-form">
+
+        <input
+          type="search"
+          id="search-input"
+          placeholder="Search movies..."
+          autocomplete="off"
+        >
+
+        <button type="submit">
+          ⌕
+        </button>
+
+      </form>
+
+    </li>
+
+  </ul>
+
+  <div id="account-nav">
+
+    <a
+      href="/account.html"
+      class="account-link"
+    >
+      LOG IN
+    </a>
+
+  </div>
+
+</nav>
+
+<main>
+
+  <h1 class="page-title">
+    Top Rated Movies
+  </h1>
+
+  <p class="page-description">
+    The 200 highest-rated movies on our website.
+  </p>
+
+  <section>
+
+    <div
+      id="top-rated-movies"
+      class="movie-grid"
+    >
+      <p>Loading movies...</p>
+    </div>
+
+  </section>
+
+</main>
+
+<script>
+
+async function loadTopRatedMovies() {
+
+  const container =
+    document.getElementById("top-rated-movies");
+
+  try {
+
+    const response =
+      await fetch("/api/movies");
+
+    if (!response.ok) {
+      throw new Error("Could not load movies");
+    }
+
+    const data =
+      await response.json();
+
+    container.innerHTML = "";
+
+    const movies =
+      (data.results || [])
+        .filter(movie =>
+          movie.vote_average > 0
+        )
+        .sort(
+          (a, b) =>
+            b.vote_average - a.vote_average
+        )
+        .slice(0, 200);
+
+    movies.forEach(movie => {
+
+      const movieElement =
+        document.createElement("div");
+
+      movieElement.className = "movie";
+
+      movieElement.dataset.movieId =
+        movie.id;
+
+      movieElement.onclick = () => {
+
+        window.location.href =
+          `movie.html?id=${movie.id}`;
+
+      };
+
+      const poster =
+        movie.poster_path
+          ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+          : "";
+
+      movieElement.innerHTML = `
+
+        <div class="poster">
+
+          ${
+            poster
+              ? `
+                <img
+                  src="${poster}"
+                  alt="${movie.title}"
+                >
+              `
+              : "NO POSTER"
+          }
+
+        </div>
+
+        <div class="movie-title">
+          ${movie.title}
+        </div>
+
+        <div class="rating">
+          ★ ${movie.vote_average.toFixed(1)}
+        </div>
+
+      `;
+
+      container.appendChild(
+        movieElement
+      );
+
+      const posterElement =
+        movieElement.querySelector(".poster");
+
+      posterElement.appendChild(
+        createWishlistButton(movie.id)
+      );
+
+    });
+
+    loadWishlistState();
+
+  } catch (error) {
+
+    console.error(
+      "Top rated:",
+      error
+    );
+
+    container.innerHTML =
+      "<p>Unable to load top rated movies.</p>";
+
+  }
+
+}
+
+
+/* SEARCH */
+
+const searchForm =
+  document.getElementById("search-form");
+
+const searchInput =
+  document.getElementById("search-input");
+
+searchForm.addEventListener(
+  "submit",
+  event => {
+
+    event.preventDefault();
+
+    const query =
+      searchInput.value.trim();
+
+    if (!query) {
+      return;
+    }
+
+    window.location.href =
+      `/search.html?query=${encodeURIComponent(query)}`;
+
+  }
+);
+
+
+/* WISHLIST */
+
+let wishlistMovieIds =
+  new Set();
+
+
+async function loadWishlistState() {
+
+  try {
+
+    const response =
+      await fetch("/api/wishlist.js");
+
+    if (response.status === 401) {
+      return;
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        "Could not load wishlist"
+      );
+    }
+
+    const data =
+      await response.json();
+
+    wishlistMovieIds =
+      new Set(
+        (data.movies || [])
+          .map(movie =>
+            Number(movie.movie_id)
+          )
+      );
+
+    updateWishlistButtons();
+
+  } catch (error) {
+
+    console.error(
+      "Wishlist state:",
+      error
+    );
+
+  }
+
+}
+
+
+function createWishlistButton(movieId) {
+
+  const button =
+    document.createElement("button");
+
+  button.className =
+    "wishlist-test";
+
+  button.type =
+    "button";
+
+  button.setAttribute(
+    "aria-label",
+    "Add to wishlist"
+  );
+
+  if (
+    wishlistMovieIds.has(
+      Number(movieId)
+    )
+  ) {
+
+    button.classList.add(
+      "saved"
+    );
+
+  }
+
+  updateWishlistButtonAppearance(
+    button
+  );
+
+  button.addEventListener(
+    "click",
+    async event => {
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      const saved =
+        button.classList.contains(
+          "saved"
+        );
+
+      try {
+
+        let response;
+
+        if (saved) {
+
+          response =
+            await fetch(
+              `/api/wishlist.js?movie_id=${movieId}`,
+              {
+                method: "DELETE"
+              }
+            );
+
+        } else {
+
+          response =
+            await fetch(
+              "/api/wishlist.js",
+              {
+                method: "POST",
+
+                headers: {
+                  "Content-Type":
+                    "application/json"
+                },
+
+                body: JSON.stringify({
+                  movie_id:
+                    Number(movieId)
+                })
+              }
+            );
+
+        }
+
+        const data =
+          await response.json();
+
+        if (response.status === 401) {
+
+          alert(
+            "Please log in first."
+          );
+
+          return;
+
+        }
+
+        if (!response.ok) {
+
+          throw new Error(
+            data.error ||
+            "Wishlist update failed"
+          );
+
+        }
+
+        if (data.saved) {
+
+          wishlistMovieIds.add(
+            Number(movieId)
+          );
+
+          button.classList.add(
+            "saved"
+          );
+
+          button.setAttribute(
+            "aria-label",
+            "Remove from wishlist"
+          );
+
+          updateWishlistButtonAppearance(
+            button
+          );
+
+          showWishlistMessage(
+            button,
+            "Added to wishlist"
+          );
+
+        } else {
+
+          wishlistMovieIds.delete(
+            Number(movieId)
+          );
+
+          button.classList.remove(
+            "saved"
+          );
+
+          button.setAttribute(
+            "aria-label",
+            "Add to wishlist"
+          );
+
+          updateWishlistButtonAppearance(
+            button
+          );
+
+          showWishlistMessage(
+            button,
+            "Removed from wishlist"
+          );
+
+        }
+
+      } catch (error) {
+
+        console.error(
+          "Wishlist:",
+          error
+        );
+
+        alert(
+          "Could not update your wishlist."
+        );
+
+      }
+
+    }
+  );
+
+  return button;
+
+}
+
+
+function updateWishlistButtonAppearance(
+  button
+) {
+
+  const saved =
+    button.classList.contains(
+      "saved"
+    );
+
+  button.innerHTML = `
+
+    <svg
+      viewBox="0 0 24 28"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+
+      <path
+        d="M4 2.5C4 1.67 4.67 1 5.5 1H18.5C19.33 1 20 1.67 20 2.5V26L12 21.2L4 26V2.5Z"
+
+        fill="${
+          saved
+            ? "currentColor"
+            : "rgba(0,0,0,0.45)"
+        }"
+
+        stroke="${
+          saved
+            ? "#3b82f6"
+            : "white"
+        }"
+
+        stroke-width="1.5"
+        stroke-linejoin="round"
+      />
+
+    </svg>
+
+  `;
+
+}
+
+
+function updateWishlistButtons() {
+
+  document
+    .querySelectorAll(
+      ".wishlist-test"
+    )
+    .forEach(button => {
+
+      const movieElement =
+        button.closest(".movie");
+
+      if (!movieElement) {
+        return;
+      }
+
+      const movieId =
+        Number(
+          movieElement.dataset.movieId
+        );
+
+      const saved =
+        wishlistMovieIds.has(
+          movieId
+        );
+
+      button.classList.toggle(
+        "saved",
+        saved
+      );
+
+      button.setAttribute(
+        "aria-label",
+        saved
+          ? "Remove from wishlist"
+          : "Add to wishlist"
+      );
+
+      updateWishlistButtonAppearance(
+        button
+      );
+
+    });
+
+}
+
+
+function showWishlistMessage(
+  button,
+  message
+) {
+
+  const existing =
+    button.parentElement
+      .querySelector(
+        ".wishlist-message"
+      );
+
+  if (existing) {
+    existing.remove();
+  }
+
+  const label =
+    document.createElement(
+      "div"
+    );
+
+  label.className =
+    "wishlist-message";
+
+  label.textContent =
+    message;
+
+  button.parentElement.appendChild(
+    label
+  );
+
+  setTimeout(() => {
+    label.remove();
+  }, 1800);
+
+}
+
+
+loadTopRatedMovies();
+
+</script>
+
+</body>
+</html>
