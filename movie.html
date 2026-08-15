@@ -688,6 +688,62 @@
 
 <script>
 
+  async function updateAccountNav() {
+  const accountNav = document.getElementById("account-nav");
+
+  if (!accountNav) return;
+
+  try {
+    const response = await fetch("/api/current-user.js");
+
+    if (!response.ok) {
+      return;
+    }
+
+    const data = await response.json();
+
+    if (!data.loggedIn) {
+      return;
+    }
+
+    accountNav.innerHTML = `
+      <a
+        href="/account.html"
+        class="profile-nav-icon"
+        aria-label="My Profile"
+        title="My Profile"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <circle
+            cx="12"
+            cy="8"
+            r="3.5"
+            stroke="currentColor"
+            stroke-width="1.8"
+          />
+
+          <path
+            d="M5 20C5.8 16.6 8.2 14.5 12 14.5C15.8 14.5 18.2 16.6 19 20"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+          />
+        </svg>
+      </a>
+    `;
+
+  } catch (error) {
+    console.error("Could not check account status:", error);
+  }
+}
+
+updateAccountNav();
+
   const movieId = new URLSearchParams(window.location.search).get("id");
 
   async function loadMovie() {
