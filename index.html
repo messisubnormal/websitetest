@@ -1335,12 +1335,11 @@ let wishlistMovieIds = new Set();
     </svg>
   `;
 }
-  function updateWishlistButtons() {
+function updateWishlistButtons() {
   document
     .querySelectorAll(".wishlist-test")
     .forEach(button => {
-      const movieElement =
-        button.closest(".movie");
+      const movieElement = button.closest(".movie");
 
       if (!movieElement) return;
 
@@ -1360,10 +1359,11 @@ let wishlistMovieIds = new Set();
       );
 
       updateWishlistButtonAppearance(button);
-      showWishlistMessage(button, "Added to wishlist");
-      showWishlistMessage(button, "Removed from wishlist");
-      function showWishlistMessage(button, message) {
-  const existing = button.parentElement.querySelector(".wishlist-message");
+    });
+}
+function showWishlistMessage(button, message) {
+  const existing =
+    button.parentElement.querySelector(".wishlist-message");
 
   if (existing) {
     existing.remove();
@@ -1378,8 +1378,6 @@ let wishlistMovieIds = new Set();
   setTimeout(() => {
     label.remove();
   }, 1800);
-}
-    });
 }
 
   loadWishlistState();
