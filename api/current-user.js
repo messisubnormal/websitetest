@@ -1,8 +1,6 @@
 import { neon } from "@neondatabase/serverless";
 
 export default async function handler(request, response) {
-
-export default async function handler(request, response) {
   try {
 
     // =========================
