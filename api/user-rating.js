@@ -5,83 +5,109 @@ export default async function handler(request, response) {
     const sql = neon(process.env.DATABASE_URL);
 
     // =========================
-    // GET
-    // =========================
-    // Returns:
-    // - the logged-in user's rating
-    // - the average rating from all users
-    // - the number of ratings
+// GET
+// =========================
 
-    if (request.method === "GET") {
-      const movieId = Number(request.query.movie_id);
+if (request.method === "GET") {
 
-      if (!Number.isInteger(movieId)) {
-        return response.status(400).json({
-          error: "Valid movie_id is required"
-        });
-      }
+  const cookies = request.headers.cookie || "";
 
-      const cookies = request.headers.cookie || "";
+  const userIdCookie = cookies
+    .split(";")
+    .map(cookie => cookie.trim())
+    .find(cookie => cookie.startsWith("user_id="));
 
-      const userIdCookie = cookies
-        .split(";")
-        .map(cookie => cookie.trim())
-        .find(cookie => cookie.startsWith("user_id="));
+  let userId = null;
 
-      let userId = null;
+  if (userIdCookie) {
+    const parsedUserId = Number(
+      decodeURIComponent(userIdCookie.split("=")[1])
+    );
 
-      if (userIdCookie) {
-        const parsedUserId = Number(
-          decodeURIComponent(userIdCookie.split("=")[1])
-        );
+    if (Number.isInteger(parsedUserId)) {
+      userId = parsedUserId;
+    }
+  }
 
-        if (Number.isInteger(parsedUserId)) {
-          userId = parsedUserId;
-        }
-      }
+  // =========================
+  // GET ALL RATINGS
+  // =========================
 
-      // Get overall user rating
-      const averageResult = await sql`
-        SELECT
-          AVG(rating) AS average_rating,
-          COUNT(*) AS rating_count
-        FROM user_ratings
-        WHERE movie_id = ${movieId}
-      `;
+  if (!request.query.movie_id) {
 
-      // Get this user's rating, if logged in
-      let myRating = null;
-
-      if (userId !== null) {
-        const myRatingResult = await sql`
-          SELECT rating
-          FROM user_ratings
-          WHERE movie_id = ${movieId}
-            AND user_id = ${userId}
-          LIMIT 1
-        `;
-
-        if (myRatingResult.length > 0) {
-          myRating = Number(myRatingResult[0].rating);
-        }
-      }
-
-      const average =
-        averageResult[0].average_rating !== null
-          ? Number(averageResult[0].average_rating)
-          : null;
-
-      const count =
-        Number(averageResult[0].rating_count) || 0;
-
-      return response.status(200).json({
-        success: true,
-        userRating: myRating,
-        averageRating: average,
-        ratingCount: count,
-        loggedIn: userId !== null
+    if (userId === null) {
+      return response.status(401).json({
+        error: "You must be logged in"
       });
     }
+
+    const ratings = await sql`
+      SELECT movie_id, rating
+      FROM user_ratings
+      WHERE user_id = ${userId}
+      ORDER BY movie_id DESC
+    `;
+
+    return response.status(200).json({
+      success: true,
+      ratings
+    });
+  }
+
+  // =========================
+  // GET ONE MOVIE RATING
+  // =========================
+
+  const movieId = Number(request.query.movie_id);
+
+  if (!Number.isInteger(movieId)) {
+    return response.status(400).json({
+      error: "Valid movie_id is required"
+    });
+  }
+
+  // Get overall user rating
+  const averageResult = await sql`
+    SELECT
+      AVG(rating) AS average_rating,
+      COUNT(*) AS rating_count
+    FROM user_ratings
+    WHERE movie_id = ${movieId}
+  `;
+
+  // Get this user's rating, if logged in
+  let myRating = null;
+
+  if (userId !== null) {
+    const myRatingResult = await sql`
+      SELECT rating
+      FROM user_ratings
+      WHERE movie_id = ${movieId}
+        AND user_id = ${userId}
+      LIMIT 1
+    `;
+
+    if (myRatingResult.length > 0) {
+      myRating = Number(myRatingResult[0].rating);
+    }
+  }
+
+  const average =
+    averageResult[0].average_rating !== null
+      ? Number(averageResult[0].average_rating)
+      : null;
+
+  const count =
+    Number(averageResult[0].rating_count) || 0;
+
+  return response.status(200).json({
+    success: true,
+    userRating: myRating,
+    averageRating: average,
+    ratingCount: count,
+    loggedIn: userId !== null
+  });
+}
 
     // =========================
     // POST
