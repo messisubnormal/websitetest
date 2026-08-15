@@ -49,29 +49,39 @@
     }
 
     .logo {
-      font-size: 22px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      white-space: nowrap;
-    }
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  color: white;
+  text-decoration: none;
+}
 
-    .nav-links {
-      display: flex;
-      gap: 28px;
-      list-style: none;
-    }
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  list-style: none;
+}
 
-    .nav-links a {
-      color: #dbeafe;
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 600;
-      transition: color 0.2s;
-    }
+.nav-links a {
+  color: #dbeafe;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.15;
+  text-align: center;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  transition: color 0.2s;
+}
 
-    .nav-links a:hover {
-      color: #60a5fa;
-    }
+.nav-links a:hover {
+  color: #60a5fa;
+}
 
     .account-link {
   color: #dbeafe;
@@ -574,19 +584,43 @@
 <body>
 
   <nav>
-    <div class="logo">FIND YOUR NEXT FAVOURITE MOVIE</div>
+  <a href="/index.html" class="logo">
+    FIND YOUR NEXT FAVOURITE MOVIE
+  </a>
 
-    <ul class="nav-links">
-      <li><a href="#">HOME</a></li>
-      <li><a href="#">TOP RATED</a></li>
-      <li><a href="#">PERSONAL RECOMMENDATIONS</a></li>
-      <li><a href="#">NEWS</a></li>
-      <li><a href="#">STREAMING RECOMMENDATIONS</a></li>
-    </ul>
-    <div id="account-nav">
-  <a href="/account.html" class="account-link">LOG IN</a>
-</div>
-  </nav>
+  <ul class="nav-links">
+    <li><a href="#">TOP RATED</a></li>
+
+    <li>
+      <a href="#">
+        PERSONAL<br>
+        RECOMMENDATIONS
+      </a>
+    </li>
+
+    <li><a href="#">NEWS</a></li>
+
+    <li>
+      <a href="#">
+        STREAMING<br>
+        RECOMMENDATIONS
+      </a>
+    </li>
+
+    <li><a href="#">FORUM</a></li>
+
+    <li>
+      <a href="#">
+        HELP<br>
+        IN PRODUCTION
+      </a>
+    </li>
+  </ul>
+
+  <div id="account-nav">
+    <a href="/account.html" class="account-link">LOG IN</a>
+  </div>
+</nav>
 
   <main>
 
