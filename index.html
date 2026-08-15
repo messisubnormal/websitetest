@@ -1029,21 +1029,106 @@ setTimeout(updateTrailerArrows, 500);
 
 trailerGrid.addEventListener("scroll", updateTrailerArrows);
 
- document.addEventListener("mouseover", function (event) {
+document.addEventListener("mouseover", function (event) {
   const poster = event.target.closest(".poster");
 
   if (!poster) return;
 
   if (poster.querySelector(".wishlist-test")) return;
 
+  const movieElement = poster.closest(".movie");
+
+  if (!movieElement) return;
+
+  const movieId = movieElement.dataset.movieId;
+
+  if (!movieId) return;
+
   const button = document.createElement("button");
 
   button.className = "wishlist-test";
   button.type = "button";
   button.textContent = "♡";
+  button.setAttribute("aria-label", "Add to wishlist");
 
   poster.style.position = "relative";
   poster.appendChild(button);
+
+  // Check saved state
+  fetch(`/api/wishlist.js?movie_id=${movieId}`)
+    .then(response => {
+      if (response.status === 401) {
+        return null;
+      }
+
+      if (!response.ok) {
+        throw new Error("Wishlist check failed");
+      }
+
+      return response.json();
+    })
+    .then(data => {
+      if (data && data.saved) {
+        button.textContent = "🔖";
+        button.classList.add("saved");
+      }
+    })
+    .catch(error => {
+      console.error("Wishlist check:", error);
+    });
+
+  button.addEventListener("click", async (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const saved = button.classList.contains("saved");
+
+    try {
+      let response;
+
+      if (saved) {
+        response = await fetch(
+          `/api/wishlist.js?movie_id=${movieId}`,
+          {
+            method: "DELETE"
+          }
+        );
+      } else {
+        response = await fetch("/api/wishlist.js", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            movie_id: Number(movieId)
+          })
+        });
+      }
+
+      const data = await response.json();
+
+      if (response.status === 401) {
+        alert("Please log in first.");
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(data.error || "Wishlist update failed");
+      }
+
+      if (data.saved) {
+        button.textContent = "🔖";
+        button.classList.add("saved");
+      } else {
+        button.textContent = "♡";
+        button.classList.remove("saved");
+      }
+
+    } catch (error) {
+      console.error("Wishlist:", error);
+      alert("Could not update your wishlist.");
+    }
+  });
 });
 
 </script>
