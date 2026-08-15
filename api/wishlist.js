@@ -14,26 +14,37 @@ export default async function handler(request, response) {
 
     // CHECK
     if (request.method === "GET") {
-      const movieId = Number(request.query.movie_id);
+  const movieId = request.query.movie_id
+    ? Number(request.query.movie_id)
+    : null;
 
-      if (!movieId) {
-        return response.status(400).json({
-          error: "movie_id is required."
-        });
-      }
+  // Get the user's entire wishlist
+  if (!movieId) {
+    const movies = await sql`
+      SELECT movie_id, created_at
+      FROM user_wishlist
+      WHERE user_id = ${userId}
+      ORDER BY created_at DESC
+    `;
 
-      const rows = await sql`
-        SELECT id
-        FROM user_wishlist
-        WHERE user_id = ${userId}
-          AND movie_id = ${movieId}
-        LIMIT 1
-      `;
+    return response.status(200).json({
+      movies
+    });
+  }
 
-      return response.status(200).json({
-        saved: rows.length > 0
-      });
-    }
+  // Check whether one movie is saved
+  const rows = await sql`
+    SELECT id
+    FROM user_wishlist
+    WHERE user_id = ${userId}
+      AND movie_id = ${movieId}
+    LIMIT 1
+  `;
+
+  return response.status(200).json({
+    saved: rows.length > 0
+  });
+}
 
     // ADD
     if (request.method === "POST") {
