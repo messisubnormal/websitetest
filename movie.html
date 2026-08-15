@@ -242,7 +242,30 @@
     .your-rating-controls {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 4px;
+}
+    .zero-rating {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  width: 22px;
+  height: 28px;
+
+  font-size: 16px;
+  font-weight: 700;
+  color: #102a56;
+
+  cursor: pointer;
+  line-height: 28px;
+}
+
+.zero-rating:hover {
+  transform: scale(1.1);
+}
+
+.zero-rating.active {
+  color: #f5c542;
 }
 
 #your-rating-number {
