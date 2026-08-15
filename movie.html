@@ -169,6 +169,61 @@
   color: #ffffff;
 }
 
+    .movie-poster-column {
+  width: 280px;
+  flex-shrink: 0;
+}
+
+.movie-wishlist-button {
+  width: 100%;
+  margin-top: 12px;
+  padding: 13px 16px;
+
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  border-radius: 8px;
+
+  background: rgba(37, 99, 235, 0.18);
+  color: #dbeafe;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.movie-wishlist-button:hover {
+  background: rgba(37, 99, 235, 0.32);
+  border-color: rgba(96, 165, 250, 0.6);
+  transform: translateY(-1px);
+}
+
+.movie-wishlist-button.added {
+  background: rgba(30, 64, 175, 0.5);
+  border-color: rgba(96, 165, 250, 0.55);
+  color: #ffffff;
+}
+
+.movie-wishlist-message {
+  min-height: 18px;
+  margin-top: 7px;
+
+  text-align: center;
+
+  font-size: 11px;
+  color: #93c5fd;
+}
+
+@media (max-width: 700px) {
+  .movie-poster-column {
+    width: 220px;
+  }
+}
+
     .review {
   margin-top: 50px;
   background: #f1f0eb;
@@ -387,9 +442,26 @@
 
     <div id="movie-content" class="movie-content" style="display:none;">
 
-      <div class="movie-poster">
-        <img id="movie-poster" src="" alt="">
-      </div>
+      <div class="movie-poster-column">
+
+  <div class="movie-poster">
+    <img id="movie-poster" src="" alt="">
+  </div>
+
+  <button
+    id="wishlist-button"
+    class="movie-wishlist-button"
+    type="button"
+  >
+    Add to wishlist
+  </button>
+
+  <div
+    id="wishlist-message"
+    class="movie-wishlist-message"
+  ></div>
+
+</div>
 
       <div class="movie-info">
 
@@ -917,6 +989,150 @@ reviewForm.addEventListener("submit", async (event) => {
 
 
 loadUserComments();
+
+  const wishlistButton =
+  document.getElementById("wishlist-button");
+
+const wishlistMessage =
+  document.getElementById("wishlist-message");
+
+
+async function loadMovieWishlistState() {
+
+  try {
+
+    const response = await fetch(
+      `/api/wishlist.js?movie_id=${movieId}`
+    );
+
+    if (response.status === 401) {
+      wishlistButton.textContent = "Add to wishlist";
+      return;
+    }
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.error || "Could not load wishlist state."
+      );
+    }
+
+    updateMovieWishlistButton(data.saved);
+
+  } catch (error) {
+
+    console.error(
+      "Wishlist state:",
+      error
+    );
+
+  }
+}
+
+
+function updateMovieWishlistButton(saved) {
+
+  wishlistButton.classList.toggle(
+    "added",
+    saved
+  );
+
+  wishlistButton.textContent =
+    saved
+      ? "Added to wishlist"
+      : "Add to wishlist";
+}
+
+
+wishlistButton.addEventListener(
+  "click",
+  async () => {
+
+    const saved =
+      wishlistButton.classList.contains("added");
+
+    try {
+
+      let response;
+
+      if (saved) {
+
+        response = await fetch(
+          `/api/wishlist.js?movie_id=${movieId}`,
+          {
+            method: "DELETE"
+          }
+        );
+
+      } else {
+
+        response = await fetch(
+          "/api/wishlist.js",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              movie_id: Number(movieId)
+            })
+          }
+        );
+
+      }
+
+      const data = await response.json();
+
+      if (response.status === 401) {
+
+        wishlistMessage.textContent =
+          "Please log in first.";
+
+        return;
+      }
+
+      if (!response.ok) {
+
+        throw new Error(
+          data.error ||
+          "Could not update your wishlist."
+        );
+
+      }
+
+      updateMovieWishlistButton(
+        data.saved
+      );
+
+      wishlistMessage.textContent =
+        data.saved
+          ? "Added to wishlist"
+          : "Removed from wishlist";
+
+      setTimeout(() => {
+
+        wishlistMessage.textContent = "";
+
+      }, 1800);
+
+    } catch (error) {
+
+      console.error(
+        "Wishlist:",
+        error
+      );
+
+      wishlistMessage.textContent =
+        "Could not update your wishlist.";
+
+    }
+
+  }
+);
+
+
+loadMovieWishlistState();
 
 </script>
 
