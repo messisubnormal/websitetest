@@ -83,6 +83,60 @@
   color: #60a5fa;
 }
 
+.nav-search {
+  display: flex;
+  align-items: center;
+}
+
+#search-form {
+  display: flex;
+  align-items: center;
+  height: 34px;
+}
+
+#search-input {
+  width: 150px;
+  height: 34px;
+
+  padding: 0 12px;
+
+  border: 1px solid rgba(96, 165, 250, 0.3);
+  border-right: none;
+  border-radius: 7px 0 0 7px;
+
+  background: rgba(15, 23, 42, 0.8);
+  color: white;
+
+  font-size: 12px;
+  outline: none;
+}
+
+#search-input::placeholder {
+  color: rgba(219, 234, 254, 0.55);
+}
+
+#search-input:focus {
+  border-color: rgba(96, 165, 250, 0.7);
+}
+
+#search-form button {
+  width: 36px;
+  height: 34px;
+
+  border: 1px solid rgba(96, 165, 250, 0.3);
+  border-radius: 0 7px 7px 0;
+
+  background: rgba(37, 99, 235, 0.35);
+  color: white;
+
+  font-size: 18px;
+  cursor: pointer;
+}
+
+#search-form button:hover {
+  background: rgba(37, 99, 235, 0.6);
+}
+
     .account-link {
   color: #dbeafe;
   text-decoration: none;
@@ -615,7 +669,18 @@
         IN PRODUCTION
       </a>
     </li>
-  </ul>
+    <li class="nav-search">
+  <form id="search-form">
+    <input
+      type="search"
+      id="search-input"
+      placeholder="Search movies..."
+      autocomplete="off"
+    >
+    <button type="submit">⌕</button>
+  </form>
+ </li>
+</ul>
 
   <div id="account-nav">
     <a href="/account.html" class="account-link">LOG IN</a>
@@ -1415,6 +1480,22 @@ function showWishlistMessage(button, message) {
 }
 
   loadWishlistState();
+
+  const searchForm = document.getElementById("search-form");
+const searchInput = document.getElementById("search-input");
+
+searchForm.addEventListener("submit", event => {
+  event.preventDefault();
+
+  const query = searchInput.value.trim();
+
+  if (!query) {
+    return;
+  }
+
+  window.location.href =
+    `/search.html?query=${encodeURIComponent(query)}`;
+});
 
 </script>
 </body>
