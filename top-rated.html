@@ -547,7 +547,7 @@ async function loadTopRatedMovies() {
   try {
 
     const response =
-      await fetch("/api/movies");
+  await fetch("/api/movies?type=top-rated");
 
     if (!response.ok) {
       throw new Error("Could not load movies");
@@ -559,15 +559,11 @@ async function loadTopRatedMovies() {
     container.innerHTML = "";
 
     const movies =
-      (data.results || [])
-        .filter(movie =>
-          movie.vote_average > 0
-        )
-        .sort(
-          (a, b) =>
-            b.vote_average - a.vote_average
-        )
-        .slice(0, 200);
+  (data.results || [])
+    .filter(movie =>
+      movie.vote_average > 0
+    )
+    .slice(0, 200);
 
     movies.forEach(movie => {
 
