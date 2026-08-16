@@ -23,6 +23,9 @@ export default async function handler(request, response) {
 
   const topRatedMovies = [];
 
+  // Get a large pool of TMDB movies.
+  // We use the first 10 pages of TMDB's top-rated list
+  // as the base pool.
   for (let page = 1; page <= 10; page++) {
 
     const pageUrl =
@@ -43,18 +46,17 @@ export default async function handler(request, response) {
       );
     }
 
-    const pageData =
-      await pageResponse.json();
+    const pageData = await pageResponse.json();
 
     topRatedMovies.push(
       ...(pageData.results || [])
     );
   }
 
-  // Get our website ratings for these movies.
-  // If a movie has a website rating, it replaces
-  // the TMDB rating for the ranking.
-  const { neon } = await import("@neondatabase/serverless");
+  // Get our website ratings.
+  const { neon } =
+    await import("@neondatabase/serverless");
+
   const sql = neon(process.env.DATABASE_URL);
 
   const movieIds =
@@ -75,20 +77,26 @@ export default async function handler(request, response) {
     ])
   );
 
+  // Calculate the effective rating.
+  //
+  // Website rating takes priority.
+  // If there is no website rating,
+  // TMDB rating is used.
   const rankedMovies = topRatedMovies
     .map(movie => {
 
       const websiteRating =
         websiteRatingMap.get(Number(movie.id));
 
+      const effectiveRating =
+        websiteRating !== undefined
+          ? websiteRating
+          : Number(movie.vote_average) || 0;
+
       return {
         ...movie,
 
-        // Website rating takes priority.
-        vote_average:
-          websiteRating !== undefined
-            ? websiteRating
-            : Number(movie.vote_average) || 0,
+        vote_average: effectiveRating,
 
         website_rating:
           websiteRating !== undefined
@@ -107,13 +115,13 @@ export default async function handler(request, response) {
       }
 
       // TMDB vote count breaks ties.
-      return (b.vote_count || 0) - (a.vote_count || 0);
+      return (b.vote_count || 0) -
+             (a.vote_count || 0);
     });
 
   return response.status(200).json({
     results: rankedMovies.slice(0, 200)
   });
-
 
 
 } else if (request.query.type === "upcoming") {
