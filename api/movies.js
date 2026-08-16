@@ -21,11 +21,14 @@ export default async function handler(request, response) {
 
 } else if (request.query.type === "top-rated") {
 
+  const { neon } = await import("@neondatabase/serverless");
+  const sql = neon(process.env.DATABASE_URL);
+
+  /*
+   * 1. Get a large pool of TMDB top-rated movies.
+   */
   const topRatedMovies = [];
 
-  // Get a large pool of TMDB movies.
-  // We use the first 10 pages of TMDB's top-rated list
-  // as the base pool.
   for (let page = 1; page <= 10; page++) {
 
     const pageUrl =
@@ -53,23 +56,18 @@ export default async function handler(request, response) {
     );
   }
 
-  // Get our website ratings.
-  const { neon } =
-    await import("@neondatabase/serverless");
+  /*
+   * 2. Get EVERY movie that has a Website Rating.
+   */
+  const websiteRatings = await sql`
+    SELECT movie_id, rating
+    FROM movie_reviews
+    WHERE rating IS NOT NULL
+  `;
 
-  const sql = neon(process.env.DATABASE_URL);
-
-  const movieIds =
-    topRatedMovies.map(movie => Number(movie.id));
-
-  const websiteRatings = movieIds.length
-    ? await sql`
-        SELECT movie_id, rating
-        FROM movie_reviews
-        WHERE movie_id = ANY(${movieIds})
-      `
-    : [];
-
+  /*
+   * 3. Create a map of Website Ratings.
+   */
   const websiteRatingMap = new Map(
     websiteRatings.map(row => [
       Number(row.movie_id),
@@ -77,11 +75,60 @@ export default async function handler(request, response) {
     ])
   );
 
-  // Calculate the effective rating.
-  //
-  // Website rating takes priority.
-  // If there is no website rating,
-  // TMDB rating is used.
+  /*
+   * 4. Add Website-rated movies that are NOT
+   *    already in the TMDB top-rated results.
+   */
+  const existingMovieIds = new Set(
+    topRatedMovies.map(movie => Number(movie.id))
+  );
+
+  for (const row of websiteRatings) {
+
+    const movieId = Number(row.movie_id);
+
+    if (existingMovieIds.has(movieId)) {
+      continue;
+    }
+
+    try {
+
+      const movieResponse = await fetch(
+        `https://api.themoviedb.org/3/movie/${movieId}?language=en-US`,
+        {
+          headers: {
+            Authorization:
+              `Bearer ${process.env.TMDB_API_TOKEN}`,
+            accept: "application/json"
+          }
+        }
+      );
+
+      if (!movieResponse.ok) {
+        continue;
+      }
+
+      const movie = await movieResponse.json();
+
+      topRatedMovies.push(movie);
+
+      existingMovieIds.add(movieId);
+
+    } catch (error) {
+
+      console.error(
+        `Could not load website-rated movie ${movieId}`,
+        error
+      );
+
+    }
+  }
+
+  /*
+   * 5. Website Rating overrides TMDB rating.
+   *    Movies without a Website Rating keep
+   *    their normal TMDB rating.
+   */
   const rankedMovies = topRatedMovies
     .map(movie => {
 
@@ -103,26 +150,29 @@ export default async function handler(request, response) {
             ? websiteRating
             : null
       };
-    })
 
+    })
     .filter(movie => movie.vote_average > 0)
 
+    /*
+     * 6. Sort using the effective rating.
+     */
     .sort((a, b) => {
 
-      // Highest effective rating first.
       if (b.vote_average !== a.vote_average) {
         return b.vote_average - a.vote_average;
       }
 
-      // TMDB vote count breaks ties.
-      return (b.vote_count || 0) -
-             (a.vote_count || 0);
+      return (b.vote_count || 0) - (a.vote_count || 0);
+
     });
 
+  /*
+   * 7. Return the top 200.
+   */
   return response.status(200).json({
     results: rankedMovies.slice(0, 200)
   });
-
 
 } else if (request.query.type === "upcoming") {
 
