@@ -51,8 +51,67 @@ export default async function handler(request, response) {
     );
   }
 
+  // Get our website ratings for these movies.
+  // If a movie has a website rating, it replaces
+  // the TMDB rating for the ranking.
+  const { neon } = await import("@neondatabase/serverless");
+  const sql = neon(process.env.DATABASE_URL);
+
+  const movieIds =
+    topRatedMovies.map(movie => Number(movie.id));
+
+  const websiteRatings = movieIds.length
+    ? await sql`
+        SELECT movie_id, rating
+        FROM movie_reviews
+        WHERE movie_id = ANY(${movieIds})
+      `
+    : [];
+
+  const websiteRatingMap = new Map(
+    websiteRatings.map(row => [
+      Number(row.movie_id),
+      Number(row.rating)
+    ])
+  );
+
+  const rankedMovies = topRatedMovies
+    .map(movie => {
+
+      const websiteRating =
+        websiteRatingMap.get(Number(movie.id));
+
+      return {
+        ...movie,
+
+        // Website rating takes priority.
+        vote_average:
+          websiteRating !== undefined
+            ? websiteRating
+            : Number(movie.vote_average) || 0,
+
+        website_rating:
+          websiteRating !== undefined
+            ? websiteRating
+            : null
+      };
+    })
+
+    .filter(movie => movie.vote_average > 0)
+
+    .sort((a, b) => {
+
+      // Highest effective rating first.
+      if (b.vote_average !== a.vote_average) {
+        return b.vote_average - a.vote_average;
+      }
+
+      // TMDB vote count breaks ties.
+      return (b.vote_count || 0) - (a.vote_count || 0);
+    });
+
   return response.status(200).json({
-    results: topRatedMovies.slice(0, 200)
+    results: rankedMovies.slice(0, 200)
   });
 
 
