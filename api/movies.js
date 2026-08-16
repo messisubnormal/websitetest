@@ -19,6 +19,44 @@ export default async function handler(request, response) {
     `&page=1` +
     `&include_adult=false`;
 
+} else if (request.query.type === "top-rated") {
+
+  const topRatedMovies = [];
+
+  for (let page = 1; page <= 10; page++) {
+
+    const pageUrl =
+      "https://api.themoviedb.org/3/movie/top_rated" +
+      `?language=en-US&page=${page}`;
+
+    const pageResponse = await fetch(pageUrl, {
+      headers: {
+        Authorization:
+          `Bearer ${process.env.TMDB_API_TOKEN}`,
+        accept: "application/json"
+      }
+    });
+
+    if (!pageResponse.ok) {
+      throw new Error(
+        `Top rated request failed on page ${page}`
+      );
+    }
+
+    const pageData =
+      await pageResponse.json();
+
+    topRatedMovies.push(
+      ...(pageData.results || [])
+    );
+  }
+
+  return response.status(200).json({
+    results: topRatedMovies.slice(0, 200)
+  });
+
+
+
 } else if (request.query.type === "upcoming") {
 
       const today = new Date();
