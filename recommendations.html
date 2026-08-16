@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Personal Recommendations</title>
+
+  <script>
+    window.va = window.va || function () {
+      (window.vaq = window.vaq || []).push(arguments);
+    };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+
+      background:
+        radial-gradient(
+          circle at 15% 10%,
+          rgba(37, 99, 235, 0.28),
+          transparent 30%
+        ),
+        radial-gradient(
+          circle at 85% 25%,
+          rgba(59, 130, 246, 0.18),
+          transparent 30%
+        ),
+        linear-gradient(
+          135deg,
+          #020617,
+          #071b3a 50%,
+          #06152d
+        );
+
+      color: #ffffff;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    /* NAVIGATION */
+
+    nav {
+      height: 76px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      padding: 0 50px;
+
+      background: rgba(2, 6, 23, 0.72);
+      border-bottom: 1px solid rgba(96, 165, 250, 0.18);
+
+      backdrop-filter: blur(12px);
+
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+
+      color: white;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: #dbeafe;
+      text-decoration: none;
+
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.15;
+
+      text-align: center;
+      white-space: nowrap;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      min-height: 40px;
+
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: #60a5fa;
+    }
+
+    .account-link {
+      color: #dbeafe;
+      text-decoration: none;
+
+      font-size: 13px;
+      font-weight: 600;
+
+      white-space: nowrap;
+
+      margin-left: 28px;
+    }
+
+    .account-link:hover {
+      color: #60a5fa;
+    }
+
+    /* MAIN */
+
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+
+      padding: 90px 50px 120px;
+    }
+
+    .recommendations-card {
+      padding: 55px;
+
+      background: rgba(15, 23, 42, 0.72);
+
+      border: 1px solid rgba(96, 165, 250, 0.18);
+
+      border-radius: 16px;
+
+      box-shadow:
+        0 25px 70px rgba(0, 0, 0, 0.3);
+
+      text-align: center;
+    }
+
+    .recommendations-card h1 {
+      margin-bottom: 28px;
+
+      font-size: 34px;
+      font-weight: 700;
+
+      color: #ffffff;
+    }
+
+    .recommendations-card p {
+      max-width: 700px;
+      margin: 0 auto;
+
+      font-size: 17px;
+      line-height: 1.7;
+
+      color: #dbeafe;
+    }
+
+    .email-link {
+      display: inline-block;
+
+      margin-top: 32px;
+
+      color: #60a5fa;
+
+      font-size: 19px;
+      font-weight: 700;
+
+      text-decoration: none;
+
+      transition:
+        color 0.2s ease,
+        transform 0.2s ease;
+    }
+
+    .email-link:hover {
+      color: #93c5fd;
+      transform: translateY(-2px);
+    }
+
+    /* MOBILE */
+
+    @media (max-width: 800px) {
+
+      nav {
+        padding: 0 25px;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      main {
+        padding: 60px 25px 80px;
+      }
+
+      .recommendations-card {
+        padding: 40px 25px;
+      }
+
+      .recommendations-card h1 {
+        font-size: 28px;
+      }
+
+      .recommendations-card p {
+        font-size: 16px;
+      }
+
+      .email-link {
+        font-size: 17px;
+        word-break: break-word;
+      }
+    }
+
+    @media (max-width: 500px) {
+
+      .logo {
+        font-size: 17px;
+      }
+
+      main {
+        padding: 45px 16px 60px;
+      }
+
+      .recommendations-card {
+        padding: 35px 20px;
+      }
+
+      .recommendations-card h1 {
+        font-size: 25px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav>
+
+    <a href="/index.html" class="logo">
+      FIND YOUR NEXT FAVOURITE MOVIE
+    </a>
+
+    <ul class="nav-links">
+
+      <li>
+        <a href="/top-rated.html">
+          TOP RATED
+        </a>
+      </li>
+
+      <li>
+        <a href="/recommendations.html">
+          PERSONAL<br>
+          RECOMMENDATIONS
+        </a>
+      </li>
+
+      <li>
+        <a href="#">
+          NEWS
+        </a>
+      </li>
+
+      <li>
+        <a href="#">
+          STREAMING<br>
+          RECOMMENDATIONS
+        </a>
+      </li>
+
+      <li>
+        <a href="#">
+          FORUM
+        </a>
+      </li>
+
+      <li>
+        <a href="#">
+          HELP<br>
+          IN PRODUCTION
+        </a>
+      </li>
+
+    </ul>
+
+    <div id="account-nav">
+      <a
+        href="/account.html"
+        class="account-link"
+      >
+        LOG IN
+      </a>
+    </div>
+
+  </nav>
+
+  <main>
+
+    <section class="recommendations-card">
+
+      <h1>Personal Recommendations</h1>
+
+      <p>
+        Write to us telling us about 3, 4, or more of your
+        favourite movies. If you want, you can also tell us
+        what kind of movie you’re looking for, and we’ll get
+        back to you as soon as we can.
+      </p>
+
+      <a
+        href="mailto:findyournextfavoritemovie@gmail.com"
+        class="email-link"
+      >
+        findyournextfavoritemovie@gmail.com
+      </a>
+
+    </section>
+
+  </main>
+
+</body>
+</html>
