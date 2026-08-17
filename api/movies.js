@@ -174,6 +174,173 @@ export default async function handler(request, response) {
     results: rankedMovies.slice(0, 200)
   });
 
+
+} else if (request.query.type === "streaming") {
+
+  const provider = request.query.provider;
+
+  const providers = {
+    netflix: {
+      id: 8,
+      name: "Netflix"
+    },
+
+    prime: {
+      id: 119,
+      name: "Amazon Prime Video"
+    },
+
+    disney: {
+      id: 337,
+      name: "Disney Plus"
+    },
+
+    apple: {
+      id: 350,
+      name: "Apple TV Plus"
+    }
+  };
+
+  const selectedProvider = providers[provider];
+
+  if (!selectedProvider) {
+    return response.status(400).json({
+      error: "Invalid streaming provider"
+    });
+  }
+
+  const streamingMovies = [];
+
+  /*
+   * Get a large pool of movies available through
+   * this provider in Spain.
+   *
+   * flatrate = included with the subscription.
+   *
+   * This deliberately excludes:
+   * - rent
+   * - buy
+   * - free
+   * - ads
+   */
+
+  for (let page = 1; page <= 10; page++) {
+
+    const pageUrl =
+      "https://api.themoviedb.org/3/discover/movie" +
+      `?language=en-US` +
+      `&watch_region=ES` +
+      `&with_watch_providers=${selectedProvider.id}` +
+      `&with_watch_monetization_types=flatrate` +
+      `&sort_by=vote_average.desc` +
+      `&vote_count.gte=100` +
+      `&page=${page}`;
+
+    const pageResponse = await fetch(pageUrl, {
+      headers: {
+        Authorization:
+          `Bearer ${process.env.TMDB_API_TOKEN}`,
+        accept: "application/json"
+      }
+    });
+
+    if (!pageResponse.ok) {
+      throw new Error(
+        `Streaming request failed on page ${page}`
+      );
+    }
+
+    const pageData =
+      await pageResponse.json();
+
+    streamingMovies.push(
+      ...(pageData.results || [])
+    );
+
+    /*
+     * Stop if TMDB has no more pages.
+     */
+
+    if (
+      !pageData.total_pages ||
+      page >= pageData.total_pages
+    ) {
+      break;
+    }
+  }
+
+  /*
+   * Get our website ratings.
+   */
+
+  const { neon } =
+    await import("@neondatabase/serverless");
+
+  const sql = neon(process.env.DATABASE_URL);
+
+  const websiteRatings = await sql`
+    SELECT movie_id, rating
+    FROM movie_reviews
+    WHERE rating IS NOT NULL
+  `;
+
+  const websiteRatingMap = new Map(
+    websiteRatings.map(row => [
+      Number(row.movie_id),
+      Number(row.rating)
+    ])
+  );
+
+  /*
+   * Website rating overrides TMDB rating.
+   * Otherwise use TMDB rating.
+   */
+
+  const rankedMovies = streamingMovies
+    .map(movie => {
+
+      const websiteRating =
+        websiteRatingMap.get(Number(movie.id));
+
+      const effectiveRating =
+        websiteRating !== undefined
+          ? websiteRating
+          : Number(movie.vote_average) || 0;
+
+      return {
+        ...movie,
+
+        vote_average: effectiveRating,
+
+        website_rating:
+          websiteRating !== undefined
+            ? websiteRating
+            : null
+      };
+
+    })
+
+    .filter(movie => movie.vote_average > 0)
+
+    .sort((a, b) => {
+
+      if (b.vote_average !== a.vote_average) {
+        return b.vote_average - a.vote_average;
+      }
+
+      return (
+        (b.vote_count || 0) -
+        (a.vote_count || 0)
+      );
+
+    });
+
+  return response.status(200).json({
+    provider: selectedProvider.name,
+    region: "ES",
+    results: rankedMovies.slice(0, 200)
+  });      
+      
 } else if (request.query.type === "upcoming") {
 
       const today = new Date();
