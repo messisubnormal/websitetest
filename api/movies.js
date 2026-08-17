@@ -179,6 +179,9 @@ export default async function handler(request, response) {
 
   const provider = request.query.provider;
 
+  const region =
+  (request.query.region || "ES").toUpperCase();
+
   const providers = {
     netflix: {
       id: 8,
@@ -229,7 +232,7 @@ export default async function handler(request, response) {
     const pageUrl =
       "https://api.themoviedb.org/3/discover/movie" +
       `?language=en-US` +
-      `&watch_region=ES` +
+      `&watch_region=${region}` +
       `&with_watch_providers=${selectedProvider.id}` +
       `&with_watch_monetization_types=flatrate` +
       `&sort_by=vote_average.desc` +
@@ -335,11 +338,11 @@ export default async function handler(request, response) {
 
     });
 
-  return response.status(200).json({
-    provider: selectedProvider.name,
-    region: "ES",
-    results: rankedMovies.slice(0, 200)
-  });      
+return response.status(200).json({
+  provider: selectedProvider.name,
+  region: region,
+  results: rankedMovies.slice(0, 200)
+});   
       
 } else if (request.query.type === "upcoming") {
 
