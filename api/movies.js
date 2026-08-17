@@ -180,7 +180,7 @@ export default async function handler(request, response) {
   const provider = request.query.provider;
 
   const region =
-  (request.query.region || "ES").toUpperCase();
+    (request.query.region || "ES").toUpperCase();
 
   const providers = {
     netflix: {
@@ -189,7 +189,7 @@ export default async function handler(request, response) {
     },
 
     prime: {
-      id: 119,
+      ids: [9, 119],
       name: "Amazon Prime Video"
     },
 
@@ -204,7 +204,8 @@ export default async function handler(request, response) {
     }
   };
 
-  const selectedProvider = providers[provider];
+  const selectedProvider =
+    providers[provider];
 
   if (!selectedProvider) {
     return response.status(400).json({
@@ -214,38 +215,31 @@ export default async function handler(request, response) {
 
   const streamingMovies = [];
 
-  /*
-   * Get a large pool of movies available through
-   * this provider in Spain.
-   *
-   * flatrate = included with the subscription.
-   *
-   * This deliberately excludes:
-   * - rent
-   * - buy
-   * - free
-   * - ads
-   */
-
   for (let page = 1; page <= 10; page++) {
+
+    const providerIds =
+      Array.isArray(selectedProvider.ids)
+        ? selectedProvider.ids.join("|")
+        : selectedProvider.id;
 
     const pageUrl =
       "https://api.themoviedb.org/3/discover/movie" +
       `?language=en-US` +
       `&watch_region=${region}` +
-      `&with_watch_providers=${selectedProvider.id}` +
+      `&with_watch_providers=${providerIds}` +
       `&with_watch_monetization_types=flatrate` +
       `&sort_by=vote_average.desc` +
       `&vote_count.gte=100` +
       `&page=${page}`;
 
-    const pageResponse = await fetch(pageUrl, {
-      headers: {
-        Authorization:
-          `Bearer ${process.env.TMDB_API_TOKEN}`,
-        accept: "application/json"
-      }
-    });
+    const pageResponse =
+      await fetch(pageUrl, {
+        headers: {
+          Authorization:
+            `Bearer ${process.env.TMDB_API_TOKEN}`,
+          accept: "application/json"
+        }
+      });
 
     if (!pageResponse.ok) {
       throw new Error(
@@ -260,10 +254,6 @@ export default async function handler(request, response) {
       ...(pageData.results || [])
     );
 
-    /*
-     * Stop if TMDB has no more pages.
-     */
-
     if (
       !pageData.total_pages ||
       page >= pageData.total_pages
@@ -272,77 +262,85 @@ export default async function handler(request, response) {
     }
   }
 
-  /*
-   * Get our website ratings.
-   */
-
   const { neon } =
     await import("@neondatabase/serverless");
 
-  const sql = neon(process.env.DATABASE_URL);
+  const sql =
+    neon(process.env.DATABASE_URL);
 
-  const websiteRatings = await sql`
-    SELECT movie_id, rating
-    FROM movie_reviews
-    WHERE rating IS NOT NULL
-  `;
+  const websiteRatings =
+    await sql`
+      SELECT movie_id, rating
+      FROM movie_reviews
+      WHERE rating IS NOT NULL
+    `;
 
-  const websiteRatingMap = new Map(
-    websiteRatings.map(row => [
-      Number(row.movie_id),
-      Number(row.rating)
-    ])
-  );
+  const websiteRatingMap =
+    new Map(
+      websiteRatings.map(row => [
+        Number(row.movie_id),
+        Number(row.rating)
+      ])
+    );
 
-  /*
-   * Website rating overrides TMDB rating.
-   * Otherwise use TMDB rating.
-   */
+  const rankedMovies =
+    streamingMovies
 
-  const rankedMovies = streamingMovies
-    .map(movie => {
+      .map(movie => {
 
-      const websiteRating =
-        websiteRatingMap.get(Number(movie.id));
+        const websiteRating =
+          websiteRatingMap.get(
+            Number(movie.id)
+          );
 
-      const effectiveRating =
-        websiteRating !== undefined
-          ? websiteRating
-          : Number(movie.vote_average) || 0;
-
-      return {
-        ...movie,
-
-        vote_average: effectiveRating,
-
-        website_rating:
+        const effectiveRating =
           websiteRating !== undefined
             ? websiteRating
-            : null
-      };
+            : Number(movie.vote_average) || 0;
 
-    })
+        return {
+          ...movie,
 
-    .filter(movie => movie.vote_average > 0)
+          vote_average:
+            effectiveRating,
 
-    .sort((a, b) => {
+          website_rating:
+            websiteRating !== undefined
+              ? websiteRating
+              : null
+        };
 
-      if (b.vote_average !== a.vote_average) {
-        return b.vote_average - a.vote_average;
-      }
+      })
 
-      return (
-        (b.vote_count || 0) -
-        (a.vote_count || 0)
-      );
+      .filter(
+        movie => movie.vote_average > 0
+      )
 
-    });
+      .sort((a, b) => {
 
-return response.status(200).json({
-  provider: selectedProvider.name,
-  region: region,
-  results: rankedMovies.slice(0, 200)
-});   
+        if (
+          b.vote_average !==
+          a.vote_average
+        ) {
+          return (
+            b.vote_average -
+            a.vote_average
+          );
+        }
+
+        return (
+          (b.vote_count || 0) -
+          (a.vote_count || 0)
+        );
+
+      });
+
+  return response.status(200).json({
+    provider: selectedProvider.name,
+    region: region,
+    results:
+      rankedMovies.slice(0, 200)
+  });
       
 } else if (request.query.type === "upcoming") {
 
