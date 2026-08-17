@@ -202,6 +202,62 @@
       font-size: 13px;
     }
 
+    .country-selector {
+  margin: 25px 0 55px;
+  padding: 22px 26px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 25px;
+
+  background: rgba(15, 23, 42, 0.55);
+
+  border: 1px solid rgba(96, 165, 250, 0.18);
+  border-radius: 12px;
+}
+
+.country-selector label {
+  color: #dbeafe;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.country-selector select {
+  min-width: 220px;
+
+  padding: 10px 14px;
+
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  border-radius: 8px;
+
+  background: #0f2748;
+  color: white;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.country-selector select:focus {
+  outline: none;
+  border-color: #60a5fa;
+}
+
+@media (max-width: 600px) {
+
+  .country-selector {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .country-selector select {
+    width: 100%;
+  }
+
+}
+
     /* MOVIE CAROUSEL */
 
     .movie-carousel {
@@ -597,13 +653,48 @@
   <main>
 
     <h1 class="page-title">
-      Streaming Recommendations
-    </h1>
+  Streaming Recommendations
+</h1>
 
-    <p class="page-description">
-      Discover the highest-rated movies currently included
-      with your streaming subscription in Spain.
-    </p>
+<p class="page-description">
+  Discover the highest-rated movies currently included
+  with your streaming subscription.
+</p>
+
+<div class="country-selector">
+
+  <label for="country-select">
+    Change your country to see the streaming options available to you.
+  </label>
+
+  <select id="country-select">
+    <option value="ES">🇪🇸 Spain</option>
+    <option value="US">🇺🇸 United States</option>
+    <option value="GB">🇬🇧 United Kingdom</option>
+    <option value="CA">🇨🇦 Canada</option>
+    <option value="AU">🇦🇺 Australia</option>
+    <option value="FR">🇫🇷 France</option>
+    <option value="DE">🇩🇪 Germany</option>
+    <option value="IT">🇮🇹 Italy</option>
+    <option value="PT">🇵🇹 Portugal</option>
+    <option value="NL">🇳🇱 Netherlands</option>
+    <option value="BE">🇧🇪 Belgium</option>
+    <option value="IE">🇮🇪 Ireland</option>
+    <option value="SE">🇸🇪 Sweden</option>
+    <option value="NO">🇳🇴 Norway</option>
+    <option value="DK">🇩🇰 Denmark</option>
+    <option value="FI">🇫🇮 Finland</option>
+    <option value="CH">🇨🇭 Switzerland</option>
+    <option value="AT">🇦🇹 Austria</option>
+    <option value="NZ">🇳🇿 New Zealand</option>
+    <option value="JP">🇯🇵 Japan</option>
+    <option value="KR">🇰🇷 South Korea</option>
+    <option value="MX">🇲🇽 Mexico</option>
+    <option value="BR">🇧🇷 Brazil</option>
+    <option value="AR">🇦🇷 Argentina</option>
+  </select>
+
+</div>
 
 
     <!-- NETFLIX -->
@@ -774,560 +865,163 @@
 
 <script>
 
-  /* ACCOUNT */
+<script>
 
-  async function updateAccountNav() {
+let selectedRegion =
+  localStorage.getItem("streamingRegion") || "ES";
 
-    const accountNav =
-      document.getElementById("account-nav");
+const countrySelect =
+  document.getElementById("country-select");
 
-    if (!accountNav) return;
+countrySelect.value = selectedRegion;
 
-    try {
 
-      const response =
-        await fetch("/api/current-user.js");
+/* COUNTRY CHANGE */
 
-      if (!response.ok) return;
+countrySelect.addEventListener("change", () => {
 
-      const data =
-        await response.json();
+  selectedRegion =
+    countrySelect.value;
 
-      if (!data.loggedIn) return;
+  localStorage.setItem(
+    "streamingRegion",
+    selectedRegion
+  );
 
-      accountNav.innerHTML = `
-        <a
-          href="/account.html"
-          class="profile-nav-icon"
-          aria-label="My Profile"
-          title="My Profile"
-        >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
-          >
-            <circle
-              cx="12"
-              cy="8"
-              r="3.5"
-              stroke="currentColor"
-              stroke-width="1.8"
-            />
+  loadAllStreamingMovies();
 
-            <path
-              d="M5 20C5.8 16.6 8.2 14.5 12 14.5C15.8 14.5 18.2 16.6 19 20"
-              stroke="currentColor"
-              stroke-width="1.8"
-              stroke-linecap="round"
-            />
-          </svg>
-        </a>
-      `;
+});
 
-    } catch (error) {
 
-      console.error(
-        "Could not check account status:",
-        error
+/* LOAD ONE STREAMING SERVICE */
+
+async function loadStreamingMovies(
+  provider,
+  containerId
+) {
+
+  const container =
+    document.getElementById(containerId);
+
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="loading">
+      LOADING...
+    </div>
+  `;
+
+  try {
+
+    const response =
+      await fetch(
+        `/api/movies?type=streaming&provider=${provider}&region=${selectedRegion}`
       );
 
-    }
-  }
-
-  updateAccountNav();
-
-
-  /* WISHLIST */
-
-  let wishlistMovieIds = new Set();
-
-
-  async function loadWishlistState() {
-
-    try {
-
-      const response =
-        await fetch("/api/wishlist.js");
-
-      if (response.status === 401) {
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error(
-          "Could not load wishlist"
-        );
-      }
-
-      const data =
-        await response.json();
-
-      wishlistMovieIds =
-        new Set(
-          (data.movies || [])
-            .map(movie =>
-              Number(movie.movie_id)
-            )
-        );
-
-      updateWishlistButtons();
-
-    } catch (error) {
-
-      console.error(
-        "Wishlist state:",
-        error
+    if (!response.ok) {
+      throw new Error(
+        "Streaming request failed"
       );
-
     }
-  }
 
+    const data =
+      await response.json();
 
-  function createWishlistButton(movieId) {
-
-    const button =
-      document.createElement("button");
-
-    button.className =
-      "wishlist-test";
-
-    button.type = "button";
-
-    button.setAttribute(
-      "aria-label",
-      "Add to wishlist"
-    );
+    container.innerHTML = "";
 
     if (
-      wishlistMovieIds.has(
-        Number(movieId)
-      )
+      !data.results ||
+      data.results.length === 0
     ) {
-      button.classList.add("saved");
-    }
-
-    button.innerHTML = `
-      <svg
-        viewBox="0 0 24 28"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-hidden="true"
-      >
-        <path
-          d="M4 2.5C4 1.67 4.67 1 5.5 1H18.5C19.33 1 20 1.67 20 2.5V26L12 21.2L4 26V2.5Z"
-          fill="${
-            wishlistMovieIds.has(
-              Number(movieId)
-            )
-              ? "currentColor"
-              : "rgba(0,0,0,0.45)"
-          }"
-          stroke="white"
-          stroke-width="1.5"
-          stroke-linejoin="round"
-        />
-      </svg>
-    `;
-
-    updateWishlistButtonAppearance(button);
-
-
-    button.addEventListener(
-      "click",
-      async event => {
-
-        event.preventDefault();
-        event.stopPropagation();
-
-        const saved =
-          button.classList.contains(
-            "saved"
-          );
-
-        try {
-
-          let response;
-
-          if (saved) {
-
-            response =
-              await fetch(
-                `/api/wishlist.js?movie_id=${movieId}`,
-                {
-                  method: "DELETE"
-                }
-              );
-
-          } else {
-
-            response =
-              await fetch(
-                "/api/wishlist.js",
-                {
-                  method: "POST",
-
-                  headers: {
-                    "Content-Type":
-                      "application/json"
-                  },
-
-                  body:
-                    JSON.stringify({
-                      movie_id:
-                        Number(movieId)
-                    })
-                }
-              );
-          }
-
-          const data =
-            await response.json();
-
-          if (response.status === 401) {
-
-            alert(
-              "Please log in first."
-            );
-
-            return;
-          }
-
-          if (!response.ok) {
-
-            throw new Error(
-              data.error ||
-              "Wishlist update failed"
-            );
-
-          }
-
-          if (data.saved) {
-
-            wishlistMovieIds.add(
-              Number(movieId)
-            );
-
-            button.classList.add(
-              "saved"
-            );
-
-            button.setAttribute(
-              "aria-label",
-              "Remove from wishlist"
-            );
-
-            updateWishlistButtonAppearance(
-              button
-            );
-
-            showWishlistMessage(
-              button,
-              "Added to wishlist"
-            );
-
-          } else {
-
-            wishlistMovieIds.delete(
-              Number(movieId)
-            );
-
-            button.classList.remove(
-              "saved"
-            );
-
-            button.setAttribute(
-              "aria-label",
-              "Add to wishlist"
-            );
-
-            updateWishlistButtonAppearance(
-              button
-            );
-
-            showWishlistMessage(
-              button,
-              "Removed from wishlist"
-            );
-
-          }
-
-        } catch (error) {
-
-          console.error(
-            "Wishlist:",
-            error
-          );
-
-          alert(
-            "Could not update your wishlist."
-          );
-
-        }
-
-      }
-    );
-
-    return button;
-  }
-
-
-  function updateWishlistButtonAppearance(
-    button
-  ) {
-
-    const saved =
-      button.classList.contains(
-        "saved"
-      );
-
-    button.innerHTML = `
-      <svg
-        viewBox="0 0 24 28"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-hidden="true"
-      >
-        <path
-          d="M4 2.5C4 1.67 4.67 1 5.5 1H18.5C19.33 1 20 1.67 20 2.5V26L12 21.2L4 26V2.5Z"
-          fill="${
-            saved
-              ? "currentColor"
-              : "rgba(0,0,0,0.45)"
-          }"
-          stroke="${
-            saved
-              ? "#3b82f6"
-              : "white"
-          }"
-          stroke-width="1.5"
-          stroke-linejoin="round"
-        />
-      </svg>
-    `;
-  }
-
-
-  function updateWishlistButtons() {
-
-    document
-      .querySelectorAll(
-        ".wishlist-test"
-      )
-      .forEach(button => {
-
-        const movieElement =
-          button.closest(".movie");
-
-        if (!movieElement) return;
-
-        const movieId =
-          Number(
-            movieElement.dataset.movieId
-          );
-
-        const saved =
-          wishlistMovieIds.has(
-            movieId
-          );
-
-        button.classList.toggle(
-          "saved",
-          saved
-        );
-
-        button.setAttribute(
-          "aria-label",
-          saved
-            ? "Remove from wishlist"
-            : "Add to wishlist"
-        );
-
-        updateWishlistButtonAppearance(
-          button
-        );
-
-      });
-  }
-
-
-  function showWishlistMessage(
-    button,
-    message
-  ) {
-
-    const existing =
-      button.parentElement.querySelector(
-        ".wishlist-message"
-      );
-
-    if (existing) {
-      existing.remove();
-    }
-
-    const label =
-      document.createElement("div");
-
-    label.className =
-      "wishlist-message";
-
-    label.textContent =
-      message;
-
-    button.parentElement.appendChild(
-      label
-    );
-
-    setTimeout(() => {
-      label.remove();
-    }, 1800);
-  }
-
-
-  /* MOVIES */
-
-  async function loadStreamingMovies(
-    provider,
-    containerId
-  ) {
-
-    const container =
-      document.getElementById(
-        containerId
-      );
-
-    try {
-
-      const response =
-        await fetch(
-          `/api/movies?type=streaming&provider=${provider}`
-        );
-
-      const data =
-        await response.json();
-
-      if (!response.ok) {
-
-        throw new Error(
-          data.error ||
-          "Streaming request failed"
-        );
-
-      }
-
-      container.innerHTML = "";
-
-      if (
-        !data.results ||
-        data.results.length === 0
-      ) {
-
-        container.innerHTML = `
-          <div class="error">
-            No movies found.
-          </div>
-        `;
-
-        return;
-      }
-
-
-      data.results.forEach(movie => {
-
-        const movieElement =
-          document.createElement(
-            "div"
-          );
-
-        movieElement.className =
-          "movie";
-
-        movieElement.dataset.movieId =
-          movie.id;
-
-        movieElement.onclick = () => {
-
-          window.location.href =
-            `movie.html?id=${movie.id}`;
-
-        };
-
-
-        const poster =
-          movie.poster_path
-            ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-            : "";
-
-
-        movieElement.innerHTML = `
-          <div class="poster">
-
-            ${
-              poster
-                ? `
-                  <img
-                    src="${poster}"
-                    alt="${movie.title}"
-                  >
-                `
-                : "NO POSTER"
-            }
-
-          </div>
-
-          <div class="movie-title">
-            ${movie.title}
-          </div>
-
-          <div class="rating">
-            ★ ${Number(
-              movie.vote_average
-            ).toFixed(1)}
-          </div>
-        `;
-
-
-        container.appendChild(
-          movieElement
-        );
-
-
-        const posterElement =
-          movieElement.querySelector(
-            ".poster"
-          );
-
-        posterElement.appendChild(
-          createWishlistButton(
-            movie.id
-          )
-        );
-
-      });
-
-
-      updateWishlistButtons();
-
-    } catch (error) {
-
-      console.error(
-        `Could not load ${provider}:`,
-        error
-      );
 
       container.innerHTML = `
-        <div class="error">
-          Unable to load movies.
+        <div class="loading">
+          No movies available for this service
+          in this country.
         </div>
       `;
 
+      return;
     }
+
+
+    data.results.forEach(movie => {
+
+      const movieElement =
+        document.createElement("div");
+
+      movieElement.className = "movie";
+
+      movieElement.onclick = () => {
+
+        window.location.href =
+          `movie.html?id=${movie.id}`;
+
+      };
+
+
+      const poster =
+        movie.poster_path
+          ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+          : "";
+
+
+      movieElement.innerHTML = `
+
+        <div class="poster">
+
+          ${
+            poster
+              ? `
+                <img
+                  src="${poster}"
+                  alt="${movie.title}"
+                >
+              `
+              : "NO POSTER"
+          }
+
+        </div>
+
+        <div class="movie-title">
+          ${movie.title}
+        </div>
+
+        <div class="rating">
+          ★ ${Number(movie.vote_average).toFixed(1)}
+        </div>
+
+      `;
+
+
+      container.appendChild(
+        movieElement
+      );
+
+    });
+
+
+  } catch (error) {
+
+    console.error(
+      "Streaming:",
+      error
+    );
+
+    container.innerHTML = `
+      <div class="loading">
+        Unable to load movies.
+      </div>
+    `;
 
   }
 
+}
 
-  /* LOAD ALL FOUR SERVICES */
+
+/* LOAD ALL FOUR SERVICES */
+
+function loadAllStreamingMovies() {
 
   loadStreamingMovies(
     "netflix",
@@ -1349,121 +1043,14 @@
     "apple-movies"
   );
 
-
-  /* CAROUSELS */
-
-  function setupCarousel(
-    containerId,
-    leftId,
-    rightId
-  ) {
-
-    const container =
-      document.getElementById(
-        containerId
-      );
-
-    const leftButton =
-      document.getElementById(
-        leftId
-      );
-
-    const rightButton =
-      document.getElementById(
-        rightId
-      );
+}
 
 
-    function updateVisibility() {
+/* INITIAL LOAD */
 
-      const atStart =
-        container.scrollLeft <= 5;
+loadAllStreamingMovies();
 
-      const atEnd =
-        container.scrollLeft +
-          container.clientWidth >=
-        container.scrollWidth - 5;
-
-
-      leftButton.classList.toggle(
-        "hidden",
-        atStart
-      );
-
-      rightButton.classList.toggle(
-        "hidden",
-        atEnd
-      );
-
-    }
-
-
-    rightButton.addEventListener(
-      "click",
-      () => {
-
-        container.scrollBy({
-          left: 600,
-          behavior: "smooth"
-        });
-
-      }
-    );
-
-
-    leftButton.addEventListener(
-      "click",
-      () => {
-
-        container.scrollBy({
-          left: -600,
-          behavior: "smooth"
-        });
-
-      }
-    );
-
-
-    container.addEventListener(
-      "scroll",
-      updateVisibility
-    );
-
-
-    setTimeout(
-      updateVisibility,
-      800
-    );
-
-  }
-
-
-  setupCarousel(
-    "netflix-movies",
-    "netflix-left",
-    "netflix-right"
-  );
-
-  setupCarousel(
-    "prime-movies",
-    "prime-left",
-    "prime-right"
-  );
-
-  setupCarousel(
-    "disney-movies",
-    "disney-left",
-    "disney-right"
-  );
-
-  setupCarousel(
-    "apple-movies",
-    "apple-left",
-    "apple-right"
-  );
-
-
-  loadWishlistState();
+</script>
 
 </script>
 
