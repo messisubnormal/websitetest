@@ -938,6 +938,8 @@ async function loadStreamingMovies(
         </div>
       `;
 
+      updateCarouselArrows(containerId);
+
       return;
     }
 
@@ -957,10 +959,18 @@ async function loadStreamingMovies(
       };
 
 
+      /*
+       * Use poster first.
+       * If TMDB doesn't have one,
+       * use the backdrop instead.
+       */
+
       const poster =
         movie.poster_path
           ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-          : "";
+          : movie.backdrop_path
+            ? `https://image.tmdb.org/t/p/w780${movie.backdrop_path}`
+            : "";
 
 
       movieElement.innerHTML = `
@@ -998,6 +1008,14 @@ async function loadStreamingMovies(
     });
 
 
+    /*
+     * Reconnect the carousel
+     * after the movies are loaded.
+     */
+
+    setupCarousel(containerId);
+
+
   } catch (error) {
 
     console.error(
@@ -1011,6 +1029,165 @@ async function loadStreamingMovies(
       </div>
     `;
 
+    updateCarouselArrows(containerId);
+
+  }
+
+}
+
+
+/* CAROUSEL */
+
+function setupCarousel(containerId) {
+
+  const container =
+    document.getElementById(containerId);
+
+  if (!container) return;
+
+
+  const carousel =
+    container.closest(".movie-carousel");
+
+  if (!carousel) return;
+
+
+  const leftArrow =
+    carousel.querySelector(".carousel-left");
+
+  const rightArrow =
+    carousel.querySelector(".carousel-right");
+
+
+  if (!leftArrow || !rightArrow) {
+    return;
+  }
+
+
+  /*
+   * Remove old handlers by replacing
+   * the buttons with clones.
+   *
+   * This is important because the carousel
+   * gets rebuilt every time the country changes.
+   */
+
+  const newLeft =
+    leftArrow.cloneNode(true);
+
+  const newRight =
+    rightArrow.cloneNode(true);
+
+  leftArrow.replaceWith(newLeft);
+  rightArrow.replaceWith(newRight);
+
+
+  const scrollAmount = 800;
+
+
+  newLeft.addEventListener(
+    "click",
+    () => {
+
+      container.scrollBy({
+        left: -scrollAmount,
+        behavior: "smooth"
+      });
+
+    }
+  );
+
+
+  newRight.addEventListener(
+    "click",
+    () => {
+
+      container.scrollBy({
+        left: scrollAmount,
+        behavior: "smooth"
+      });
+
+    }
+  );
+
+
+  function updateArrows() {
+
+    const maxScroll =
+      container.scrollWidth -
+      container.clientWidth;
+
+
+    if (container.scrollLeft <= 5) {
+
+      newLeft.classList.add("hidden");
+
+    } else {
+
+      newLeft.classList.remove("hidden");
+
+    }
+
+
+    if (
+      container.scrollLeft >=
+      maxScroll - 5
+    ) {
+
+      newRight.classList.add("hidden");
+
+    } else {
+
+      newRight.classList.remove("hidden");
+
+    }
+
+  }
+
+
+  container.addEventListener(
+    "scroll",
+    updateArrows
+  );
+
+
+  updateArrows();
+
+}
+
+
+/*
+ * Used when there are no results
+ * or an API error occurs.
+ */
+
+function updateCarouselArrows(containerId) {
+
+  const container =
+    document.getElementById(containerId);
+
+  if (!container) return;
+
+
+  const carousel =
+    container.closest(".movie-carousel");
+
+  if (!carousel) return;
+
+
+  const leftArrow =
+    carousel.querySelector(".carousel-left");
+
+  const rightArrow =
+    carousel.querySelector(".carousel-right");
+
+
+  if (leftArrow) {
+    leftArrow.classList.add("hidden");
+  }
+
+  if (rightArrow) {
+    rightArrow.classList.add("hidden");
   }
 
 }
