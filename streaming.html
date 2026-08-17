@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Streaming Recommendations</title>
+
+  <script>
+    window.va = window.va || function () {
+      (window.vaq = window.vaq || []).push(arguments);
+    };
+  </script>
+
+  <script defer src="/_vercel/insights/script.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+
+      background:
+        radial-gradient(
+          circle at 15% 10%,
+          rgba(37, 99, 235, 0.28),
+          transparent 30%
+        ),
+        radial-gradient(
+          circle at 85% 25%,
+          rgba(59, 130, 246, 0.18),
+          transparent 30%
+        ),
+        linear-gradient(
+          135deg,
+          #020617,
+          #071b3a 50%,
+          #06152d
+        );
+
+      color: #ffffff;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    /* NAVIGATION */
+
+    nav {
+      height: 76px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      padding: 0 50px;
+
+      background: rgba(2, 6, 23, 0.72);
+      border-bottom: 1px solid rgba(96, 165, 250, 0.18);
+
+      backdrop-filter: blur(12px);
+
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+
+      color: white;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: #dbeafe;
+      text-decoration: none;
+
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.15;
+
+      text-align: center;
+      white-space: nowrap;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      min-height: 40px;
+
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: #60a5fa;
+    }
+
+    .account-link {
+      color: #dbeafe;
+      text-decoration: none;
+
+      font-size: 13px;
+      font-weight: 600;
+
+      white-space: nowrap;
+
+      margin-left: 28px;
+    }
+
+    .account-link:hover {
+      color: #60a5fa;
+    }
+
+    .profile-nav-icon {
+      width: 34px;
+      height: 34px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 50%;
+
+      text-decoration: none;
+
+      transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+    }
+
+    .profile-nav-icon:hover {
+      opacity: 0.8;
+      transform: scale(1.05);
+    }
+
+    .profile-nav-icon svg {
+      width: 30px;
+      height: 30px;
+      display: block;
+    }
+
+    /* MAIN */
+
+    main {
+      max-width: 1450px;
+      margin: auto;
+
+      padding: 55px 50px 100px;
+    }
+
+    .page-title {
+      font-size: 34px;
+      font-weight: 700;
+
+      margin-bottom: 12px;
+    }
+
+    .page-description {
+      color: #bfdbfe;
+
+      font-size: 15px;
+      line-height: 1.6;
+
+      max-width: 800px;
+
+      margin-bottom: 55px;
+    }
+
+    .streaming-section {
+      margin-bottom: 65px;
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+
+      margin-bottom: 22px;
+    }
+
+    .section-heading h2 {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .section-heading span {
+      color: #93c5fd;
+      font-size: 13px;
+    }
+
+    /* MOVIE CAROUSEL */
+
+    .movie-carousel {
+      position: relative;
+    }
+
+    .movie-grid {
+      display: flex;
+      flex-wrap: nowrap;
+
+      gap: 20px;
+
+      overflow-x: hidden;
+      overflow-y: hidden;
+
+      scroll-behavior: smooth;
+
+      padding-top: 8px;
+      margin-top: -8px;
+    }
+
+    .movie {
+      flex: 0 0 180px;
+
+      min-width: 0;
+
+      cursor: pointer;
+    }
+
+    .poster {
+      position: relative;
+
+      width: 100%;
+      aspect-ratio: 2 / 3;
+
+      border-radius: 8px;
+      overflow: hidden;
+
+      background:
+        linear-gradient(
+          145deg,
+          #172554,
+          #0f172a
+        );
+
+      border: 1px solid rgba(96, 165, 250, 0.15);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      color: rgba(255, 255, 255, 0.35);
+      font-size: 13px;
+
+      transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+    }
+
+    .poster img {
+      width: 100%;
+      height: 100%;
+
+      object-fit: cover;
+
+      display: block;
+    }
+
+    .movie:hover .poster {
+      transform: translateY(-5px);
+
+      box-shadow:
+        0 12px 30px rgba(37, 99, 235, 0.25);
+    }
+
+    .movie-title {
+      margin-top: 11px;
+
+      font-size: 14px;
+      font-weight: 600;
+
+      color: #f8fafc;
+
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .rating {
+      margin-top: 6px;
+
+      font-size: 14px;
+      font-weight: 600;
+
+      color: #facc15;
+    }
+
+    /* WISHLIST */
+
+    .wishlist-test {
+      position: absolute;
+
+      top: 8px;
+      right: 8px;
+
+      z-index: 50;
+
+      width: 30px;
+      height: 36px;
+
+      border: none;
+      background: transparent;
+
+      color: #4169E1;
+
+      cursor: pointer;
+
+      display: none;
+      align-items: center;
+      justify-content: center;
+
+      padding: 0;
+    }
+
+    .wishlist-test svg {
+      width: 26px;
+      height: 32px;
+
+      display: block;
+
+      filter:
+        drop-shadow(
+          0 2px 4px rgba(0, 0, 0, 0.65)
+        );
+    }
+
+    .poster:hover .wishlist-test,
+    .wishlist-test.saved {
+      display: flex;
+    }
+
+    .wishlist-test:hover {
+      transform: scale(1.1);
+    }
+
+    .wishlist-message {
+      position: absolute;
+
+      top: 46px;
+      right: 8px;
+
+      padding: 4px 7px;
+
+      background: rgba(2, 6, 23, 0.88);
+
+      color: #93c5fd;
+
+      font-size: 10px;
+      font-weight: 600;
+
+      white-space: nowrap;
+
+      border-radius: 4px;
+
+      pointer-events: none;
+
+      animation: wishlistMessageIn 0.2s ease;
+    }
+
+    @keyframes wishlistMessageIn {
+      from {
+        opacity: 0;
+        transform: translateY(-3px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ARROWS */
+
+    .carousel-arrow {
+      position: absolute;
+
+      top: 42%;
+      transform: translateY(-50%);
+
+      z-index: 10;
+
+      width: 38px;
+      height: 90px;
+
+      border: none;
+      border-radius: 6px;
+
+      background: rgba(20, 80, 150, 0.45);
+
+      color: white;
+
+      font-size: 32px;
+      font-family: Arial, sans-serif;
+
+      line-height: 1;
+
+      cursor: pointer;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      padding: 0 0 3px 0;
+
+      transition:
+        background 0.2s ease,
+        opacity 0.25s ease;
+    }
+
+    .carousel-arrow:hover {
+      background: rgba(40, 110, 200, 1);
+    }
+
+    .carousel-left {
+      left: -20px;
+    }
+
+    .carousel-right {
+      right: -20px;
+    }
+
+    .carousel-arrow.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* LOADING */
+
+    .loading {
+      width: 100%;
+      min-height: 270px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      color: #93c5fd;
+
+      font-size: 14px;
+    }
+
+    .error {
+      color: #fca5a5;
+      padding: 20px 0;
+    }
+
+    /* MOBILE */
+
+    @media (max-width: 1100px) {
+
+      .nav-links {
+        gap: 14px;
+      }
+
+      nav {
+        padding: 0 30px;
+      }
+
+      main {
+        padding-left: 30px;
+        padding-right: 30px;
+      }
+    }
+
+    @media (max-width: 800px) {
+
+      nav {
+        padding: 0 25px;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      main {
+        padding: 45px 25px 80px;
+      }
+
+      .page-title {
+        font-size: 29px;
+      }
+
+      .section-heading h2 {
+        font-size: 21px;
+      }
+    }
+
+    @media (max-width: 500px) {
+
+      .logo {
+        font-size: 17px;
+      }
+
+      main {
+        padding:
+          35px
+          16px
+          60px;
+      }
+
+      .movie {
+        flex: 0 0 155px;
+      }
+
+      .carousel-left {
+        left: -12px;
+      }
+
+      .carousel-right {
+        right: -12px;
+      }
+
+      .page-title {
+        font-size: 25px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav>
+
+    <a href="/index.html" class="logo">
+      FIND YOUR NEXT FAVOURITE MOVIE
+    </a>
+
+    <ul class="nav-links">
+
+      <li>
+        <a href="/top-rated.html">
+          TOP RATED
+        </a>
+      </li>
+
+      <li>
+        <a href="/recommendations.html">
+          PERSONAL<br>
+          RECOMMENDATIONS
+        </a>
+      </li>
+
+      <li>
+        <a href="#">
+          NEWS
+        </a>
+      </li>
+
+      <li>
+        <a href="/streaming.html">
+          STREAMING<br>
+          RECOMMENDATIONS
+        </a>
+      </li>
+
+      <li>
+        <a href="#">
+          FORUM
+        </a>
+      </li>
+
+      <li>
+        <a href="#">
+          HELP<br>
+          IN PRODUCTION
+        </a>
+      </li>
+
+    </ul>
+
+    <div id="account-nav">
+      <a
+        href="/account.html"
+        class="account-link"
+      >
+        LOG IN
+      </a>
+    </div>
+
+  </nav>
+
+
+  <main>
+
+    <h1 class="page-title">
+      Streaming Recommendations
+    </h1>
+
+    <p class="page-description">
+      Discover the highest-rated movies currently included
+      with your streaming subscription in Spain.
+    </p>
+
+
+    <!-- NETFLIX -->
+
+    <section class="streaming-section">
+
+      <div class="section-heading">
+        <h2>Netflix</h2>
+        <span>Top 200</span>
+      </div>
+
+      <div class="movie-carousel">
+
+        <button
+          class="carousel-arrow carousel-left hidden"
+          id="netflix-left"
+          aria-label="Previous Netflix movies"
+        >
+          ‹
+        </button>
+
+        <div
+          class="movie-grid"
+          id="netflix-movies"
+        >
+          <div class="loading">
+            LOADING...
+          </div>
+        </div>
+
+        <button
+          class="carousel-arrow carousel-right"
+          id="netflix-right"
+          aria-label="Next Netflix movies"
+        >
+          ›
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- AMAZON -->
+
+    <section class="streaming-section">
+
+      <div class="section-heading">
+        <h2>Amazon Prime Video</h2>
+        <span>Top 200</span>
+      </div>
+
+      <div class="movie-carousel">
+
+        <button
+          class="carousel-arrow carousel-left hidden"
+          id="prime-left"
+          aria-label="Previous Amazon Prime movies"
+        >
+          ‹
+        </button>
+
+        <div
+          class="movie-grid"
+          id="prime-movies"
+        >
+          <div class="loading">
+            LOADING...
+          </div>
+        </div>
+
+        <button
+          class="carousel-arrow carousel-right"
+          id="prime-right"
+          aria-label="Next Amazon Prime movies"
+        >
+          ›
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- DISNEY -->
+
+    <section class="streaming-section">
+
+      <div class="section-heading">
+        <h2>Disney+</h2>
+        <span>Top 200</span>
+      </div>
+
+      <div class="movie-carousel">
+
+        <button
+          class="carousel-arrow carousel-left hidden"
+          id="disney-left"
+          aria-label="Previous Disney Plus movies"
+        >
+          ‹
+        </button>
+
+        <div
+          class="movie-grid"
+          id="disney-movies"
+        >
+          <div class="loading">
+            LOADING...
+          </div>
+        </div>
+
+        <button
+          class="carousel-arrow carousel-right"
+          id="disney-right"
+          aria-label="Next Disney Plus movies"
+        >
+          ›
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- APPLE -->
+
+    <section class="streaming-section">
+
+      <div class="section-heading">
+        <h2>Apple TV+</h2>
+        <span>Top 200</span>
+      </div>
+
+      <div class="movie-carousel">
+
+        <button
+          class="carousel-arrow carousel-left hidden"
+          id="apple-left"
+          aria-label="Previous Apple TV Plus movies"
+        >
+          ‹
+        </button>
+
+        <div
+          class="movie-grid"
+          id="apple-movies"
+        >
+          <div class="loading">
+            LOADING...
+          </div>
+        </div>
+
+        <button
+          class="carousel-arrow carousel-right"
+          id="apple-right"
+          aria-label="Next Apple TV Plus movies"
+        >
+          ›
+        </button>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+<script>
+
+  /* ACCOUNT */
+
+  async function updateAccountNav() {
+
+    const accountNav =
+      document.getElementById("account-nav");
+
+    if (!accountNav) return;
+
+    try {
+
+      const response =
+        await fetch("/api/current-user.js");
+
+      if (!response.ok) return;
+
+      const data =
+        await response.json();
+
+      if (!data.loggedIn) return;
+
+      accountNav.innerHTML = `
+        <a
+          href="/account.html"
+          class="profile-nav-icon"
+          aria-label="My Profile"
+          title="My Profile"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <circle
+              cx="12"
+              cy="8"
+              r="3.5"
+              stroke="currentColor"
+              stroke-width="1.8"
+            />
+
+            <path
+              d="M5 20C5.8 16.6 8.2 14.5 12 14.5C15.8 14.5 18.2 16.6 19 20"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+            />
+          </svg>
+        </a>
+      `;
+
+    } catch (error) {
+
+      console.error(
+        "Could not check account status:",
+        error
+      );
+
+    }
+  }
+
+  updateAccountNav();
+
+
+  /* WISHLIST */
+
+  let wishlistMovieIds = new Set();
+
+
+  async function loadWishlistState() {
+
+    try {
+
+      const response =
+        await fetch("/api/wishlist.js");
+
+      if (response.status === 401) {
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          "Could not load wishlist"
+        );
+      }
+
+      const data =
+        await response.json();
+
+      wishlistMovieIds =
+        new Set(
+          (data.movies || [])
+            .map(movie =>
+              Number(movie.movie_id)
+            )
+        );
+
+      updateWishlistButtons();
+
+    } catch (error) {
+
+      console.error(
+        "Wishlist state:",
+        error
+      );
+
+    }
+  }
+
+
+  function createWishlistButton(movieId) {
+
+    const button =
+      document.createElement("button");
+
+    button.className =
+      "wishlist-test";
+
+    button.type = "button";
+
+    button.setAttribute(
+      "aria-label",
+      "Add to wishlist"
+    );
+
+    if (
+      wishlistMovieIds.has(
+        Number(movieId)
+      )
+    ) {
+      button.classList.add("saved");
+    }
+
+    button.innerHTML = `
+      <svg
+        viewBox="0 0 24 28"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <path
+          d="M4 2.5C4 1.67 4.67 1 5.5 1H18.5C19.33 1 20 1.67 20 2.5V26L12 21.2L4 26V2.5Z"
+          fill="${
+            wishlistMovieIds.has(
+              Number(movieId)
+            )
+              ? "currentColor"
+              : "rgba(0,0,0,0.45)"
+          }"
+          stroke="white"
+          stroke-width="1.5"
+          stroke-linejoin="round"
+        />
+      </svg>
+    `;
+
+    updateWishlistButtonAppearance(button);
+
+
+    button.addEventListener(
+      "click",
+      async event => {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        const saved =
+          button.classList.contains(
+            "saved"
+          );
+
+        try {
+
+          let response;
+
+          if (saved) {
+
+            response =
+              await fetch(
+                `/api/wishlist.js?movie_id=${movieId}`,
+                {
+                  method: "DELETE"
+                }
+              );
+
+          } else {
+
+            response =
+              await fetch(
+                "/api/wishlist.js",
+                {
+                  method: "POST",
+
+                  headers: {
+                    "Content-Type":
+                      "application/json"
+                  },
+
+                  body:
+                    JSON.stringify({
+                      movie_id:
+                        Number(movieId)
+                    })
+                }
+              );
+          }
+
+          const data =
+            await response.json();
+
+          if (response.status === 401) {
+
+            alert(
+              "Please log in first."
+            );
+
+            return;
+          }
+
+          if (!response.ok) {
+
+            throw new Error(
+              data.error ||
+              "Wishlist update failed"
+            );
+
+          }
+
+          if (data.saved) {
+
+            wishlistMovieIds.add(
+              Number(movieId)
+            );
+
+            button.classList.add(
+              "saved"
+            );
+
+            button.setAttribute(
+              "aria-label",
+              "Remove from wishlist"
+            );
+
+            updateWishlistButtonAppearance(
+              button
+            );
+
+            showWishlistMessage(
+              button,
+              "Added to wishlist"
+            );
+
+          } else {
+
+            wishlistMovieIds.delete(
+              Number(movieId)
+            );
+
+            button.classList.remove(
+              "saved"
+            );
+
+            button.setAttribute(
+              "aria-label",
+              "Add to wishlist"
+            );
+
+            updateWishlistButtonAppearance(
+              button
+            );
+
+            showWishlistMessage(
+              button,
+              "Removed from wishlist"
+            );
+
+          }
+
+        } catch (error) {
+
+          console.error(
+            "Wishlist:",
+            error
+          );
+
+          alert(
+            "Could not update your wishlist."
+          );
+
+        }
+
+      }
+    );
+
+    return button;
+  }
+
+
+  function updateWishlistButtonAppearance(
+    button
+  ) {
+
+    const saved =
+      button.classList.contains(
+        "saved"
+      );
+
+    button.innerHTML = `
+      <svg
+        viewBox="0 0 24 28"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <path
+          d="M4 2.5C4 1.67 4.67 1 5.5 1H18.5C19.33 1 20 1.67 20 2.5V26L12 21.2L4 26V2.5Z"
+          fill="${
+            saved
+              ? "currentColor"
+              : "rgba(0,0,0,0.45)"
+          }"
+          stroke="${
+            saved
+              ? "#3b82f6"
+              : "white"
+          }"
+          stroke-width="1.5"
+          stroke-linejoin="round"
+        />
+      </svg>
+    `;
+  }
+
+
+  function updateWishlistButtons() {
+
+    document
+      .querySelectorAll(
+        ".wishlist-test"
+      )
+      .forEach(button => {
+
+        const movieElement =
+          button.closest(".movie");
+
+        if (!movieElement) return;
+
+        const movieId =
+          Number(
+            movieElement.dataset.movieId
+          );
+
+        const saved =
+          wishlistMovieIds.has(
+            movieId
+          );
+
+        button.classList.toggle(
+          "saved",
+          saved
+        );
+
+        button.setAttribute(
+          "aria-label",
+          saved
+            ? "Remove from wishlist"
+            : "Add to wishlist"
+        );
+
+        updateWishlistButtonAppearance(
+          button
+        );
+
+      });
+  }
+
+
+  function showWishlistMessage(
+    button,
+    message
+  ) {
+
+    const existing =
+      button.parentElement.querySelector(
+        ".wishlist-message"
+      );
+
+    if (existing) {
+      existing.remove();
+    }
+
+    const label =
+      document.createElement("div");
+
+    label.className =
+      "wishlist-message";
+
+    label.textContent =
+      message;
+
+    button.parentElement.appendChild(
+      label
+    );
+
+    setTimeout(() => {
+      label.remove();
+    }, 1800);
+  }
+
+
+  /* MOVIES */
+
+  async function loadStreamingMovies(
+    provider,
+    containerId
+  ) {
+
+    const container =
+      document.getElementById(
+        containerId
+      );
+
+    try {
+
+      const response =
+        await fetch(
+          `/api/movies?type=streaming&provider=${provider}`
+        );
+
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+
+        throw new Error(
+          data.error ||
+          "Streaming request failed"
+        );
+
+      }
+
+      container.innerHTML = "";
+
+      if (
+        !data.results ||
+        data.results.length === 0
+      ) {
+
+        container.innerHTML = `
+          <div class="error">
+            No movies found.
+          </div>
+        `;
+
+        return;
+      }
+
+
+      data.results.forEach(movie => {
+
+        const movieElement =
+          document.createElement(
+            "div"
+          );
+
+        movieElement.className =
+          "movie";
+
+        movieElement.dataset.movieId =
+          movie.id;
+
+        movieElement.onclick = () => {
+
+          window.location.href =
+            `movie.html?id=${movie.id}`;
+
+        };
+
+
+        const poster =
+          movie.poster_path
+            ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+            : "";
+
+
+        movieElement.innerHTML = `
+          <div class="poster">
+
+            ${
+              poster
+                ? `
+                  <img
+                    src="${poster}"
+                    alt="${movie.title}"
+                  >
+                `
+                : "NO POSTER"
+            }
+
+          </div>
+
+          <div class="movie-title">
+            ${movie.title}
+          </div>
+
+          <div class="rating">
+            ★ ${Number(
+              movie.vote_average
+            ).toFixed(1)}
+          </div>
+        `;
+
+
+        container.appendChild(
+          movieElement
+        );
+
+
+        const posterElement =
+          movieElement.querySelector(
+            ".poster"
+          );
+
+        posterElement.appendChild(
+          createWishlistButton(
+            movie.id
+          )
+        );
+
+      });
+
+
+      updateWishlistButtons();
+
+    } catch (error) {
+
+      console.error(
+        `Could not load ${provider}:`,
+        error
+      );
+
+      container.innerHTML = `
+        <div class="error">
+          Unable to load movies.
+        </div>
+      `;
+
+    }
+
+  }
+
+
+  /* LOAD ALL FOUR SERVICES */
+
+  loadStreamingMovies(
+    "netflix",
+    "netflix-movies"
+  );
+
+  loadStreamingMovies(
+    "prime",
+    "prime-movies"
+  );
+
+  loadStreamingMovies(
+    "disney",
+    "disney-movies"
+  );
+
+  loadStreamingMovies(
+    "apple",
+    "apple-movies"
+  );
+
+
+  /* CAROUSELS */
+
+  function setupCarousel(
+    containerId,
+    leftId,
+    rightId
+  ) {
+
+    const container =
+      document.getElementById(
+        containerId
+      );
+
+    const leftButton =
+      document.getElementById(
+        leftId
+      );
+
+    const rightButton =
+      document.getElementById(
+        rightId
+      );
+
+
+    function updateVisibility() {
+
+      const atStart =
+        container.scrollLeft <= 5;
+
+      const atEnd =
+        container.scrollLeft +
+          container.clientWidth >=
+        container.scrollWidth - 5;
+
+
+      leftButton.classList.toggle(
+        "hidden",
+        atStart
+      );
+
+      rightButton.classList.toggle(
+        "hidden",
+        atEnd
+      );
+
+    }
+
+
+    rightButton.addEventListener(
+      "click",
+      () => {
+
+        container.scrollBy({
+          left: 600,
+          behavior: "smooth"
+        });
+
+      }
+    );
+
+
+    leftButton.addEventListener(
+      "click",
+      () => {
+
+        container.scrollBy({
+          left: -600,
+          behavior: "smooth"
+        });
+
+      }
+    );
+
+
+    container.addEventListener(
+      "scroll",
+      updateVisibility
+    );
+
+
+    setTimeout(
+      updateVisibility,
+      800
+    );
+
+  }
+
+
+  setupCarousel(
+    "netflix-movies",
+    "netflix-left",
+    "netflix-right"
+  );
+
+  setupCarousel(
+    "prime-movies",
+    "prime-left",
+    "prime-right"
+  );
+
+  setupCarousel(
+    "disney-movies",
+    "disney-left",
+    "disney-right"
+  );
+
+  setupCarousel(
+    "apple-movies",
+    "apple-left",
+    "apple-right"
+  );
+
+
+  loadWishlistState();
+
+</script>
+
+</body>
+</html>
