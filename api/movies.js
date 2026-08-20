@@ -2,6 +2,137 @@ export default async function handler(request, response) {
   try {
     const movieId = request.query.id;
 
+        if (request.query.type === "news") {
+
+      const { neon } = await import("@neondatabase/serverless");
+      const sql = neon(process.env.DATABASE_URL);
+
+      if (request.method === "GET") {
+
+        if (request.query.slug) {
+
+          const result = await sql`
+            SELECT *
+            FROM news_articles
+            WHERE slug = ${request.query.slug}
+              AND published = true
+            LIMIT 1
+          `;
+
+          if (result.length === 0) {
+            return response.status(404).json({
+              error: "Article not found"
+            });
+          }
+
+          return response.status(200).json(result[0]);
+        }
+
+        const result = await sql`
+          SELECT id, title, slug, excerpt, author, image_url, published, published_at
+          FROM news_articles
+          WHERE published = true
+          ORDER BY published_at DESC
+        `;
+
+        return response.status(200).json({
+          results: result
+        });
+      }
+
+      if (request.method === "POST") {
+
+        const cookies = request.headers.cookie || "";
+
+        const isAuthenticated = cookies
+          .split(";")
+          .map(cookie => cookie.trim())
+          .includes("admin_authenticated=true");
+
+        if (!isAuthenticated) {
+          return response.status(401).json({
+            error: "Unauthorized"
+          });
+        }
+
+        const {
+          id,
+          title,
+          slug,
+          excerpt,
+          content,
+          author,
+          image_url,
+          published
+        } = request.body;
+
+        if (!title || !slug || !content) {
+          return response.status(400).json({
+            error: "title, slug and content are required"
+          });
+        }
+
+        const cleanTitle = title;
+        const cleanSlug = slug;
+        const cleanExcerpt = excerpt || "";
+        const cleanContent = content;
+        const cleanAuthor = author || "Admin";
+        const cleanImageUrl = image_url || "";
+        const isPublished = published === true;
+
+        let result;
+
+        if (id) {
+
+          result = await sql`
+            UPDATE news_articles
+            SET
+              title = ${cleanTitle},
+              slug = ${cleanSlug},
+              excerpt = ${cleanExcerpt},
+              content = ${cleanContent},
+              author = ${cleanAuthor},
+              image_url = ${cleanImageUrl},
+              published = ${isPublished},
+              published_at = CASE
+                WHEN ${isPublished} = true AND published_at IS NULL THEN NOW()
+                WHEN ${isPublished} = false THEN NULL
+                ELSE published_at
+              END,
+              updated_at = NOW()
+            WHERE id = ${Number(id)}
+            RETURNING *
+          `;
+
+          if (result.length === 0) {
+            return response.status(404).json({
+              error: "Article not found"
+            });
+          }
+
+        } else {
+
+          result = await sql`
+            INSERT INTO news_articles (
+              title, slug, excerpt, content, author, image_url, published, published_at
+            )
+            VALUES (
+              ${cleanTitle}, ${cleanSlug}, ${cleanExcerpt}, ${cleanContent},
+              ${cleanAuthor}, ${cleanImageUrl}, ${isPublished},
+              ${isPublished ? new Date() : null}
+            )
+            RETURNING *
+          `;
+        }
+
+        return response.status(200).json(result[0]);
+      }
+
+      return response.status(405).json({
+        error: "Method not allowed"
+      });
+    }
+
     let url;
 
     if (movieId) {
