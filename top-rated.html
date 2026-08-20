@@ -62,12 +62,14 @@
 
       position: sticky;
       top: 0;
-      z-index: 10;
+      z-index: 100;
 
       min-width: 0;
     }
 
     .logo {
+      position: relative;
+      display: inline-block;
       font-size: 19px;
       font-weight: 700;
       letter-spacing: 0.5px;
@@ -78,6 +80,48 @@
       text-decoration: none;
 
       min-width: 0;
+
+      transition: transform 0.3s ease, text-shadow 0.3s ease;
+    }
+
+    .logo:hover {
+      transform: translateY(-1px);
+      text-shadow: 0 8px 14px rgba(0, 0, 0, 0.8);
+    }
+
+    .logo-shine {
+      position: relative;
+      display: inline-block;
+      overflow: hidden;
+    }
+
+    .logo-shine::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -40%;
+      width: 22%;
+      height: 100%;
+
+      background: linear-gradient(
+        100deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.18) 45%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0.18) 55%,
+        transparent 100%
+      );
+
+      pointer-events: none;
+    }
+
+    .logo:hover .logo-shine::after {
+      left: 120%;
+      transition: left 0.9s ease;
+    }
+
+    .logo-shine::after {
+      transition: left 0s;
     }
 
     .nav-links {
@@ -128,6 +172,28 @@
 
     .account-link:hover {
       color: #60a5fa;
+    }
+
+    .profile-nav-icon {
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      text-decoration: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .profile-nav-icon:hover {
+      opacity: 0.8;
+      transform: scale(1.05);
+    }
+
+    .profile-nav-icon svg {
+      width: 30px;
+      height: 30px;
+      display: block;
     }
 
     /* SEARCH */
@@ -311,13 +377,13 @@
     .wishlist-test {
       position: absolute;
 
-      top: 8px;
+      top: 0;
       right: 8px;
 
       z-index: 50;
 
       width: 30px;
-      height: 36px;
+      height: 44px;
 
       border: none;
 
@@ -329,7 +395,7 @@
 
       display: none;
 
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
 
       padding: 0;
@@ -337,7 +403,7 @@
 
     .wishlist-test svg {
       width: 26px;
-      height: 32px;
+      height: 100%;
 
       display: block;
 
@@ -436,7 +502,7 @@
 <nav>
 
   <a href="/index.html" class="logo">
-    FIND YOUR NEXT FAVOURITE MOVIE
+    <span class="logo-shine">FIND YOUR NEXT FAVORITE MOVIE</span>
   </a>
 
   <ul class="nav-links">
@@ -448,35 +514,22 @@
     </li>
 
     <li>
-      <a href="#">
+      <a href="/recommendations.html">
         PERSONAL<br>
         RECOMMENDATIONS
       </a>
     </li>
 
     <li>
-      <a href="#">
+      <a href="/news.html">
         NEWS
       </a>
     </li>
 
     <li>
-      <a href="#">
+      <a href="/streaming.html">
         STREAMING<br>
         RECOMMENDATIONS
-      </a>
-    </li>
-
-    <li>
-      <a href="#">
-        FORUM
-      </a>
-    </li>
-
-    <li>
-      <a href="#">
-        HELP<br>
-        IN PRODUCTION
       </a>
     </li>
 
@@ -642,6 +695,65 @@ async function loadTopRatedMovies() {
   }
 
 }
+
+
+/* ACCOUNT NAV */
+
+async function updateAccountNav() {
+  const accountNav = document.getElementById("account-nav");
+
+  if (!accountNav) return;
+
+  try {
+    const response = await fetch("/api/current-user.js");
+
+    if (!response.ok) {
+      return;
+    }
+
+    const data = await response.json();
+
+    if (!data.loggedIn) {
+      return;
+    }
+
+    accountNav.innerHTML = `
+      <a
+        href="/account.html"
+        class="profile-nav-icon"
+        aria-label="My Profile"
+        title="My Profile"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <circle
+            cx="12"
+            cy="8"
+            r="3.5"
+            stroke="currentColor"
+            stroke-width="1.8"
+          />
+
+          <path
+            d="M5 20C5.8 16.6 8.2 14.5 12 14.5C15.8 14.5 18.2 16.6 19 20"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+          />
+        </svg>
+      </a>
+    `;
+
+  } catch (error) {
+    console.error("Could not check account status:", error);
+  }
+}
+
+updateAccountNav();
 
 
 /* SEARCH */
