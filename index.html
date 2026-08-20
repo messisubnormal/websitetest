@@ -64,15 +64,15 @@
 
 .logo:hover {
   transform: translateY(-1px);
-  text-shadow: 0 6px 10px rgba(0, 0, 0, 0.55);
+  text-shadow: 0 8px 14px rgba(0, 0, 0, 0.8);
 }
 
 .logo::after {
   content: "";
   position: absolute;
   top: 0;
-  left: -150%;
-  width: 60%;
+  left: -60%;
+  width: 40%;
   height: 100%;
 
   background: linear-gradient(
@@ -88,8 +88,8 @@
 }
 
 .logo:hover::after {
-  left: 150%;
-  transition: left 1s ease;
+  left: 140%;
+  transition: left 0.9s ease;
 }
 
 .logo::after {
@@ -872,6 +872,12 @@ posterElement.appendChild(
 );
       });
 
+      updateCarouselVisibility(
+        document.getElementById("popular-movies"),
+        document.getElementById("popular-left"),
+        document.getElementById("popular-right")
+      );
+
     } catch (error) {
       container.innerHTML = "<p>Unable to load movies.</p>";
       console.error(error);
@@ -937,6 +943,12 @@ posterElement.appendChild(
 );
     });
 
+    updateCarouselVisibility(
+      document.getElementById("upcoming-movies"),
+      document.getElementById("upcoming-left"),
+      document.getElementById("upcoming-right")
+    );
+
   } catch (error) {
     container.innerHTML = "<p>Unable to load movies.</p>";
     console.error(error);
@@ -995,6 +1007,12 @@ posterElement.appendChild(
   createWishlistButton(movie.id)
 );
       });
+
+    updateCarouselVisibility(
+      document.getElementById("now-playing-movies"),
+      document.getElementById("box-office-left"),
+      document.getElementById("box-office-right")
+    );
 
   } catch (error) {
     container.innerHTML = "<p>Unable to load movies.</p>";
@@ -1106,6 +1124,8 @@ async function loadTrailers() {
 
       container.appendChild(trailerElement);
     });
+
+    updateTrailerArrows();
 
   } catch (error) {
 
