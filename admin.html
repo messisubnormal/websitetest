@@ -4,574 +4,534 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Admin</title>
+  <title>News Article</title>
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 700px;
-      margin: 60px auto;
-      padding: 20px;
-    }
-
-    h1 {
-      margin-bottom: 30px;
-    }
-
-    h2 {
-      margin-top: 60px;
-      margin-bottom: 10px;
-      border-top: 1px solid #ccc;
-      padding-top: 40px;
-    }
-
-    label {
-      display: block;
-      margin-top: 20px;
-      margin-bottom: 8px;
-      font-weight: bold;
-    }
-
-    input,
-    textarea {
-      width: 100%;
+    * {
       box-sizing: border-box;
-      padding: 12px;
-      font-size: 16px;
+      margin: 0;
+      padding: 0;
     }
 
-    textarea {
-      min-height: 180px;
-      resize: vertical;
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(37, 99, 235, 0.28), transparent 30%),
+        radial-gradient(circle at 85% 25%, rgba(59, 130, 246, 0.18), transparent 30%),
+        linear-gradient(135deg, #020617, #071b3a 50%, #06152d);
+      color: #ffffff;
+      font-family: Arial, Helvetica, sans-serif;
     }
 
-    button {
-      margin-top: 25px;
-      padding: 12px 24px;
-      font-size: 16px;
+    /* NAVIGATION (same as index.html) */
+
+    nav {
+      height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 50px;
+
+      background: rgba(2, 6, 23, 0.72);
+      border-bottom: 1px solid rgba(96, 165, 250, 0.18);
+
+      backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .logo {
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      color: white;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: #dbeafe;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.15;
+      text-align: center;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: #60a5fa;
+    }
+
+    .nav-search {
+      display: flex;
+      align-items: center;
+    }
+
+    #search-form {
+      display: flex;
+      align-items: center;
+      height: 34px;
+    }
+
+    #search-input {
+      width: 120px;
+      height: 34px;
+
+      padding: 0 12px;
+
+      border: 1px solid rgba(96, 165, 250, 0.3);
+      border-right: none;
+      border-radius: 7px 0 0 7px;
+
+      background: rgba(15, 23, 42, 0.8);
+      color: white;
+
+      font-size: 12px;
+      outline: none;
+    }
+
+    #search-input::placeholder {
+      color: rgba(219, 234, 254, 0.55);
+    }
+
+    #search-input:focus {
+      border-color: rgba(96, 165, 250, 0.7);
+    }
+
+    #search-form button {
+      width: 36px;
+      height: 34px;
+
+      border: 1px solid rgba(96, 165, 250, 0.3);
+      border-radius: 0 7px 7px 0;
+
+      background: rgba(37, 99, 235, 0.35);
+      color: white;
+
+      font-size: 18px;
       cursor: pointer;
     }
 
-    #editor {
-      display: none;
+    #search-form button:hover {
+      background: rgba(37, 99, 235, 0.6);
     }
 
-    #news-editor {
-      display: none;
+    .account-link {
+      color: #dbeafe;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      margin-left: 28px;
     }
 
-    #message,
-    #news-message {
-      margin-top: 20px;
+    .account-link:hover {
+      color: #60a5fa;
     }
 
-    .checkbox-row {
+    .profile-nav-icon {
+      width: 34px;
+      height: 34px;
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-top: 20px;
+      justify-content: center;
+      border-radius: 50%;
+      text-decoration: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
     }
 
-    .checkbox-row label {
-      margin: 0;
+    .profile-nav-icon:hover {
+      opacity: 0.8;
+      transform: scale(1.05);
     }
 
-    .checkbox-row input {
-      width: auto;
+    .profile-nav-icon svg {
+      width: 30px;
+      height: 30px;
+      display: block;
+    }
+
+    @media (max-width: 800px) {
+      nav {
+        padding: 0 25px;
+      }
+
+      .nav-links {
+        display: none;
+      }
+    }
+
+    /* ARTICLE */
+
+    main {
+      max-width: 1150px;
+      margin: auto;
+      padding: 50px 25px 90px;
+    }
+
+    #back-link {
+      display: inline-block;
+      margin-bottom: 24px;
+      color: #93c5fd;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    #back-link:hover {
+      color: #60a5fa;
+    }
+
+    /* the sheet */
+
+    #article-sheet {
+      background: #f4f1ea;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+    }
+
+    #article-image {
+      width: 100%;
+      max-height: 420px;
+      object-fit: cover;
+      display: none;
+    }
+
+    #article-body {
+      padding: 50px 60px 60px;
+    }
+
+    #article-title {
+      font-family: Georgia, 'Times New Roman', Times, serif;
+      font-size: 46px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      line-height: 1.2;
+      margin-bottom: 18px;
+      color: #0f0f0f;
+    }
+
+    #article-meta {
+      font-family: Georgia, 'Times New Roman', Times, serif;
+      font-size: 15px;
+      font-weight: 600;
+      font-style: italic;
+      color: #8a7f5e;
+      margin-bottom: 36px;
+      padding-bottom: 30px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    #article-content {
+      font-family: Georgia, 'Times New Roman', Times, serif;
+      font-size: 21px;
+      line-height: 1.8;
+      color: #101010;
+    }
+
+    #article-content p {
+      margin-bottom: 22px;
+      text-indent: 2.2em;
+    }
+
+    #article-content p:first-child {
+      text-indent: 0;
+    }
+
+    #status-message {
+      font-size: 15px;
+      color: rgba(219, 234, 254, 0.75);
+    }
+
+    @media (max-width: 600px) {
+      #article-body {
+        padding: 30px 25px 40px;
+      }
+
+      #article-title {
+        font-size: 30px;
+      }
+
+      #article-content {
+        font-size: 18px;
+      }
     }
   </style>
 </head>
 
 <body>
 
-  <h1>Review Editor</h1>
+  <nav>
+    <a href="/index.html" class="logo">
+      FIND YOUR NEXT FAVOURITE MOVIE
+    </a>
 
-  <!-- LOGIN -->
+    <ul class="nav-links">
+      <li><a href="/top-rated.html">TOP RATED</a></li>
 
-  <div id="login">
+      <li>
+        <a href="/recommendations.html">
+          PERSONAL<br>
+          RECOMMENDATIONS
+        </a>
+      </li>
 
-    <label for="password">
-      Admin password
-    </label>
+      <li><a href="/news.html">NEWS</a></li>
 
-    <input
-      id="password"
-      type="password"
-      autocomplete="current-password"
-    >
+      <li>
+        <a href="/streaming.html">
+          STREAMING<br>
+          RECOMMENDATIONS
+        </a>
+      </li>
 
-    <button id="login-button">
-      Login
-    </button>
+      <li><a href="#">FORUM</a></li>
 
-    <div id="login-message"></div>
+      <li>
+        <a href="#">
+          HELP<br>
+          IN PRODUCTION
+        </a>
+      </li>
 
-  </div>
+      <li class="nav-search">
+        <form id="search-form">
+          <input
+            type="search"
+            id="search-input"
+            placeholder="Search movies..."
+            autocomplete="off"
+          >
+          <button type="submit">⌕</button>
+        </form>
+      </li>
+    </ul>
 
+    <div id="account-nav">
+      <a href="/account.html" class="account-link">LOG IN</a>
+    </div>
+  </nav>
 
-  <!-- REVIEW EDITOR -->
+  <main>
 
-  <div id="editor">
+    <a id="back-link" href="/news.html">← Back to News</a>
 
-    <label for="movie-id">
-      Movie ID
-    </label>
+    <div id="status-message"></div>
 
-    <input
-      id="movie-id"
-      type="number"
-      placeholder="Example: 550"
-    >
+    <div id="article-sheet">
 
-    <label for="rating">
-      Rating
-    </label>
+      <img id="article-image" src="" alt="">
 
-    <input
-      id="rating"
-      type="number"
-      min="0"
-      max="10"
-      step="0.1"
-      placeholder="Example: 8.5"
-    >
+      <div id="article-body">
 
-    <label for="review">
-      Review
-    </label>
+        <div id="article-title"></div>
+        <div id="article-meta"></div>
 
-    <textarea
-      id="review"
-      placeholder="Write your review..."
-    ></textarea>
+        <div id="article-content"></div>
 
-    <button id="save-button">
-      Save Review
-    </button>
+      </div>
 
-    <div id="message"></div>
-
-  </div>
-
-
-  <!-- NEWS EDITOR -->
-
-  <div id="news-editor">
-
-    <h2>News Editor</h2>
-
-    <label for="article-id">
-      Article ID (leave empty to create a new article)
-    </label>
-
-    <input
-      id="article-id"
-      type="number"
-      placeholder="Leave empty for a new article"
-    >
-
-    <button id="load-article-button" type="button">
-      Load Article
-    </button>
-
-    <div id="load-message"></div>
-
-    <label for="article-title">
-      Title
-    </label>
-
-    <input
-      id="article-title"
-      type="text"
-      placeholder="Article title"
-    >
-
-    <label for="article-slug">
-      Slug
-    </label>
-
-    <input
-      id="article-slug"
-      type="text"
-      placeholder="example-article-title"
-    >
-
-    <label for="article-excerpt">
-      Excerpt
-    </label>
-
-    <input
-      id="article-excerpt"
-      type="text"
-      placeholder="Short summary shown in the article list"
-    >
-
-    <label for="article-author">
-      Author
-    </label>
-
-    <input
-      id="article-author"
-      type="text"
-      placeholder="Admin"
-    >
-
-    <label for="article-image">
-      Image URL
-    </label>
-
-    <input
-      id="article-image"
-      type="text"
-      placeholder="https://..."
-    >
-
-    <label for="article-content">
-      Content
-    </label>
-
-    <textarea
-      id="article-content"
-      placeholder="Write the article..."
-    ></textarea>
-
-    <div class="checkbox-row">
-      <input
-        id="article-published"
-        type="checkbox"
-      >
-      <label for="article-published">
-        Published
-      </label>
     </div>
 
-    <button id="save-article-button">
-      Save Article
-    </button>
-
-    <div id="news-message"></div>
-
-  </div>
+  </main>
 
 
   <script>
 
-    const loginSection =
-      document.getElementById("login");
+    function formatDate(dateString) {
 
-    const editorSection =
-      document.getElementById("editor");
+      if (!dateString) {
+        return "";
+      }
 
-    const newsEditorSection =
-      document.getElementById("news-editor");
+      const date = new Date(dateString);
 
-    const loginMessage =
-      document.getElementById("login-message");
-
-    const message =
-      document.getElementById("message");
-
-    const newsMessage =
-      document.getElementById("news-message");
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      });
+    }
 
 
-    // =========================
-    // LOGIN
-    // =========================
+    async function loadArticle() {
 
-    document
-      .getElementById("login-button")
-      .addEventListener("click", async () => {
+      const params =
+        new URLSearchParams(window.location.search);
 
-        const password =
-          document.getElementById("password").value;
+      const slug =
+        params.get("slug");
 
-        if (!password) {
-          loginMessage.textContent =
-            "Please enter your password.";
+      const statusMessage =
+        document.getElementById("status-message");
+
+      if (!slug) {
+        statusMessage.textContent =
+          "No article specified.";
+        return;
+      }
+
+      try {
+
+        const response = await fetch(
+          `/api/movies?type=news&slug=${encodeURIComponent(slug)}`
+        );
+
+        const data =
+          await response.json();
+
+        if (!response.ok) {
+          statusMessage.textContent =
+            data.error === "Article not found"
+              ? "This article doesn't exist or isn't published."
+              : "Unable to load article.";
           return;
         }
 
-        try {
+        document.title =
+          data.title + " - News";
 
-          const response = await fetch(
-            "/api/admin-login",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              credentials: "include",
-              body: JSON.stringify({
-                password
-              })
-            }
-          );
+        document.getElementById("article-title").textContent =
+          data.title;
 
-          const data =
-            await response.json();
+        document.getElementById("article-meta").textContent =
+          `${data.author || "Admin"} · ${formatDate(data.published_at)}`;
 
-          if (!response.ok) {
-            loginMessage.textContent =
-              data.error || "Login failed.";
-            return;
-          }
+        const contentContainer =
+          document.getElementById("article-content");
 
-          loginSection.style.display =
-            "none";
+        contentContainer.innerHTML = "";
 
-          editorSection.style.display =
-            "block";
+        const paragraphs = data.content
+          .split(/\n\s*\n/)
+          .map(p => p.trim())
+          .filter(p => p.length > 0);
 
-          newsEditorSection.style.display =
-            "block";
+        for (const paragraphText of paragraphs) {
 
-        } catch (error) {
+          const p = document.createElement("p");
+          p.textContent = paragraphText;
 
-          console.error(error);
-
-          loginMessage.textContent =
-            "Unable to connect to the server.";
-
+          contentContainer.appendChild(p);
         }
 
-      });
+        if (data.image_url) {
+          const image =
+            document.getElementById("article-image");
+
+          image.src = data.image_url;
+          image.alt = data.title;
+          image.style.display = "block";
+        }
+
+      } catch (error) {
+
+        console.error(error);
+
+        statusMessage.textContent =
+          "Unable to connect to the server.";
+
+      }
+    }
+
+    loadArticle();
 
 
     // =========================
-    // SAVE REVIEW
+    // ACCOUNT NAV (same as index.html)
     // =========================
 
-    document
-      .getElementById("save-button")
-      .addEventListener("click", async () => {
+    async function updateAccountNav() {
+      const accountNav = document.getElementById("account-nav");
 
-        const movieId =
-          document.getElementById("movie-id").value;
+      if (!accountNav) return;
 
-        const rating =
-          document.getElementById("rating").value;
+      try {
+        const response = await fetch("/api/current-user.js");
 
-        const review =
-          document.getElementById("review").value;
-
-        if (!movieId || rating === "") {
-
-          message.textContent =
-            "Movie ID and rating are required.";
-
+        if (!response.ok) {
           return;
         }
 
-        try {
+        const data = await response.json();
 
-          const response = await fetch(
-            "/api/save-review",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              credentials: "include",
-              body: JSON.stringify({
-                movie_id: Number(movieId),
-                rating: Number(rating),
-                review
-              })
-            }
-          );
-
-          const data =
-            await response.json();
-
-          if (!response.ok) {
-
-            message.textContent =
-              data.error || "Unable to save review.";
-
-            return;
-          }
-
-          message.textContent =
-            "Review saved successfully.";
-
-        } catch (error) {
-
-          console.error(error);
-
-          message.textContent =
-            "Unable to connect to the server.";
-
-        }
-
-      });
-
-
-    // =========================
-    // LOAD ARTICLE
-    // =========================
-
-    const loadMessage =
-      document.getElementById("load-message");
-
-    document
-      .getElementById("load-article-button")
-      .addEventListener("click", async () => {
-
-        const articleId =
-          document.getElementById("article-id").value;
-
-        if (!articleId) {
-
-          loadMessage.textContent =
-            "Enter an Article ID first.";
-
+        if (!data.loggedIn) {
           return;
         }
 
-        try {
+        accountNav.innerHTML = `
+          <a
+            href="/account.html"
+            class="profile-nav-icon"
+            aria-label="My Profile"
+            title="My Profile"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <circle
+                cx="12"
+                cy="8"
+                r="3.5"
+                stroke="currentColor"
+                stroke-width="1.8"
+              />
 
-          const response = await fetch(
-            `/api/movies?type=news&id=${articleId}`,
-            {
-              credentials: "include"
-            }
-          );
+              <path
+                d="M5 20C5.8 16.6 8.2 14.5 12 14.5C15.8 14.5 18.2 16.6 19 20"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+              />
+            </svg>
+          </a>
+        `;
 
-          const data =
-            await response.json();
+      } catch (error) {
+        console.error("Could not check account status:", error);
+      }
+    }
 
-          if (!response.ok) {
-
-            loadMessage.textContent =
-              data.error || "Unable to load article.";
-
-            return;
-          }
-
-          document.getElementById("article-title").value =
-            data.title || "";
-
-          document.getElementById("article-slug").value =
-            data.slug || "";
-
-          document.getElementById("article-excerpt").value =
-            data.excerpt || "";
-
-          document.getElementById("article-author").value =
-            data.author || "";
-
-          document.getElementById("article-image").value =
-            data.image_url || "";
-
-          document.getElementById("article-content").value =
-            data.content || "";
-
-          document.getElementById("article-published").checked =
-            data.published === true;
-
-          loadMessage.textContent =
-            "Article loaded.";
-
-        } catch (error) {
-
-          console.error(error);
-
-          loadMessage.textContent =
-            "Unable to connect to the server.";
-
-        }
-
-      });
+    updateAccountNav();
 
 
     // =========================
-    // SAVE ARTICLE
+    // SEARCH (same as index.html)
     // =========================
 
-    document
-      .getElementById("save-article-button")
-      .addEventListener("click", async () => {
+    const searchForm = document.getElementById("search-form");
+    const searchInput = document.getElementById("search-input");
 
-        const articleId =
-          document.getElementById("article-id").value;
+    searchForm.addEventListener("submit", event => {
+      event.preventDefault();
 
-        const title =
-          document.getElementById("article-title").value;
+      const query = searchInput.value.trim();
 
-        const slug =
-          document.getElementById("article-slug").value;
+      if (!query) {
+        return;
+      }
 
-        const excerpt =
-          document.getElementById("article-excerpt").value;
-
-        const author =
-          document.getElementById("article-author").value;
-
-        const imageUrl =
-          document.getElementById("article-image").value;
-
-        const content =
-          document.getElementById("article-content").value;
-
-        const published =
-          document.getElementById("article-published").checked;
-
-        if (!title || !slug || !content) {
-
-          newsMessage.textContent =
-            "Title, slug and content are required.";
-
-          return;
-        }
-
-        try {
-
-          const response = await fetch(
-            "/api/movies?type=news",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              credentials: "include",
-              body: JSON.stringify({
-                id: articleId ? Number(articleId) : undefined,
-                title,
-                slug,
-                excerpt,
-                author,
-                image_url: imageUrl,
-                content,
-                published
-              })
-            }
-          );
-
-          const data =
-            await response.json();
-
-          if (!response.ok) {
-
-            newsMessage.textContent =
-              data.error || "Unable to save article.";
-
-            return;
-          }
-
-          newsMessage.textContent =
-            "Article saved successfully. ID: " + data.id;
-
-        } catch (error) {
-
-          console.error(error);
-
-          newsMessage.textContent =
-            "Unable to connect to the server.";
-
-        }
-
-      });
+      window.location.href =
+        `/search.html?query=${encodeURIComponent(query)}`;
+    });
 
   </script>
 
