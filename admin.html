@@ -170,6 +170,12 @@
       placeholder="Leave empty for a new article"
     >
 
+    <button id="load-article-button" type="button">
+      Load Article
+    </button>
+
+    <div id="load-message"></div>
+
     <label for="article-title">
       Title
     </label>
@@ -394,6 +400,84 @@
           console.error(error);
 
           message.textContent =
+            "Unable to connect to the server.";
+
+        }
+
+      });
+
+
+    // =========================
+    // LOAD ARTICLE
+    // =========================
+
+    const loadMessage =
+      document.getElementById("load-message");
+
+    document
+      .getElementById("load-article-button")
+      .addEventListener("click", async () => {
+
+        const articleId =
+          document.getElementById("article-id").value;
+
+        if (!articleId) {
+
+          loadMessage.textContent =
+            "Enter an Article ID first.";
+
+          return;
+        }
+
+        try {
+
+          const response = await fetch(
+            `/api/movies?type=news&id=${articleId}`,
+            {
+              credentials: "include"
+            }
+          );
+
+          const data =
+            await response.json();
+
+          if (!response.ok) {
+
+            loadMessage.textContent =
+              data.error || "Unable to load article.";
+
+            return;
+          }
+
+          document.getElementById("article-title").value =
+            data.title || "";
+
+          document.getElementById("article-slug").value =
+            data.slug || "";
+
+          document.getElementById("article-excerpt").value =
+            data.excerpt || "";
+
+          document.getElementById("article-author").value =
+            data.author || "";
+
+          document.getElementById("article-image").value =
+            data.image_url || "";
+
+          document.getElementById("article-content").value =
+            data.content || "";
+
+          document.getElementById("article-published").checked =
+            data.published === true;
+
+          loadMessage.textContent =
+            "Article loaded.";
+
+        } catch (error) {
+
+          console.error(error);
+
+          loadMessage.textContent =
             "Unable to connect to the server.";
 
         }
