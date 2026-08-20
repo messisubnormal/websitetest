@@ -242,7 +242,13 @@
       font-size: 21px;
       line-height: 1.8;
       color: #101010;
-      white-space: pre-wrap;
+    }
+
+    #article-content p {
+      margin-bottom: 22px;
+      text-indent: 2.2em;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
 
     #status-message {
@@ -404,8 +410,23 @@
         document.getElementById("article-meta").textContent =
           `${data.author || "Admin"} · ${formatDate(data.published_at)}`;
 
-        document.getElementById("article-content").textContent =
-          data.content;
+        const contentContainer =
+          document.getElementById("article-content");
+
+        contentContainer.innerHTML = "";
+
+        const paragraphs = data.content
+          .split(/\n\s*\n/)
+          .map(p => p.trim())
+          .filter(p => p.length > 0);
+
+        for (const paragraphText of paragraphs) {
+
+          const p = document.createElement("p");
+          p.textContent = paragraphText;
+
+          contentContainer.appendChild(p);
+        }
 
         if (data.image_url) {
           const image =
