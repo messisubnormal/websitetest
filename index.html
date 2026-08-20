@@ -624,8 +624,6 @@
   justify-content: center;
 
   padding: 0;
-
-  transition: top 0.25s ease, height 0.25s ease, transform 0.25s ease;
 }
 
 .wishlist-test svg {
@@ -636,19 +634,13 @@
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.65));
 }
 
+.movie:hover .wishlist-test,
 .wishlist-test.saved {
   display: flex;
 }
 
-.movie:hover .wishlist-test:not(.saved) {
-  display: flex;
-  top: -8px;
-  height: 52px;
-  transform: translateY(-5px);
-}
-
-.movie:hover .wishlist-test:not(.saved) svg {
-  height: 100%;
+.wishlist-test:hover {
+  transform: scale(1.1);
 }
 
     .wishlist-message {
