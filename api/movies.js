@@ -9,6 +9,37 @@ export default async function handler(request, response) {
 
       if (request.method === "GET") {
 
+                if (request.query.id) {
+
+          const cookies = request.headers.cookie || "";
+
+          const isAuthenticated = cookies
+            .split(";")
+            .map(cookie => cookie.trim())
+            .includes("admin_authenticated=true");
+
+          if (!isAuthenticated) {
+            return response.status(401).json({
+              error: "Unauthorized"
+            });
+          }
+
+          const result = await sql`
+            SELECT *
+            FROM news_articles
+            WHERE id = ${Number(request.query.id)}
+            LIMIT 1
+          `;
+
+          if (result.length === 0) {
+            return response.status(404).json({
+              error: "Article not found"
+            });
+          }
+
+          return response.status(200).json(result[0]);
+        }
+
         if (request.query.slug) {
 
           const result = await sql`
