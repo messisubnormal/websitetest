@@ -45,7 +45,7 @@
       backdrop-filter: blur(12px);
       position: sticky;
       top: 0;
-      z-index: 10;
+      z-index: 100;
     }
 
     .logo {
@@ -57,7 +57,6 @@
   white-space: nowrap;
   color: white;
   text-decoration: none;
-  overflow: hidden;
 
   transition: transform 0.3s ease, text-shadow 0.3s ease;
 }
@@ -67,12 +66,18 @@
   text-shadow: 0 8px 14px rgba(0, 0, 0, 0.8);
 }
 
-.logo::after {
+.logo-shine {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+}
+
+.logo-shine::after {
   content: "";
   position: absolute;
   top: 0;
-  left: -60%;
-  width: 40%;
+  left: -40%;
+  width: 22%;
   height: 100%;
 
   background: linear-gradient(
@@ -87,12 +92,12 @@
   pointer-events: none;
 }
 
-.logo:hover::after {
-  left: 140%;
+.logo:hover .logo-shine::after {
+  left: 120%;
   transition: left 0.9s ease;
 }
 
-.logo::after {
+.logo-shine::after {
   transition: left 0s;
 }
 
@@ -386,6 +391,7 @@
     }
 
     .movie {
+      position: relative;
       cursor: pointer;
       min-width: 0;
     }
@@ -628,9 +634,18 @@
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.65));
 }
 
-.poster:hover .wishlist-test,
+.movie:hover .wishlist-test,
 .wishlist-test.saved {
   display: flex;
+}
+
+.wishlist-test.saved {
+  top: -8px;
+  height: 52px;
+}
+
+.wishlist-test.saved svg {
+  height: 100%;
 }
 
 .wishlist-test:hover {
@@ -678,7 +693,7 @@
 
   <nav>
   <a href="/index.html" class="logo">
-    FIND YOUR NEXT FAVORITE MOVIE
+    <span class="logo-shine">FIND YOUR NEXT FAVORITE MOVIE</span>
   </a>
 
   <ul class="nav-links">
@@ -862,12 +877,7 @@
 
         container.appendChild(movieElement);
 
-const posterElement =
-  movieElement.querySelector(".poster");
-
-posterElement.style.position = "relative";
-
-posterElement.appendChild(
+movieElement.appendChild(
   createWishlistButton(movie.id)
 );
       });
@@ -933,12 +943,7 @@ async function loadUpcomingMovies() {
 
       container.appendChild(movieElement);
 
-const posterElement =
-  movieElement.querySelector(".poster");
-
-posterElement.style.position = "relative";
-
-posterElement.appendChild(
+movieElement.appendChild(
   createWishlistButton(movie.id)
 );
     });
@@ -998,12 +1003,7 @@ posterElement.appendChild(
 
         container.appendChild(movieElement);
 
-const posterElement =
-  movieElement.querySelector(".poster");
-
-posterElement.style.position = "relative";
-
-posterElement.appendChild(
+movieElement.appendChild(
   createWishlistButton(movie.id)
 );
       });
