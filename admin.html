@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Review Editor</title>
+  <title>Admin</title>
 
   <style>
     body {
@@ -16,6 +16,13 @@
 
     h1 {
       margin-bottom: 30px;
+    }
+
+    h2 {
+      margin-top: 60px;
+      margin-bottom: 10px;
+      border-top: 1px solid #ccc;
+      padding-top: 40px;
     }
 
     label {
@@ -49,8 +56,28 @@
       display: none;
     }
 
-    #message {
+    #news-editor {
+      display: none;
+    }
+
+    #message,
+    #news-message {
       margin-top: 20px;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .checkbox-row label {
+      margin: 0;
+    }
+
+    .checkbox-row input {
+      width: auto;
     }
   </style>
 </head>
@@ -82,7 +109,7 @@
   </div>
 
 
-  <!-- EDITOR -->
+  <!-- REVIEW EDITOR -->
 
   <div id="editor">
 
@@ -127,6 +154,100 @@
   </div>
 
 
+  <!-- NEWS EDITOR -->
+
+  <div id="news-editor">
+
+    <h2>News Editor</h2>
+
+    <label for="article-id">
+      Article ID (leave empty to create a new article)
+    </label>
+
+    <input
+      id="article-id"
+      type="number"
+      placeholder="Leave empty for a new article"
+    >
+
+    <label for="article-title">
+      Title
+    </label>
+
+    <input
+      id="article-title"
+      type="text"
+      placeholder="Article title"
+    >
+
+    <label for="article-slug">
+      Slug
+    </label>
+
+    <input
+      id="article-slug"
+      type="text"
+      placeholder="example-article-title"
+    >
+
+    <label for="article-excerpt">
+      Excerpt
+    </label>
+
+    <input
+      id="article-excerpt"
+      type="text"
+      placeholder="Short summary shown in the article list"
+    >
+
+    <label for="article-author">
+      Author
+    </label>
+
+    <input
+      id="article-author"
+      type="text"
+      placeholder="Admin"
+    >
+
+    <label for="article-image">
+      Image URL
+    </label>
+
+    <input
+      id="article-image"
+      type="text"
+      placeholder="https://..."
+    >
+
+    <label for="article-content">
+      Content
+    </label>
+
+    <textarea
+      id="article-content"
+      placeholder="Write the article..."
+    ></textarea>
+
+    <div class="checkbox-row">
+      <input
+        id="article-published"
+        type="checkbox"
+      >
+      <label for="article-published">
+        Published
+      </label>
+    </div>
+
+    <button id="save-article-button">
+      Save Article
+    </button>
+
+    <div id="news-message"></div>
+
+  </div>
+
+
   <script>
 
     const loginSection =
@@ -135,11 +256,17 @@
     const editorSection =
       document.getElementById("editor");
 
+    const newsEditorSection =
+      document.getElementById("news-editor");
+
     const loginMessage =
       document.getElementById("login-message");
 
     const message =
       document.getElementById("message");
+
+    const newsMessage =
+      document.getElementById("news-message");
 
 
     // =========================
@@ -188,6 +315,9 @@
             "none";
 
           editorSection.style.display =
+            "block";
+
+          newsEditorSection.style.display =
             "block";
 
         } catch (error) {
@@ -264,6 +394,95 @@
           console.error(error);
 
           message.textContent =
+            "Unable to connect to the server.";
+
+        }
+
+      });
+
+
+    // =========================
+    // SAVE ARTICLE
+    // =========================
+
+    document
+      .getElementById("save-article-button")
+      .addEventListener("click", async () => {
+
+        const articleId =
+          document.getElementById("article-id").value;
+
+        const title =
+          document.getElementById("article-title").value;
+
+        const slug =
+          document.getElementById("article-slug").value;
+
+        const excerpt =
+          document.getElementById("article-excerpt").value;
+
+        const author =
+          document.getElementById("article-author").value;
+
+        const imageUrl =
+          document.getElementById("article-image").value;
+
+        const content =
+          document.getElementById("article-content").value;
+
+        const published =
+          document.getElementById("article-published").checked;
+
+        if (!title || !slug || !content) {
+
+          newsMessage.textContent =
+            "Title, slug and content are required.";
+
+          return;
+        }
+
+        try {
+
+          const response = await fetch(
+            "/api/movies?type=news",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              credentials: "include",
+              body: JSON.stringify({
+                id: articleId ? Number(articleId) : undefined,
+                title,
+                slug,
+                excerpt,
+                author,
+                image_url: imageUrl,
+                content,
+                published
+              })
+            }
+          );
+
+          const data =
+            await response.json();
+
+          if (!response.ok) {
+
+            newsMessage.textContent =
+              data.error || "Unable to save article.";
+
+            return;
+          }
+
+          newsMessage.textContent =
+            "Article saved successfully. ID: " + data.id;
+
+        } catch (error) {
+
+          console.error(error);
+
+          newsMessage.textContent =
             "Unable to connect to the server.";
 
         }
