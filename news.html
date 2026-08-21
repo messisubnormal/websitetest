@@ -7,64 +7,359 @@
   <title>News</title>
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 900px;
-      margin: 60px auto;
-      padding: 20px;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
-    h1 {
-      margin-bottom: 30px;
+    body {
+      min-height: 100vh;
+
+      background:
+        radial-gradient(
+          circle at 15% 10%,
+          rgba(37, 99, 235, 0.28),
+          transparent 30%
+        ),
+        radial-gradient(
+          circle at 85% 25%,
+          rgba(59, 130, 246, 0.18),
+          transparent 30%
+        ),
+        linear-gradient(
+          135deg,
+          #020617,
+          #071b3a 50%,
+          #06152d
+        );
+
+      color: #ffffff;
+      font-family: Arial, Helvetica, sans-serif;
     }
+
+    /* NAVIGATION */
+
+    nav {
+      height: 76px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      padding: 0 50px;
+
+      background: rgba(2, 6, 23, 0.72);
+      border-bottom: 1px solid rgba(96, 165, 250, 0.18);
+
+      backdrop-filter: blur(12px);
+
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      position: relative;
+      display: inline-block;
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+
+      color: white;
+      text-decoration: none;
+
+      transition: transform 0.3s ease, text-shadow 0.3s ease;
+    }
+
+    .logo:hover {
+      transform: translateY(-1px);
+      text-shadow: 0 8px 14px rgba(0, 0, 0, 0.8);
+    }
+
+    .logo-shine {
+      position: relative;
+      display: inline-block;
+      overflow: hidden;
+    }
+
+    .logo-shine::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -40%;
+      width: 22%;
+      height: 100%;
+
+      background: linear-gradient(
+        100deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.18) 45%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0.18) 55%,
+        transparent 100%
+      );
+
+      pointer-events: none;
+    }
+
+    .logo:hover .logo-shine::after {
+      left: 120%;
+      transition: left 0.9s ease;
+    }
+
+    .logo-shine::after {
+      transition: left 0s;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: #dbeafe;
+      text-decoration: none;
+
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.15;
+
+      text-align: center;
+      white-space: nowrap;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      min-height: 40px;
+
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: #60a5fa;
+    }
+
+    /* SEARCH */
+
+    .nav-search {
+      display: flex;
+      align-items: center;
+    }
+
+    #search-form {
+      display: flex;
+      align-items: center;
+      height: 34px;
+    }
+
+    #search-input {
+      width: 120px;
+      height: 34px;
+
+      padding: 0 12px;
+
+      border: 1px solid rgba(96, 165, 250, 0.3);
+      border-right: none;
+
+      border-radius: 7px 0 0 7px;
+
+      background: rgba(15, 23, 42, 0.8);
+      color: white;
+
+      font-size: 12px;
+
+      outline: none;
+    }
+
+    #search-input::placeholder {
+      color: rgba(219, 234, 254, 0.55);
+    }
+
+    #search-input:focus {
+      border-color: rgba(96, 165, 250, 0.7);
+    }
+
+    #search-form button {
+      width: 36px;
+      height: 34px;
+
+      border: 1px solid rgba(96, 165, 250, 0.3);
+
+      border-radius: 0 7px 7px 0;
+
+      background: rgba(37, 99, 235, 0.35);
+
+      color: white;
+
+      font-size: 18px;
+
+      cursor: pointer;
+    }
+
+    #search-form button:hover {
+      background: rgba(37, 99, 235, 0.6);
+    }
+
+    .account-link {
+      color: #dbeafe;
+      text-decoration: none;
+
+      font-size: 13px;
+      font-weight: 600;
+
+      white-space: nowrap;
+
+      margin-left: 28px;
+    }
+
+    .account-link:hover {
+      color: #60a5fa;
+    }
+
+    .profile-nav-icon {
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      text-decoration: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .profile-nav-icon:hover {
+      opacity: 0.8;
+      transform: scale(1.05);
+    }
+
+    .profile-nav-icon svg {
+      width: 30px;
+      height: 30px;
+      display: block;
+    }
+
+    /* MAIN */
+
+    main {
+      max-width: 900px;
+      margin: auto;
+      padding: 45px 50px 90px;
+    }
+
+    .page-title {
+      font-size: 30px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .page-description {
+      color: #93c5fd;
+      font-size: 14px;
+      margin-bottom: 40px;
+    }
+
+    /* NEWS LIST */
 
     #news-list {
       display: flex;
       flex-direction: column;
-      gap: 30px;
+      gap: 22px;
     }
 
     .article-card {
       display: flex;
-      gap: 20px;
-      border-bottom: 1px solid #ccc;
-      padding-bottom: 30px;
+      gap: 22px;
+
+      padding: 20px;
+
+      background: rgba(23, 45, 80, 0.55);
+      border: 1px solid rgba(96, 165, 250, 0.18);
+      border-radius: 12px;
+
       cursor: pointer;
       text-decoration: none;
       color: inherit;
+
+      transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        border-color 0.25s ease;
+    }
+
+    .article-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(96, 165, 250, 0.45);
+      box-shadow: 0 12px 30px rgba(37, 99, 235, 0.25);
     }
 
     .article-card img {
       width: 220px;
       height: 140px;
-      object-fit: cover;
       flex-shrink: 0;
-      background: #eee;
+
+      object-fit: cover;
+      border-radius: 8px;
+
+      background:
+        linear-gradient(145deg, #172554, #0f172a);
+    }
+
+    .article-card-content {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
 
     .article-card-content h2 {
       margin: 0 0 8px 0;
       font-size: 20px;
+      font-weight: 700;
+      color: #f8fafc;
     }
 
     .article-card-content .meta {
       font-size: 13px;
-      color: #666;
+      color: #93c5fd;
       margin-bottom: 10px;
     }
 
     .article-card-content .excerpt {
       font-size: 15px;
-      color: #333;
-      line-height: 1.4;
+      color: #dbeafe;
+      line-height: 1.5;
     }
 
     #empty-message,
     #error-message {
-      color: #666;
+      color: #93c5fd;
+      font-size: 15px;
+    }
+
+    /* MOBILE */
+
+    @media (max-width: 800px) {
+
+      nav {
+        padding: 0 25px;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      main {
+        padding: 35px 25px 70px;
+      }
     }
 
     @media (max-width: 600px) {
+
       .article-card {
         flex-direction: column;
       }
@@ -74,22 +369,111 @@
         height: 180px;
       }
     }
+
+    @media (max-width: 500px) {
+
+      .logo {
+        font-size: 17px;
+      }
+
+      main {
+        padding: 30px 16px 60px;
+      }
+
+      .page-title {
+        font-size: 24px;
+      }
+    }
   </style>
 </head>
 
 <body>
 
-  <h1>News</h1>
+  <nav>
 
-  <div id="news-list"></div>
+    <a href="/index.html" class="logo">
+      <span class="logo-shine">FIND YOUR NEXT FAVORITE MOVIE</span>
+    </a>
 
-  <div id="empty-message" style="display: none;">
-    No articles published yet.
-  </div>
+    <ul class="nav-links">
 
-  <div id="error-message" style="display: none;">
-    Unable to load news articles.
-  </div>
+      <li>
+        <a href="/top-rated.html">
+          TOP RATED
+        </a>
+      </li>
+
+      <li>
+        <a href="/recommendations.html">
+          PERSONAL<br>
+          RECOMMENDATIONS
+        </a>
+      </li>
+
+      <li>
+        <a href="/news.html">
+          NEWS
+        </a>
+      </li>
+
+      <li>
+        <a href="/streaming.html">
+          STREAMING<br>
+          RECOMMENDATIONS
+        </a>
+      </li>
+
+      <li class="nav-search">
+
+        <form id="search-form">
+
+          <input
+            type="search"
+            id="search-input"
+            placeholder="Search movies..."
+            autocomplete="off"
+          >
+
+          <button type="submit">
+            ⌕
+          </button>
+
+        </form>
+
+      </li>
+
+    </ul>
+
+    <div id="account-nav">
+      <a
+        href="/account.html"
+        class="account-link"
+      >
+        LOG IN
+      </a>
+    </div>
+
+  </nav>
+
+  <main>
+
+    <h1 class="page-title">News</h1>
+
+    <p class="page-description">
+      The latest updates and articles from our team.
+    </p>
+
+    <div id="news-list"></div>
+
+    <div id="empty-message" style="display: none;">
+      No articles published yet.
+    </div>
+
+    <div id="error-message" style="display: none;">
+      Unable to load news articles.
+    </div>
+
+  </main>
 
 
   <script>
@@ -182,6 +566,87 @@
     }
 
     loadNews();
+
+
+    /* ACCOUNT NAV */
+
+    async function updateAccountNav() {
+      const accountNav = document.getElementById("account-nav");
+
+      if (!accountNav) return;
+
+      try {
+        const response = await fetch("/api/current-user.js");
+
+        if (!response.ok) {
+          return;
+        }
+
+        const data = await response.json();
+
+        if (!data.loggedIn) {
+          return;
+        }
+
+        accountNav.innerHTML = `
+          <a
+            href="/account.html"
+            class="profile-nav-icon"
+            aria-label="My Profile"
+            title="My Profile"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <circle
+                cx="12"
+                cy="8"
+                r="3.5"
+                stroke="currentColor"
+                stroke-width="1.8"
+              />
+
+              <path
+                d="M5 20C5.8 16.6 8.2 14.5 12 14.5C15.8 14.5 18.2 16.6 19 20"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+              />
+            </svg>
+          </a>
+        `;
+
+      } catch (error) {
+        console.error("Could not check account status:", error);
+      }
+    }
+
+    updateAccountNav();
+
+
+    /* SEARCH */
+
+    const searchForm =
+      document.getElementById("search-form");
+
+    const searchInput =
+      document.getElementById("search-input");
+
+    searchForm.addEventListener("submit", event => {
+      event.preventDefault();
+
+      const query = searchInput.value.trim();
+
+      if (!query) {
+        return;
+      }
+
+      window.location.href =
+        `/search.html?query=${encodeURIComponent(query)}`;
+    });
 
   </script>
 
