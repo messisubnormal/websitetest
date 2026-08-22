@@ -615,6 +615,93 @@
   font-size: 15px;
 }
 
+.user-comment-footer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.user-comment-date {
+  margin-top: 0;
+}
+
+.comment-reply-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #37507e;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.comment-reply-toggle:hover {
+  text-decoration: underline;
+}
+
+.comment-replies {
+  margin-top: 16px;
+  margin-left: 20px;
+  padding-left: 18px;
+  border-left: 3px solid #d6d8dc;
+
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.comment-reply-form {
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+  max-width: 600px;
+}
+
+.comment-reply-form.active {
+  display: flex;
+}
+
+.comment-reply-form input,
+.comment-reply-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #c9cdd4;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-family: "Times New Roman", serif;
+  font-size: 14px;
+  color: #172033;
+  background: #ffffff;
+}
+
+.comment-reply-form textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.comment-reply-form button {
+  align-self: flex-start;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 18px;
+  background: #707f9a;
+  color: #ffffff;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.comment-reply-form button:hover {
+  opacity: 0.9;
+}
+
+.reply-message {
+  margin: 0;
+  font-size: 13px;
+  color: #737985;
+}
+
     @media (max-width: 700px) {
       .movie-content {
         flex-direction: column;
@@ -1308,6 +1395,150 @@ const commentText = document.getElementById("comment-text");
 const commentMessage = document.getElementById("comment-message");
 const commentsList = document.getElementById("user-comments-list");
 
+function formatCommentDate(dateString) {
+  if (!dateString) {
+    return "";
+  }
+  return new Date(dateString).toLocaleDateString();
+}
+
+function createCommentElement(comment, allComments) {
+
+  const commentBox = document.createElement("div");
+  commentBox.className = "user-comment";
+
+  const name = document.createElement("p");
+  name.className = "user-comment-name";
+  name.textContent = comment.name;
+
+  const text = document.createElement("p");
+  text.className = "user-comment-text";
+  text.textContent = comment.review;
+
+  const footer = document.createElement("div");
+  footer.className = "user-comment-footer";
+
+  const date = document.createElement("span");
+  date.className = "user-comment-date";
+  date.textContent = formatCommentDate(comment.created_at);
+
+  const replyToggle = document.createElement("button");
+  replyToggle.type = "button";
+  replyToggle.className = "comment-reply-toggle";
+  replyToggle.textContent = "Reply";
+
+  footer.appendChild(date);
+  footer.appendChild(replyToggle);
+
+  commentBox.appendChild(name);
+  commentBox.appendChild(text);
+  commentBox.appendChild(footer);
+
+  const replyForm = document.createElement("form");
+  replyForm.className = "comment-reply-form";
+
+  replyForm.innerHTML = `
+    <input
+      type="text"
+      placeholder="Your name"
+      maxlength="50"
+      class="reply-name"
+      required
+    >
+
+    <textarea
+      placeholder="Write a reply..."
+      maxlength="2000"
+      class="reply-text"
+      required
+    ></textarea>
+
+    <button type="submit">
+      Post Reply
+    </button>
+
+    <p class="reply-message"></p>
+  `;
+
+  commentBox.appendChild(replyForm);
+
+  replyToggle.addEventListener("click", () => {
+    replyForm.classList.toggle("active");
+  });
+
+  replyForm.addEventListener("submit", async event => {
+
+    event.preventDefault();
+
+    const replyNameInput = replyForm.querySelector(".reply-name");
+    const replyTextInput = replyForm.querySelector(".reply-text");
+    const replyMessage = replyForm.querySelector(".reply-message");
+
+    const name = replyNameInput.value.trim();
+    const review = replyTextInput.value.trim();
+
+    if (!name || !review) {
+      replyMessage.textContent = "Please enter your name and reply.";
+      return;
+    }
+
+    replyMessage.textContent = "Posting reply...";
+
+    try {
+
+      const response = await fetch("/api/user-comments.js", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          movie_id: movieId,
+          parent_id: comment.id,
+          name: name,
+          review: review
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Could not post reply.");
+      }
+
+      replyNameInput.value = "";
+      replyTextInput.value = "";
+      replyMessage.textContent = "";
+
+      replyForm.classList.remove("active");
+
+      await loadUserComments();
+
+    } catch (error) {
+      console.error("Error posting reply:", error);
+      replyMessage.textContent = error.message || "Could not post reply.";
+    }
+  });
+
+  const children = allComments.filter(
+    c => c.parent_id === comment.id
+  );
+
+  if (children.length > 0) {
+    const repliesContainer = document.createElement("div");
+    repliesContainer.className = "comment-replies";
+
+    children.forEach(child => {
+      repliesContainer.appendChild(
+        createCommentElement(child, allComments)
+      );
+    });
+
+    commentBox.appendChild(repliesContainer);
+  }
+
+  return commentBox;
+}
+
 async function loadUserComments() {
   try {
     const response = await fetch(
@@ -1322,36 +1553,22 @@ async function loadUserComments() {
 
     commentsList.innerHTML = "";
 
-    if (!data.comments || data.comments.length === 0) {
+    const allComments = data.comments || [];
+
+    const topLevel = allComments.filter(
+      c => !c.parent_id
+    );
+
+    if (topLevel.length === 0) {
       commentsList.innerHTML =
         `<p class="no-comments">No reviews yet. Be the first to share your thoughts!</p>`;
       return;
     }
 
-    data.comments.forEach(comment => {
-      const commentBox = document.createElement("div");
-      commentBox.className = "user-comment";
-
-      const name = document.createElement("p");
-      name.className = "user-comment-name";
-      name.textContent = comment.name;
-
-      const text = document.createElement("p");
-      text.className = "user-comment-text";
-      text.textContent = comment.review;
-
-      const date = document.createElement("span");
-      date.className = "user-comment-date";
-
-      if (comment.created_at) {
-        date.textContent = new Date(comment.created_at).toLocaleDateString();
-      }
-
-      commentBox.appendChild(name);
-      commentBox.appendChild(text);
-      commentBox.appendChild(date);
-
-      commentsList.appendChild(commentBox);
+    topLevel.forEach(comment => {
+      commentsList.appendChild(
+        createCommentElement(comment, allComments)
+      );
     });
 
   } catch (error) {
@@ -1385,6 +1602,7 @@ reviewForm.addEventListener("submit", async (event) => {
       },
       body: JSON.stringify({
         movie_id: movieId,
+        parent_id: null,
         name: name,
         review: review
       })
