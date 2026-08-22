@@ -55,6 +55,7 @@ export default async function handler(request, response) {
         SELECT
           id,
           movie_id,
+          parent_id,
           name,
           review,
           created_at
@@ -185,6 +186,13 @@ export default async function handler(request, response) {
       const cleanName = String(name || "").trim();
       const cleanReview = String(review || "").trim();
 
+      const parentId =
+        body.parent_id === undefined ||
+        body.parent_id === null ||
+        body.parent_id === ""
+          ? null
+          : Number(body.parent_id);
+
       if (!Number.isInteger(movieId)) {
         return response.status(400).json({
           error: "Valid movie_id is required"
@@ -215,20 +223,46 @@ export default async function handler(request, response) {
         });
       }
 
+      if (parentId !== null) {
+
+        if (!Number.isInteger(parentId)) {
+          return response.status(400).json({
+            error: "Invalid parent_id"
+          });
+        }
+
+        const parent = await sql`
+          SELECT id
+          FROM user_comments
+          WHERE id = ${parentId}
+            AND movie_id = ${movieId}
+          LIMIT 1
+        `;
+
+        if (parent.length === 0) {
+          return response.status(400).json({
+            error: "Parent comment not found"
+          });
+        }
+      }
+
       const result = await sql`
         INSERT INTO user_comments (
           movie_id,
+          parent_id,
           name,
           review
         )
         VALUES (
           ${movieId},
+          ${parentId},
           ${cleanName},
           ${cleanReview}
         )
         RETURNING
           id,
           movie_id,
+          parent_id,
           name,
           review,
           created_at
