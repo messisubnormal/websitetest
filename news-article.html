@@ -313,6 +313,168 @@
         font-size: 18px;
       }
     }
+
+    /* COMMENTS */
+
+    #comments-section {
+      margin-top: 45px;
+    }
+
+    #comments-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 22px;
+    }
+
+    .comment-form {
+      background: rgba(23, 45, 80, 0.55);
+      border: 1px solid rgba(96, 165, 250, 0.18);
+      border-radius: 12px;
+      padding: 22px;
+      margin-bottom: 30px;
+    }
+
+    .comment-form input,
+    .comment-form textarea {
+      width: 100%;
+      box-sizing: border-box;
+
+      padding: 11px 13px;
+
+      border: 1px solid rgba(96, 165, 250, 0.3);
+      border-radius: 7px;
+
+      background: rgba(15, 23, 42, 0.8);
+      color: white;
+
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 14px;
+
+      outline: none;
+
+      margin-bottom: 12px;
+    }
+
+    .comment-form input::placeholder,
+    .comment-form textarea::placeholder {
+      color: rgba(219, 234, 254, 0.5);
+    }
+
+    .comment-form input:focus,
+    .comment-form textarea:focus {
+      border-color: rgba(96, 165, 250, 0.7);
+    }
+
+    .comment-form textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .comment-form button {
+      padding: 10px 22px;
+
+      border: none;
+      border-radius: 7px;
+
+      background: rgba(37, 99, 235, 0.55);
+      color: white;
+
+      font-size: 14px;
+      font-weight: 600;
+
+      cursor: pointer;
+
+      transition: background 0.2s ease;
+    }
+
+    .comment-form button:hover {
+      background: rgba(37, 99, 235, 0.85);
+    }
+
+    .comment-form-message {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #93c5fd;
+    }
+
+    #comments-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .comment {
+      background: rgba(23, 45, 80, 0.4);
+      border: 1px solid rgba(96, 165, 250, 0.15);
+      border-radius: 10px;
+      padding: 16px 18px;
+    }
+
+    .comment-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #f8fafc;
+      margin-bottom: 6px;
+    }
+
+    .comment-text {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #dbeafe;
+      white-space: pre-wrap;
+      margin-bottom: 8px;
+    }
+
+    .comment-footer {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .comment-date {
+      font-size: 12px;
+      color: rgba(219, 234, 254, 0.55);
+    }
+
+    .comment-reply-toggle {
+      background: none;
+      border: none;
+      color: #93c5fd;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .comment-reply-toggle:hover {
+      color: #60a5fa;
+    }
+
+    .comment-replies {
+      margin-top: 14px;
+      margin-left: 22px;
+      padding-left: 16px;
+      border-left: 2px solid rgba(96, 165, 250, 0.25);
+
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .comment-reply-form {
+      display: none;
+      margin-top: 14px;
+    }
+
+    .comment-reply-form.active {
+      display: block;
+    }
+
+    .comments-loading,
+    .no-comments {
+      color: rgba(219, 234, 254, 0.65);
+      font-size: 14px;
+    }
   </style>
 </head>
 
@@ -380,6 +542,41 @@
       </div>
 
     </div>
+
+    <section id="comments-section">
+
+      <h2 id="comments-title">Comments</h2>
+
+      <form id="comment-form" class="comment-form">
+
+        <input
+          type="text"
+          id="comment-name"
+          placeholder="Your name"
+          maxlength="50"
+          required
+        >
+
+        <textarea
+          id="comment-text"
+          placeholder="Write a comment..."
+          maxlength="2000"
+          required
+        ></textarea>
+
+        <button type="submit">
+          Post Comment
+        </button>
+
+        <div id="comment-form-message" class="comment-form-message"></div>
+
+      </form>
+
+      <div id="comments-list">
+        <p class="comments-loading">Loading comments...</p>
+      </div>
+
+    </section>
 
   </main>
 
@@ -472,6 +669,9 @@
           image.style.display = "block";
         }
 
+        currentArticleId = data.id;
+        loadComments();
+
       } catch (error) {
 
         console.error(error);
@@ -482,7 +682,321 @@
       }
     }
 
+    let currentArticleId = null;
+
     loadArticle();
+
+
+    // =========================
+    // COMMENTS
+    // =========================
+
+    const commentForm =
+      document.getElementById("comment-form");
+
+    const commentName =
+      document.getElementById("comment-name");
+
+    const commentText =
+      document.getElementById("comment-text");
+
+    const commentFormMessage =
+      document.getElementById("comment-form-message");
+
+    const commentsList =
+      document.getElementById("comments-list");
+
+
+    function formatCommentDate(dateString) {
+
+      if (!dateString) {
+        return "";
+      }
+
+      const date = new Date(dateString);
+
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+      });
+    }
+
+
+    function createCommentElement(comment, allComments) {
+
+      const wrapper =
+        document.createElement("div");
+
+      wrapper.className = "comment";
+
+      const name =
+        document.createElement("div");
+
+      name.className = "comment-name";
+      name.textContent = comment.author_name;
+
+      const text =
+        document.createElement("div");
+
+      text.className = "comment-text";
+      text.textContent = comment.content;
+
+      const footer =
+        document.createElement("div");
+
+      footer.className = "comment-footer";
+
+      const date =
+        document.createElement("span");
+
+      date.className = "comment-date";
+      date.textContent = formatCommentDate(comment.created_at);
+
+      const replyToggle =
+        document.createElement("button");
+
+      replyToggle.type = "button";
+      replyToggle.className = "comment-reply-toggle";
+      replyToggle.textContent = "Reply";
+
+      footer.appendChild(date);
+      footer.appendChild(replyToggle);
+
+      wrapper.appendChild(name);
+      wrapper.appendChild(text);
+      wrapper.appendChild(footer);
+
+
+      const replyForm =
+        document.createElement("form");
+
+      replyForm.className = "comment-reply-form";
+
+      replyForm.innerHTML = `
+        <input
+          type="text"
+          placeholder="Your name"
+          maxlength="50"
+          class="reply-name"
+          required
+        >
+
+        <textarea
+          placeholder="Write a reply..."
+          maxlength="2000"
+          class="reply-text"
+          required
+        ></textarea>
+
+        <button type="submit">
+          Post Reply
+        </button>
+
+        <div class="comment-form-message reply-message"></div>
+      `;
+
+      wrapper.appendChild(replyForm);
+
+      replyToggle.addEventListener("click", () => {
+        replyForm.classList.toggle("active");
+      });
+
+      replyForm.addEventListener("submit", async event => {
+
+        event.preventDefault();
+
+        const replyNameInput =
+          replyForm.querySelector(".reply-name");
+
+        const replyTextInput =
+          replyForm.querySelector(".reply-text");
+
+        const replyMessage =
+          replyForm.querySelector(".reply-message");
+
+        const name = replyNameInput.value.trim();
+        const content = replyTextInput.value.trim();
+
+        if (!name || !content) {
+          replyMessage.textContent =
+            "Please fill in your name and reply.";
+          return;
+        }
+
+        replyMessage.textContent = "Posting reply...";
+
+        try {
+
+          const response = await fetch("/api/user-comments.js", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              article_id: currentArticleId,
+              parent_id: comment.id,
+              name,
+              content
+            })
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            replyMessage.textContent =
+              data.error || "Could not post reply.";
+            return;
+          }
+
+          replyNameInput.value = "";
+          replyTextInput.value = "";
+          replyMessage.textContent = "";
+
+          replyForm.classList.remove("active");
+
+          loadComments();
+
+        } catch (error) {
+
+          console.error(error);
+
+          replyMessage.textContent =
+            "Unable to connect to the server.";
+        }
+      });
+
+
+      const children =
+        allComments.filter(
+          c => c.parent_id === comment.id
+        );
+
+      if (children.length > 0) {
+
+        const repliesContainer =
+          document.createElement("div");
+
+        repliesContainer.className = "comment-replies";
+
+        children.forEach(child => {
+          repliesContainer.appendChild(
+            createCommentElement(child, allComments)
+          );
+        });
+
+        wrapper.appendChild(repliesContainer);
+      }
+
+      return wrapper;
+    }
+
+
+    async function loadComments() {
+
+      if (!currentArticleId) {
+        return;
+      }
+
+      try {
+
+        const response = await fetch(
+          `/api/user-comments.js?article_id=${currentArticleId}`
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error("Could not load comments");
+        }
+
+        commentsList.innerHTML = "";
+
+        const allComments = data.comments || [];
+
+        const topLevel =
+          allComments.filter(c => c.parent_id === null);
+
+        if (topLevel.length === 0) {
+          commentsList.innerHTML =
+            `<p class="no-comments">No comments yet. Be the first to share your thoughts!</p>`;
+          return;
+        }
+
+        topLevel.forEach(comment => {
+          commentsList.appendChild(
+            createCommentElement(comment, allComments)
+          );
+        });
+
+      } catch (error) {
+
+        console.error("Error loading comments:", error);
+
+        commentsList.innerHTML =
+          `<p class="no-comments">Could not load comments.</p>`;
+      }
+    }
+
+
+    commentForm.addEventListener("submit", async event => {
+
+      event.preventDefault();
+
+      const name = commentName.value.trim();
+      const content = commentText.value.trim();
+
+      if (!name || !content) {
+        commentFormMessage.textContent =
+          "Please fill in your name and comment.";
+        return;
+      }
+
+      if (!currentArticleId) {
+        commentFormMessage.textContent =
+          "Please wait for the article to finish loading.";
+        return;
+      }
+
+      commentFormMessage.textContent = "Posting comment...";
+
+      try {
+
+        const response = await fetch("/api/user-comments.js", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            article_id: currentArticleId,
+            parent_id: null,
+            name,
+            content
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          commentFormMessage.textContent =
+            data.error || "Could not post comment.";
+          return;
+        }
+
+        commentName.value = "";
+        commentText.value = "";
+        commentFormMessage.textContent = "Comment posted!";
+
+        loadComments();
+
+      } catch (error) {
+
+        console.error(error);
+
+        commentFormMessage.textContent =
+          "Unable to connect to the server.";
+      }
+    });
 
 
     // =========================
