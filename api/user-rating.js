@@ -188,6 +188,54 @@ if (request.method === "GET") {
       });
     }
 
+    // =========================
+    // DELETE
+    // =========================
+    // Removes the logged-in user's own rating
+
+    if (request.method === "DELETE") {
+      const cookies = request.headers.cookie || "";
+
+      const userIdCookie = cookies
+        .split(";")
+        .map(cookie => cookie.trim())
+        .find(cookie => cookie.startsWith("user_id="));
+
+      if (!userIdCookie) {
+        return response.status(401).json({
+          error: "You must be logged in"
+        });
+      }
+
+      const userId = Number(
+        decodeURIComponent(userIdCookie.split("=")[1])
+      );
+
+      if (!Number.isInteger(userId)) {
+        return response.status(401).json({
+          error: "Invalid user"
+        });
+      }
+
+      const movieId = Number(request.query.movie_id);
+
+      if (!Number.isInteger(movieId)) {
+        return response.status(400).json({
+          error: "Valid movie_id is required"
+        });
+      }
+
+      await sql`
+        DELETE FROM user_ratings
+        WHERE movie_id = ${movieId}
+          AND user_id = ${userId}
+      `;
+
+      return response.status(200).json({
+        success: true
+      });
+    }
+
     return response.status(405).json({
       error: "Method not allowed"
     });
