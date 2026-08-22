@@ -575,6 +575,48 @@
       }
     }
 
+    /* FOOTER */
+
+    footer {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 30px 50px 40px;
+
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+
+      border-top: 1px solid rgba(96, 165, 250, 0.12);
+
+      font-size: 11px;
+      color: rgba(148, 163, 184, 0.55);
+    }
+
+    footer a {
+      color: rgba(148, 163, 184, 0.7);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      color: #93c5fd;
+    }
+
+    footer .footer-credits {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    @media (max-width: 800px) {
+      footer {
+        padding: 25px 25px 35px;
+        justify-content: center;
+        text-align: center;
+      }
+    }
+
     @media (max-width: 500px) {
       .logo {
         font-size: 17px;
@@ -866,6 +908,22 @@
 </section>
 
   </main>
+
+  <footer>
+
+    <div class="footer-credits">
+      This product uses the TMDB API but is not endorsed or certified by TMDB.
+      Watch provider data provided by JustWatch. Hosted on Vercel.
+    </div>
+
+    <div>
+      Contact:
+      <a href="mailto:findyournextfavoritemovie@gmail.com">
+        findyournextfavoritemovie@gmail.com
+      </a>
+    </div>
+
+  </footer>
 <script>
   async function loadPopularMovies() {
     const container = document.getElementById("popular-movies");
