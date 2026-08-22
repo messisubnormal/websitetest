@@ -53,16 +53,60 @@
 
       position: sticky;
       top: 0;
-      z-index: 10;
+      z-index: 100;
     }
 
     .logo {
-      font-size: 22px;
+      position: relative;
+      display: inline-block;
+      font-size: 19px;
       font-weight: 700;
       letter-spacing: 0.5px;
       white-space: nowrap;
       color: white;
       text-decoration: none;
+
+      transition: transform 0.3s ease, text-shadow 0.3s ease;
+    }
+
+    .logo:hover {
+      transform: translateY(-1px);
+      text-shadow: 0 8px 14px rgba(0, 0, 0, 0.8);
+    }
+
+    .logo-shine {
+      position: relative;
+      display: inline-block;
+      overflow: hidden;
+    }
+
+    .logo-shine::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -40%;
+      width: 22%;
+      height: 100%;
+
+      background: linear-gradient(
+        100deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.18) 45%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0.18) 55%,
+        transparent 100%
+      );
+
+      pointer-events: none;
+    }
+
+    .logo:hover .logo-shine::after {
+      left: 120%;
+      transition: left 0.9s ease;
+    }
+
+    .logo-shine::after {
+      transition: left 0s;
     }
 
     .nav-links {
@@ -105,6 +149,28 @@
 
     .account-link:hover {
       color: #60a5fa;
+    }
+
+    .profile-nav-icon {
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      text-decoration: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .profile-nav-icon:hover {
+      opacity: 0.8;
+      transform: scale(1.05);
+    }
+
+    .profile-nav-icon svg {
+      width: 30px;
+      height: 30px;
+      display: block;
     }
 
     /* SEARCH */
@@ -187,6 +253,7 @@
     }
 
     .movie {
+      position: relative;
       cursor: pointer;
       min-width: 0;
     }
@@ -231,6 +298,91 @@
 
       box-shadow:
         0 12px 30px rgba(37, 99, 235, 0.25);
+    }
+
+    /* WISHLIST */
+
+    .wishlist-test {
+      position: absolute;
+
+      top: 0;
+      right: 8px;
+
+      z-index: 50;
+
+      width: 30px;
+      height: 44px;
+
+      border: none;
+      background: transparent;
+
+      color: #4169E1;
+
+      cursor: pointer;
+
+      display: none;
+
+      align-items: flex-start;
+      justify-content: center;
+
+      padding: 0;
+    }
+
+    .wishlist-test svg {
+      width: 26px;
+      height: 100%;
+
+      display: block;
+
+      filter:
+        drop-shadow(
+          0 2px 4px rgba(0, 0, 0, 0.65)
+        );
+    }
+
+    .poster:hover .wishlist-test,
+    .wishlist-test.saved {
+      display: flex;
+    }
+
+    .wishlist-test:hover {
+      transform: scale(1.1);
+    }
+
+    .wishlist-message {
+      position: absolute;
+
+      top: 46px;
+      right: 8px;
+
+      padding: 4px 7px;
+
+      background: rgba(2, 6, 23, 0.88);
+
+      color: #93c5fd;
+
+      font-size: 10px;
+      font-weight: 600;
+
+      white-space: nowrap;
+
+      border-radius: 4px;
+
+      pointer-events: none;
+
+      animation: wishlistMessageIn 0.2s ease;
+    }
+
+    @keyframes wishlistMessageIn {
+      from {
+        opacity: 0;
+        transform: translateY(-3px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .movie-title {
@@ -317,41 +469,30 @@
 <nav>
 
   <a href="/index.html" class="logo">
-    FIND YOUR NEXT FAVOURITE MOVIE
+    <span class="logo-shine">FIND YOUR NEXT FAVORITE MOVIE</span>
   </a>
 
   <ul class="nav-links">
 
     <li>
-      <a href="#">TOP RATED</a>
+      <a href="/top-rated.html">TOP RATED</a>
     </li>
 
     <li>
-      <a href="#">
+      <a href="/recommendations.html">
         PERSONAL<br>
         RECOMMENDATIONS
       </a>
     </li>
 
     <li>
-      <a href="#">NEWS</a>
+      <a href="/news.html">NEWS</a>
     </li>
 
     <li>
-      <a href="#">
+      <a href="/streaming.html">
         STREAMING<br>
         RECOMMENDATIONS
-      </a>
-    </li>
-
-    <li>
-      <a href="#">FORUM</a>
-    </li>
-
-    <li>
-      <a href="#">
-        HELP<br>
-        IN PRODUCTION
       </a>
     </li>
 
@@ -516,6 +657,8 @@ async function loadSearchResults() {
       movieElement.className =
         "movie";
 
+      movieElement.dataset.movieId = movie.id;
+
 
       movieElement.onclick = () => {
 
@@ -579,6 +722,16 @@ async function loadSearchResults() {
       `;
 
 
+      const posterElement =
+        movieElement.querySelector(".poster");
+
+      posterElement.style.position = "relative";
+
+      posterElement.appendChild(
+        createWishlistButton(movie.id)
+      );
+
+
       resultsContainer.appendChild(
         movieElement
       );
@@ -639,9 +792,31 @@ async function updateAccountNav() {
 
       <a
         href="/account.html"
-        class="account-link"
+        class="profile-nav-icon"
+        aria-label="My Profile"
+        title="My Profile"
       >
-        MY PROFILE
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <circle
+            cx="12"
+            cy="8"
+            r="3.5"
+            stroke="currentColor"
+            stroke-width="1.8"
+          />
+
+          <path
+            d="M5 20C5.8 16.6 8.2 14.5 12 14.5C15.8 14.5 18.2 16.6 19 20"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+          />
+        </svg>
       </a>
 
     `;
@@ -659,9 +834,213 @@ async function updateAccountNav() {
 }
 
 
+/* WISHLIST */
+
+let wishlistMovieIds = new Set();
+
+async function loadWishlistState() {
+  try {
+    const response = await fetch("/api/wishlist.js");
+
+    if (response.status === 401) {
+      return;
+    }
+
+    if (!response.ok) {
+      throw new Error("Could not load wishlist");
+    }
+
+    const data = await response.json();
+
+    wishlistMovieIds = new Set(
+      (data.movies || []).map(movie => Number(movie.movie_id))
+    );
+
+    updateWishlistButtons();
+
+  } catch (error) {
+    console.error("Wishlist state:", error);
+  }
+}
+
+function createWishlistButton(movieId) {
+  const button = document.createElement("button");
+
+  button.className = "wishlist-test";
+  button.type = "button";
+  button.setAttribute("aria-label", "Add to wishlist");
+
+  if (wishlistMovieIds.has(Number(movieId))) {
+    button.classList.add("saved");
+  }
+
+  button.innerHTML = `
+    <svg
+      viewBox="0 0 24 28"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path
+        d="M4 2.5C4 1.67 4.67 1 5.5 1H18.5C19.33 1 20 1.67 20 2.5V26L12 21.2L4 26V2.5Z"
+        fill="${wishlistMovieIds.has(Number(movieId)) ? "currentColor" : "rgba(0,0,0,0.45)"}"
+        stroke="white"
+        stroke-width="1.5"
+        stroke-linejoin="round"
+      />
+    </svg>
+  `;
+
+  updateWishlistButtonAppearance(button);
+
+  button.addEventListener("click", async event => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const saved = button.classList.contains("saved");
+
+    try {
+      let response;
+
+      if (saved) {
+        response = await fetch(
+          `/api/wishlist.js?movie_id=${movieId}`,
+          {
+            method: "DELETE"
+          }
+        );
+      } else {
+        response = await fetch("/api/wishlist.js", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            movie_id: Number(movieId)
+          })
+        });
+      }
+
+      const data = await response.json();
+
+      if (response.status === 401) {
+        alert("Please log in first.");
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          data.error || "Wishlist update failed"
+        );
+      }
+
+      if (data.saved) {
+        wishlistMovieIds.add(Number(movieId));
+        button.classList.add("saved");
+
+        button.setAttribute(
+          "aria-label",
+          "Remove from wishlist"
+        );
+
+        updateWishlistButtonAppearance(button);
+        showWishlistMessage(button, "Added to wishlist");
+
+      } else {
+        wishlistMovieIds.delete(Number(movieId));
+        button.classList.remove("saved");
+
+        button.setAttribute(
+          "aria-label",
+          "Add to wishlist"
+        );
+
+        updateWishlistButtonAppearance(button);
+        showWishlistMessage(button, "Removed from wishlist");
+      }
+
+    } catch (error) {
+      console.error("Wishlist:", error);
+      alert("Could not update your wishlist.");
+    }
+  });
+
+  return button;
+}
+
+function updateWishlistButtonAppearance(button) {
+  const saved = button.classList.contains("saved");
+
+  button.innerHTML = `
+    <svg
+      viewBox="0 0 24 28"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path
+        d="M4 2.5C4 1.67 4.67 1 5.5 1H18.5C19.33 1 20 1.67 20 2.5V26L12 21.2L4 26V2.5Z"
+        fill="${saved ? "currentColor" : "rgba(0,0,0,0.45)"}"
+        stroke="${saved ? "#3b82f6" : "white"}"
+        stroke-width="1.5"
+        stroke-linejoin="round"
+      />
+    </svg>
+  `;
+}
+
+function updateWishlistButtons() {
+  document
+    .querySelectorAll(".wishlist-test")
+    .forEach(button => {
+      const movieElement = button.closest(".movie");
+
+      if (!movieElement) return;
+
+      const movieId =
+        Number(movieElement.dataset.movieId);
+
+      const saved =
+        wishlistMovieIds.has(movieId);
+
+      button.classList.toggle("saved", saved);
+
+      button.setAttribute(
+        "aria-label",
+        saved
+          ? "Remove from wishlist"
+          : "Add to wishlist"
+      );
+
+      updateWishlistButtonAppearance(button);
+    });
+}
+
+function showWishlistMessage(button, message) {
+  const existing =
+    button.parentElement.querySelector(".wishlist-message");
+
+  if (existing) {
+    existing.remove();
+  }
+
+  const label = document.createElement("div");
+  label.className = "wishlist-message";
+  label.textContent = message;
+
+  button.parentElement.appendChild(label);
+
+  setTimeout(() => {
+    label.remove();
+  }, 1800);
+}
+
+
 loadSearchResults();
 
 updateAccountNav();
+
+loadWishlistState();
 
 </script>
 
