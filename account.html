@@ -25,6 +25,12 @@
       padding: 35px;
       border-radius: 14px;
       box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
+
+      transition: max-width 0.2s ease;
+    }
+
+    .account-box.profile-active {
+      max-width: 900px;
     }
 
     h1 {
@@ -170,8 +176,8 @@
 
 .profile-movie-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 16px;
 }
 
 .profile-movie-card {
@@ -309,6 +315,8 @@
     const profileView = document.getElementById("profile-view");
 
     profileView.style.display = "block";
+
+    document.querySelector(".account-box").classList.add("profile-active");
 
     document.querySelector(".account-box h1").style.display = "none";
     document.querySelector(".tabs").style.display = "none";
@@ -508,13 +516,13 @@ function setupShowMore(
     const visibleCards =
       expanded
         ? cards
-        : cards.slice(0, 3);
+        : cards.slice(0, 6);
 
     visibleCards.forEach(card => {
       grid.appendChild(card);
     });
 
-    if (cards.length > 3) {
+    if (cards.length > 6) {
 
       button.style.display = "block";
 
@@ -544,6 +552,8 @@ function setupShowMore(
 // LOAD WISHLIST
 // ========================================
 
+async function loadWishlistSection() {
+
 try {
 
   const response =
@@ -568,28 +578,30 @@ try {
 
   } else {
 
-    const wishlistCards = [];
+    const wishlistCards = (
+      await Promise.all(
+        wishlistData.movies.map(async item => {
 
-    for (const item of wishlistData.movies) {
+          try {
 
-      try {
+            const movie =
+              await getMovie(item.movie_id);
 
-        const movie =
-          await getMovie(item.movie_id);
+            return createMovieCard(movie);
 
-        wishlistCards.push(
-          createMovieCard(movie)
-        );
+          } catch (error) {
 
-      } catch (error) {
+            console.error(
+              "Could not load wishlist movie:",
+              item.movie_id,
+              error
+            );
 
-        console.error(
-          "Could not load wishlist movie:",
-          item.movie_id,
-          error
-        );
-      }
-    }
+            return null;
+          }
+        })
+      )
+    ).filter(card => card !== null);
 
     setupShowMore(
       wishlistGrid,
@@ -611,10 +623,14 @@ try {
     </p>`;
 }
 
+}
+
 
 // ========================================
 // LOAD RATINGS
 // ========================================
+
+async function loadRatingsSection() {
 
 try {
 
@@ -640,31 +656,33 @@ try {
 
   } else {
 
-    const ratingCards = [];
+    const ratingCards = (
+      await Promise.all(
+        ratingData.ratings.map(async item => {
 
-    for (const item of ratingData.ratings) {
+          try {
 
-      try {
+            const movie =
+              await getMovie(item.movie_id);
 
-        const movie =
-          await getMovie(item.movie_id);
+            return createMovieCard(
+              movie,
+              item.rating
+            );
 
-        ratingCards.push(
-          createMovieCard(
-            movie,
-            item.rating
-          )
-        );
+          } catch (error) {
 
-      } catch (error) {
+            console.error(
+              "Could not load rated movie:",
+              item.movie_id,
+              error
+            );
 
-        console.error(
-          "Could not load rated movie:",
-          item.movie_id,
-          error
-        );
-      }
-    }
+            return null;
+          }
+        })
+      )
+    ).filter(card => card !== null);
 
     setupShowMore(
       ratingsGrid,
@@ -685,6 +703,19 @@ try {
       Could not load your ratings.
     </p>`;
 }
+
+}
+
+
+/*
+ * Load wishlist and ratings at the same time
+ * instead of one after the other.
+ */
+
+await Promise.all([
+  loadWishlistSection(),
+  loadRatingsSection()
+]);
 
   } catch (error) {
     console.error("Could not check login:", error);
