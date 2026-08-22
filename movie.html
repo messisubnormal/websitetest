@@ -353,6 +353,22 @@
   font-weight: 700;
   color: #ffffff;
 }
+
+.remove-rating-link {
+  margin-left: 10px;
+  background: none;
+  border: none;
+  padding: 0;
+  color: #93c5fd;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.remove-rating-link:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
     .title-row {
   display: flex;
   align-items: baseline;
@@ -870,6 +886,15 @@
 
   <span id="your-rating-number"></span>
 
+  <button
+    type="button"
+    id="remove-rating-link"
+    class="remove-rating-link"
+    style="display: none;"
+  >
+    Remove
+  </button>
+
 </div>
 
 </div>
@@ -1152,7 +1177,7 @@ searchForm.addEventListener("submit", event => {
 
           if (reviewData.rating !== null) {
             document.getElementById("website-rating").textContent =
-              reviewData.rating;
+              formatRating(reviewData.rating);
           }
 
           // Replace placeholder review
@@ -1221,8 +1246,78 @@ if (reviewData.review) {
 const starsContainer = document.getElementById("your-rating-stars");
 const userRatingElement = document.getElementById("user-rating");
 const yourRatingNumber = document.getElementById("your-rating-number");
+const removeRatingLink = document.getElementById("remove-rating-link");
 
-async function loadUserRating() {
+function showRemoveRatingLink() {
+  removeRatingLink.style.display = "inline";
+}
+
+function hideRemoveRatingLink() {
+  removeRatingLink.style.display = "none";
+}
+
+function resetStars() {
+  const zeroButton = document.getElementById("zero-rating");
+
+  if (zeroButton) {
+    zeroButton.classList.remove("active");
+  }
+
+  starsContainer.querySelectorAll("button").forEach(button => {
+    button.textContent = "☆";
+    button.classList.remove("active");
+  });
+
+  yourRatingNumber.textContent = "";
+}
+
+removeRatingLink.addEventListener("click", async () => {
+
+  if (!confirm("Remove your rating for this movie?")) {
+    return;
+  }
+
+  try {
+
+    const response = await fetch(
+      `/api/user-rating.js?movie_id=${movieId}`,
+      {
+        method: "DELETE"
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.error || "Could not remove your rating.");
+      return;
+    }
+
+    resetStars();
+    hideRemoveRatingLink();
+
+    await loadUserRating();
+
+  } catch (error) {
+    console.error("Error removing rating:", error);
+    alert("Could not remove your rating.");
+  }
+});
+
+function formatRating(value) {
+  const numericValue = Number(value);
+  const rounded = Math.round(numericValue * 10) / 10;
+
+  return Number.isInteger(rounded)
+    ? String(rounded)
+    : rounded.toFixed(1);
+}
+
+function wait(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function loadUserRating(attempt = 1) {
   try {
     const response = await fetch(
       `/api/user-rating.js?movie_id=${movieId}`
@@ -1233,21 +1328,30 @@ async function loadUserRating() {
     console.log("USER RATING DATA:", data);
 
     if (!response.ok || !data.success) {
+
+      if (attempt < 3) {
+        await wait(500);
+        return loadUserRating(attempt + 1);
+      }
+
       console.error("Could not load user rating:", data);
       return;
     }
 
     // Show the average user rating
-if (data.averageRating !== null) {
-  userRatingElement.textContent =
-    data.averageRating.toFixed(1);
-} else {
-  userRatingElement.textContent = "—";
-}
+    if (data.averageRating !== null) {
+      userRatingElement.textContent =
+        formatRating(data.averageRating);
+    } else {
+      userRatingElement.textContent = "—";
+    }
 
     // Highlight the logged-in user's rating
     if (data.userRating !== null) {
       highlightStars(data.userRating);
+      showRemoveRatingLink();
+    } else {
+      hideRemoveRatingLink();
     }
 
     // If not logged in, disable the stars
@@ -1259,6 +1363,12 @@ if (data.averageRating !== null) {
     }
 
   } catch (error) {
+
+    if (attempt < 3) {
+      await wait(500);
+      return loadUserRating(attempt + 1);
+    }
+
     console.error("Error loading user rating:", error);
   }
 }
