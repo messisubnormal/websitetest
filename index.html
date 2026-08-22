@@ -292,6 +292,28 @@
     0 4px 8px rgba(37, 99, 235, 0.18);
 }
 
+/* LOADING SKELETON */
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    110deg,
+    #101c3a 8%,
+    #1c2f5c 18%,
+    #101c3a 33%
+  );
+  background-size: 300% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
 .trailer-card iframe {
   width: 100%;
   height: 100%;
@@ -740,9 +762,9 @@
     </button>
 
     <div class="trailer-grid" id="trailer-grid">
-      <div class="trailer-card">LOADING...</div>
-      <div class="trailer-card">LOADING...</div>
-      <div class="trailer-card">LOADING...</div>
+      <div class="trailer-card skeleton"></div>
+      <div class="trailer-card skeleton"></div>
+      <div class="trailer-card skeleton"></div>
     </div>
 
     <button
@@ -769,7 +791,12 @@
     </button>
 
     <div class="movie-grid" id="popular-movies">
-      <div class="poster">LOADING...</div>
+      <div class="movie"><div class="poster skeleton"></div></div>
+      <div class="movie"><div class="poster skeleton"></div></div>
+      <div class="movie"><div class="poster skeleton"></div></div>
+      <div class="movie"><div class="poster skeleton"></div></div>
+      <div class="movie"><div class="poster skeleton"></div></div>
+      <div class="movie"><div class="poster skeleton"></div></div>
     </div>
 
     <button class="carousel-arrow carousel-right" id="popular-right">
@@ -791,7 +818,12 @@
     </button>
 
     <div class="movie-grid" id="now-playing-movies">
-      <div class="poster">LOADING...</div>
+      <div class="movie"><div class="poster skeleton"></div></div>
+      <div class="movie"><div class="poster skeleton"></div></div>
+      <div class="movie"><div class="poster skeleton"></div></div>
+      <div class="movie"><div class="poster skeleton"></div></div>
+      <div class="movie"><div class="poster skeleton"></div></div>
+      <div class="movie"><div class="poster skeleton"></div></div>
     </div>
 
     <button class="carousel-arrow carousel-right" id="box-office-right">
@@ -817,7 +849,12 @@
     </button>
 
     <div class="movie-grid" id="upcoming-movies">
-      <div class="poster">LOADING...</div>
+      <div class="movie"><div class="poster skeleton"></div></div>
+      <div class="movie"><div class="poster skeleton"></div></div>
+      <div class="movie"><div class="poster skeleton"></div></div>
+      <div class="movie"><div class="poster skeleton"></div></div>
+      <div class="movie"><div class="poster skeleton"></div></div>
+      <div class="movie"><div class="poster skeleton"></div></div>
     </div>
 
     <button class="carousel-arrow carousel-right" id="upcoming-right">
