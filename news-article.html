@@ -38,16 +38,60 @@
       backdrop-filter: blur(12px);
       position: sticky;
       top: 0;
-      z-index: 10;
+      z-index: 100;
     }
 
     .logo {
+      position: relative;
+      display: inline-block;
       font-size: 19px;
       font-weight: 700;
       letter-spacing: 0.5px;
       white-space: nowrap;
       color: white;
       text-decoration: none;
+
+      transition: transform 0.3s ease, text-shadow 0.3s ease;
+    }
+
+    .logo:hover {
+      transform: translateY(-1px);
+      text-shadow: 0 8px 14px rgba(0, 0, 0, 0.8);
+    }
+
+    .logo-shine {
+      position: relative;
+      display: inline-block;
+      overflow: hidden;
+    }
+
+    .logo-shine::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -40%;
+      width: 22%;
+      height: 100%;
+
+      background: linear-gradient(
+        100deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.18) 45%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0.18) 55%,
+        transparent 100%
+      );
+
+      pointer-events: none;
+    }
+
+    .logo:hover .logo-shine::after {
+      left: 120%;
+      transition: left 0.9s ease;
+    }
+
+    .logo-shine::after {
+      transition: left 0s;
     }
 
     .nav-links {
@@ -276,7 +320,7 @@
 
   <nav>
     <a href="/index.html" class="logo">
-      FIND YOUR NEXT FAVOURITE MOVIE
+      <span class="logo-shine">FIND YOUR NEXT FAVORITE MOVIE</span>
     </a>
 
     <ul class="nav-links">
@@ -295,15 +339,6 @@
         <a href="/streaming.html">
           STREAMING<br>
           RECOMMENDATIONS
-        </a>
-      </li>
-
-      <li><a href="#">FORUM</a></li>
-
-      <li>
-        <a href="#">
-          HELP<br>
-          IN PRODUCTION
         </a>
       </li>
 
