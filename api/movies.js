@@ -70,18 +70,60 @@ export default async function handler(request, response) {
             });
           }
 
-          return response.status(200).json(result[0]);
+          const article = result[0];
+          const lang = request.query.lang;
+
+          const localized = {
+            ...article,
+            title:
+              (lang === "es" && article.title_es) ||
+              (lang === "zh" && article.title_zh) ||
+              article.title,
+            excerpt:
+              (lang === "es" && article.excerpt_es) ||
+              (lang === "zh" && article.excerpt_zh) ||
+              article.excerpt,
+            content:
+              (lang === "es" && article.content_es) ||
+              (lang === "zh" && article.content_zh) ||
+              article.content
+          };
+
+          return response.status(200).json(localized);
         }
 
+        const lang = request.query.lang;
+
         const result = await sql`
-          SELECT id, title, slug, excerpt, author, image_url, published, published_at
+          SELECT
+            id, slug, author, image_url, published, published_at,
+            title, excerpt,
+            title_es, excerpt_es,
+            title_zh, excerpt_zh
           FROM news_articles
           WHERE published = true
           ORDER BY published_at DESC
         `;
 
+        const localizedResults = result.map(article => ({
+          id: article.id,
+          slug: article.slug,
+          author: article.author,
+          image_url: article.image_url,
+          published: article.published,
+          published_at: article.published_at,
+          title:
+            (lang === "es" && article.title_es) ||
+            (lang === "zh" && article.title_zh) ||
+            article.title,
+          excerpt:
+            (lang === "es" && article.excerpt_es) ||
+            (lang === "zh" && article.excerpt_zh) ||
+            article.excerpt
+        }));
+
         return response.status(200).json({
-          results: result
+          results: localizedResults
         });
       }
 
@@ -108,7 +150,13 @@ export default async function handler(request, response) {
           content,
           author,
           image_url,
-          published
+          published,
+          title_es,
+          excerpt_es,
+          content_es,
+          title_zh,
+          excerpt_zh,
+          content_zh
         } = request.body;
 
         if (!title || !slug || !content) {
@@ -125,6 +173,14 @@ export default async function handler(request, response) {
         const cleanImageUrl = image_url || "";
         const isPublished = published === true;
 
+        const cleanTitleEs = title_es || null;
+        const cleanExcerptEs = excerpt_es || null;
+        const cleanContentEs = content_es || null;
+
+        const cleanTitleZh = title_zh || null;
+        const cleanExcerptZh = excerpt_zh || null;
+        const cleanContentZh = content_zh || null;
+
         let result;
 
         if (id) {
@@ -139,6 +195,12 @@ export default async function handler(request, response) {
               author = ${cleanAuthor},
               image_url = ${cleanImageUrl},
               published = ${isPublished},
+              title_es = ${cleanTitleEs},
+              excerpt_es = ${cleanExcerptEs},
+              content_es = ${cleanContentEs},
+              title_zh = ${cleanTitleZh},
+              excerpt_zh = ${cleanExcerptZh},
+              content_zh = ${cleanContentZh},
               published_at = CASE
                 WHEN ${isPublished} = true AND published_at IS NULL THEN NOW()
                 WHEN ${isPublished} = false THEN NULL
@@ -159,12 +221,16 @@ export default async function handler(request, response) {
 
           result = await sql`
             INSERT INTO news_articles (
-              title, slug, excerpt, content, author, image_url, published, published_at
+              title, slug, excerpt, content, author, image_url, published, published_at,
+              title_es, excerpt_es, content_es,
+              title_zh, excerpt_zh, content_zh
             )
             VALUES (
               ${cleanTitle}, ${cleanSlug}, ${cleanExcerpt}, ${cleanContent},
               ${cleanAuthor}, ${cleanImageUrl}, ${isPublished},
-              ${isPublished ? new Date() : null}
+              ${isPublished ? new Date() : null},
+              ${cleanTitleEs}, ${cleanExcerptEs}, ${cleanContentEs},
+              ${cleanTitleZh}, ${cleanExcerptZh}, ${cleanContentZh}
             )
             RETURNING *
           `;
