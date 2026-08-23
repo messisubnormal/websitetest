@@ -21,7 +21,7 @@ export default async function handler(request, response) {
       });
     }
 
-    const { movie_id, rating, review } = request.body;
+    const { movie_id, rating, review, review_es, review_zh } = request.body;
 
     if (!movie_id || rating === undefined) {
       return response.status(400).json({
@@ -35,18 +35,24 @@ export default async function handler(request, response) {
       INSERT INTO movie_reviews (
         movie_id,
         rating,
-        review
+        review,
+        review_es,
+        review_zh
       )
       VALUES (
         ${movie_id},
         ${rating},
-        ${review || ""}
+        ${review || ""},
+        ${review_es || null},
+        ${review_zh || null}
       )
       ON CONFLICT (movie_id)
       DO UPDATE SET
         rating = EXCLUDED.rating,
-        review = EXCLUDED.review
-      RETURNING movie_id, rating, review
+        review = EXCLUDED.review,
+        review_es = EXCLUDED.review_es,
+        review_zh = EXCLUDED.review_zh
+      RETURNING movie_id, rating, review, review_es, review_zh
     `;
 
     return response.status(200).json(result[0]);
