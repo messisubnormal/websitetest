@@ -2,6 +2,20 @@ export default async function handler(request, response) {
   try {
     const movieId = request.query.id;
 
+    /*
+     * Map our own short language codes (en, es, zh)
+     * to the language codes TMDB actually expects.
+     * Defaults to English if missing or unrecognized.
+     */
+    const tmdbLanguageMap = {
+      en: "en-US",
+      es: "es-ES",
+      zh: "zh-CN"
+    };
+
+    const tmdbLanguage =
+      tmdbLanguageMap[request.query.lang] || "en-US";
+
         if (request.query.type === "news") {
 
       const { neon } = await import("@neondatabase/serverless");
@@ -167,7 +181,7 @@ export default async function handler(request, response) {
     let url;
 
     if (movieId) {
-  url = `https://api.themoviedb.org/3/movie/${movieId}?language=en-US&append_to_response=credits`;
+  url = `https://api.themoviedb.org/3/movie/${movieId}?language=${tmdbLanguage}&append_to_response=credits`;
 
 } else if (request.query.query) {
 
@@ -176,7 +190,7 @@ export default async function handler(request, response) {
 
   url =
     `https://api.themoviedb.org/3/search/movie` +
-    `?language=en-US` +
+    `?language=${tmdbLanguage}` +
     `&query=${searchQuery}` +
     `&page=1` +
     `&include_adult=false`;
@@ -195,7 +209,7 @@ export default async function handler(request, response) {
 
     const pageUrl =
       "https://api.themoviedb.org/3/movie/top_rated" +
-      `?language=en-US&page=${page}`;
+      `?language=${tmdbLanguage}&page=${page}`;
 
     const pageResponse = await fetch(pageUrl, {
       headers: {
@@ -256,7 +270,7 @@ export default async function handler(request, response) {
     try {
 
       const movieResponse = await fetch(
-        `https://api.themoviedb.org/3/movie/${movieId}?language=en-US`,
+        `https://api.themoviedb.org/3/movie/${movieId}?language=${tmdbLanguage}`,
         {
           headers: {
             Authorization:
@@ -386,7 +400,7 @@ export default async function handler(request, response) {
 
     const pageUrl =
       "https://api.themoviedb.org/3/discover/movie" +
-      `?language=en-US` +
+      `?language=${tmdbLanguage}` +
       `&watch_region=${region}` +
       `&with_watch_providers=${providerIds}` +
       `&with_watch_monetization_types=flatrate` +
@@ -519,7 +533,7 @@ export default async function handler(request, response) {
 
       url =
         `https://api.themoviedb.org/3/discover/movie` +
-        `?language=en-US` +
+        `?language=${tmdbLanguage}` +
         `&sort_by=popularity.desc` +
         `&primary_release_date.gte=${fromDate}` +
         `&primary_release_date.lte=${toDate}` +
@@ -529,7 +543,7 @@ export default async function handler(request, response) {
      } else if (request.query.type === "now-playing") {
 
   url =
-    "https://api.themoviedb.org/3/movie/now_playing?language=en-US&region=ES&page=1";
+    `https://api.themoviedb.org/3/movie/now_playing?language=${tmdbLanguage}&region=ES&page=1`;
 
 } else if (request.query.type === "trailers") {
 
@@ -546,7 +560,7 @@ export default async function handler(request, response) {
 
   url =
     `https://api.themoviedb.org/3/discover/movie` +
-    `?language=en-US` +
+    `?language=${tmdbLanguage}` +
     `&sort_by=popularity.desc` +
     `&primary_release_date.gte=${fromDate}` +
     `&primary_release_date.lte=${toDate}` +
@@ -556,7 +570,7 @@ export default async function handler(request, response) {
 } else {
 
       url =
-        "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1";
+        `https://api.themoviedb.org/3/movie/popular?language=${tmdbLanguage}&page=1`;
     }
 
     const tmdbResponse = await fetch(url, {
