@@ -79,6 +79,45 @@
     .checkbox-row input {
       width: auto;
     }
+
+    .lang-tabs {
+      display: flex;
+      gap: 8px;
+      margin-top: 30px;
+    }
+
+    .lang-tab {
+      padding: 8px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      border: 1px solid #ccc;
+      background: #f4f4f4;
+      border-radius: 6px 6px 0 0;
+    }
+
+    .lang-tab.active {
+      background: #ffffff;
+      border-bottom: 2px solid #ffffff;
+      font-weight: bold;
+    }
+
+    .lang-panel {
+      display: none;
+      border: 1px solid #ccc;
+      padding: 20px;
+      border-radius: 0 6px 6px 6px;
+      margin-top: -1px;
+    }
+
+    .lang-panel.active {
+      display: block;
+    }
+
+    .lang-note {
+      font-size: 13px;
+      color: #777;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 
@@ -176,16 +215,6 @@
 
     <div id="load-message"></div>
 
-    <label for="article-title">
-      Title
-    </label>
-
-    <input
-      id="article-title"
-      type="text"
-      placeholder="Article title"
-    >
-
     <label for="article-slug">
       Slug
     </label>
@@ -194,16 +223,6 @@
       id="article-slug"
       type="text"
       placeholder="example-article-title"
-    >
-
-    <label for="article-excerpt">
-      Excerpt
-    </label>
-
-    <input
-      id="article-excerpt"
-      type="text"
-      placeholder="Short summary shown in the article list"
     >
 
     <label for="article-author">
@@ -226,14 +245,122 @@
       placeholder="https://..."
     >
 
-    <label for="article-content">
-      Content
-    </label>
+    <div class="lang-tabs">
+      <div class="lang-tab active" data-lang="en">English</div>
+      <div class="lang-tab" data-lang="es">Español</div>
+      <div class="lang-tab" data-lang="zh">中文</div>
+    </div>
 
-    <textarea
-      id="article-content"
-      placeholder="Write the article..."
-    ></textarea>
+    <div class="lang-panel active" data-lang-panel="en">
+
+      <p class="lang-note">
+        English is required — this is shown whenever a translation is missing.
+      </p>
+
+      <label for="article-title">
+        Title
+      </label>
+
+      <input
+        id="article-title"
+        type="text"
+        placeholder="Article title"
+      >
+
+      <label for="article-excerpt">
+        Excerpt
+      </label>
+
+      <input
+        id="article-excerpt"
+        type="text"
+        placeholder="Short summary shown in the article list"
+      >
+
+      <label for="article-content">
+        Content
+      </label>
+
+      <textarea
+        id="article-content"
+        placeholder="Write the article..."
+      ></textarea>
+
+    </div>
+
+    <div class="lang-panel" data-lang-panel="es">
+
+      <p class="lang-note">
+        Optional. Leave blank to show the English version to Spanish readers.
+      </p>
+
+      <label for="article-title-es">
+        Título
+      </label>
+
+      <input
+        id="article-title-es"
+        type="text"
+        placeholder="Título del artículo"
+      >
+
+      <label for="article-excerpt-es">
+        Extracto
+      </label>
+
+      <input
+        id="article-excerpt-es"
+        type="text"
+        placeholder="Resumen breve mostrado en la lista de artículos"
+      >
+
+      <label for="article-content-es">
+        Contenido
+      </label>
+
+      <textarea
+        id="article-content-es"
+        placeholder="Escribe el artículo..."
+      ></textarea>
+
+    </div>
+
+    <div class="lang-panel" data-lang-panel="zh">
+
+      <p class="lang-note">
+        Optional. Leave blank to show the English version to Chinese readers.
+      </p>
+
+      <label for="article-title-zh">
+        标题
+      </label>
+
+      <input
+        id="article-title-zh"
+        type="text"
+        placeholder="文章标题"
+      >
+
+      <label for="article-excerpt-zh">
+        摘要
+      </label>
+
+      <input
+        id="article-excerpt-zh"
+        type="text"
+        placeholder="文章列表中显示的简短摘要"
+      >
+
+      <label for="article-content-zh">
+        内容
+      </label>
+
+      <textarea
+        id="article-content-zh"
+        placeholder="撰写文章内容..."
+      ></textarea>
+
+    </div>
 
     <div class="checkbox-row">
       <input
@@ -408,6 +535,32 @@
 
 
     // =========================
+    // LANGUAGE TABS
+    // =========================
+
+    document.querySelectorAll(".lang-tab").forEach(tab => {
+
+      tab.addEventListener("click", () => {
+
+        const lang = tab.dataset.lang;
+
+        document.querySelectorAll(".lang-tab").forEach(t => {
+          t.classList.toggle("active", t === tab);
+        });
+
+        document.querySelectorAll(".lang-panel").forEach(panel => {
+          panel.classList.toggle(
+            "active",
+            panel.dataset.langPanel === lang
+          );
+        });
+
+      });
+
+    });
+
+
+    // =========================
     // LOAD ARTICLE
     // =========================
 
@@ -467,6 +620,24 @@
           document.getElementById("article-content").value =
             data.content || "";
 
+          document.getElementById("article-title-es").value =
+            data.title_es || "";
+
+          document.getElementById("article-excerpt-es").value =
+            data.excerpt_es || "";
+
+          document.getElementById("article-content-es").value =
+            data.content_es || "";
+
+          document.getElementById("article-title-zh").value =
+            data.title_zh || "";
+
+          document.getElementById("article-excerpt-zh").value =
+            data.excerpt_zh || "";
+
+          document.getElementById("article-content-zh").value =
+            data.content_zh || "";
+
           document.getElementById("article-published").checked =
             data.published === true;
 
@@ -514,6 +685,24 @@
         const content =
           document.getElementById("article-content").value;
 
+        const titleEs =
+          document.getElementById("article-title-es").value;
+
+        const excerptEs =
+          document.getElementById("article-excerpt-es").value;
+
+        const contentEs =
+          document.getElementById("article-content-es").value;
+
+        const titleZh =
+          document.getElementById("article-title-zh").value;
+
+        const excerptZh =
+          document.getElementById("article-excerpt-zh").value;
+
+        const contentZh =
+          document.getElementById("article-content-zh").value;
+
         const published =
           document.getElementById("article-published").checked;
 
@@ -543,7 +732,13 @@
                 author,
                 image_url: imageUrl,
                 content,
-                published
+                published,
+                title_es: titleEs,
+                excerpt_es: excerptEs,
+                content_es: contentEs,
+                title_zh: titleZh,
+                excerpt_zh: excerptZh,
+                content_zh: contentZh
               })
             }
           );
