@@ -228,6 +228,40 @@
       color: #60a5fa;
     }
 
+.lang-switcher {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  margin-left: 22px;
+  padding-left: 22px;
+  border-left: 1px solid rgba(96, 165, 250, 0.2);
+}
+
+#account-nav {
+  flex-shrink: 0;
+}
+
+.lang-switcher button {
+  background: none;
+  border: none;
+  padding: 4px 6px;
+  color: rgba(219, 234, 254, 0.55);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.lang-switcher button:hover {
+  color: #dbeafe;
+}
+
+.lang-switcher button.active {
+  color: #60a5fa;
+  background: rgba(37, 99, 235, 0.18);
+}
+
     .profile-nav-icon {
       width: 34px;
       height: 34px;
@@ -756,7 +790,16 @@
       </a>
     </div>
 
-  </nav>
+    <div class="lang-switcher" id="lang-switcher">
+    <button type="button" data-lang="en">EN</button>
+    <button type="button" data-lang="es">ES</button>
+    <button type="button" data-lang="zh">中文</button>
+  </div>
+
+</nav>
+
+<div id="google_translate_element" style="display: none;"></div>
+
 
 
   <main>
@@ -1021,7 +1064,7 @@ async function loadStreamingMovies(
 
     const response =
       await fetch(
-        `/api/movies?type=streaming&provider=${provider}&region=${selectedRegion}`
+        `/api/movies?type=streaming&provider=${provider}&region=${selectedRegion}&lang=${getSiteLanguage()}`
       );
 
     if (!response.ok) {
@@ -1605,6 +1648,70 @@ async function updateAccountNav() {
 
 updateAccountNav();
 
+  /* LANGUAGE SWITCHER */
+
+  function getSiteLanguage() {
+    const match = document.cookie.match(/googtrans=\/en\/([a-zA-Z-]+)/);
+
+    if (!match) {
+      return "en";
+    }
+
+    const code = match[1].toLowerCase();
+
+    if (code === "es") {
+      return "es";
+    }
+
+    if (code === "zh-cn") {
+      return "zh";
+    }
+
+    return "en";
+  }
+
+  function setSiteLanguage(lang) {
+
+    document.cookie =
+      "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+
+    if (lang !== "en") {
+
+      const googleCode =
+        lang === "zh" ? "zh-CN" : lang;
+
+      document.cookie =
+        `googtrans=/en/${googleCode}; path=/`;
+    }
+
+    location.reload();
+  }
+
+  function highlightActiveLanguageButton() {
+    const currentLang = getSiteLanguage();
+
+    document
+      .querySelectorAll("#lang-switcher button")
+      .forEach(button => {
+        button.classList.toggle(
+          "active",
+          button.dataset.lang === currentLang
+        );
+      });
+  }
+
+  document
+    .querySelectorAll("#lang-switcher button")
+    .forEach(button => {
+      button.addEventListener("click", () => {
+        setSiteLanguage(button.dataset.lang);
+      });
+    });
+
+  highlightActiveLanguageButton();
+
+
+
 
 /* SEARCH */
 
@@ -1628,6 +1735,23 @@ searchForm.addEventListener("submit", event => {
 });
 
 </script>
+
+
+<script>
+  function googleTranslateElementInit() {
+    new google.translate.TranslateElement(
+      {
+        pageLanguage: "en",
+        includedLanguages: "es,zh-CN",
+        autoDisplay: false
+      },
+      "google_translate_element"
+    );
+  }
+</script>
+<script
+  src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+></script>
 
 </body>
 </html>
