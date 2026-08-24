@@ -16,7 +16,79 @@ export default async function handler(request, response) {
     const tmdbLanguage =
       tmdbLanguageMap[request.query.lang] || "en-US";
 
-        if (request.query.type === "news") {
+    if (request.query.type === "sitemap") {
+
+      const { neon } = await import("@neondatabase/serverless");
+      const sql = neon(process.env.DATABASE_URL);
+
+      const siteUrl =
+        process.env.SITE_URL || "https://find-your-next-favorite-movie.vercel.app";
+
+      const staticPages = [
+        "/index.html",
+        "/top-rated.html",
+        "/streaming.html",
+        "/news.html",
+        "/recommendations.html"
+      ];
+
+      const articles = await sql`
+        SELECT slug, updated_at
+        FROM news_articles
+        WHERE published = true
+      `;
+
+      const reviewedMovies = await sql`
+        SELECT movie_id
+        FROM movie_reviews
+      `;
+
+      const escapeXml = (value) =>
+        String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+
+      let urls = "";
+
+      staticPages.forEach(page => {
+        urls += `
+  <url>
+    <loc>${escapeXml(siteUrl + page)}</loc>
+  </url>`;
+      });
+
+      articles.forEach(article => {
+        const lastmod = article.updated_at
+          ? new Date(article.updated_at).toISOString().split("T")[0]
+          : "";
+
+        urls += `
+  <url>
+    <loc>${escapeXml(siteUrl + "/news-article.html?slug=" + article.slug)}</loc>${
+          lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ""
+        }
+  </url>`;
+      });
+
+      reviewedMovies.forEach(movie => {
+        urls += `
+  <url>
+    <loc>${escapeXml(siteUrl + "/movie.html?id=" + movie.movie_id)}</loc>
+  </url>`;
+      });
+
+      const xml =
+        `<?xml version="1.0" encoding="UTF-8"?>\n` +
+        `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">` +
+        urls +
+        `\n</urlset>`;
+
+      response.setHeader("Content-Type", "application/xml");
+      return response.status(200).send(xml);
+    }
+
+    if (request.query.type === "news") {
 
       const { neon } = await import("@neondatabase/serverless");
       const sql = neon(process.env.DATABASE_URL);
