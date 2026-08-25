@@ -4,7 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>News Article</title>
+  <title>News | Find Your Next Favorite Movie</title>
+
+  <meta name="description" content="Read the latest movie news and articles.">
+
+  <meta property="og:title" content="News | Find Your Next Favorite Movie">
+  <meta property="og:description" content="Read the latest movie news and articles.">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Find Your Next Favorite Movie">
+  <meta property="og:image" content="https://find-your-next-favorite-movie.vercel.app/og-image.png">
+
+  <meta name="twitter:card" content="summary_large_image">
 
   <style>
     * {
@@ -681,7 +691,28 @@
         }
 
         document.title =
-          data.title + " - News";
+          data.title + " | Find Your Next Favorite Movie";
+
+        const articleDescription =
+          data.excerpt || data.content.slice(0, 160);
+
+        document
+          .querySelector('meta[name="description"]')
+          .setAttribute("content", articleDescription);
+
+        document
+          .querySelector('meta[property="og:title"]')
+          .setAttribute("content", data.title);
+
+        document
+          .querySelector('meta[property="og:description"]')
+          .setAttribute("content", articleDescription);
+
+        if (data.image_url) {
+          document
+            .querySelector('meta[property="og:image"]')
+            .setAttribute("content", data.image_url);
+        }
 
         document.getElementById("article-title").textContent =
           data.title;
