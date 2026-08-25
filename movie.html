@@ -4,7 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Movie</title>
+  <title>Movie Details | Find Your Next Favorite Movie</title>
+
+  <meta name="description" content="Ratings, reviews, and details for this movie.">
+
+  <meta property="og:title" content="Movie Details | Find Your Next Favorite Movie">
+  <meta property="og:description" content="Ratings, reviews, and details for this movie.">
+  <meta property="og:type" content="video.movie">
+  <meta property="og:site_name" content="Find Your Next Favorite Movie">
+  <meta property="og:image" content="https://find-your-next-favorite-movie.vercel.app/og-image.png">
+
+  <meta name="twitter:card" content="summary_large_image">
 
   <style>
     * {
@@ -1173,7 +1183,33 @@ searchForm.addEventListener("submit", event => {
       const movie = await response.json();
 
       document.title =
-        `${movie.title} — Find Your Next Favourite Movie`;
+        `${movie.title} — Find Your Next Favorite Movie`;
+
+      const movieDescription =
+        movie.overview
+          ? movie.overview.slice(0, 160)
+          : `Ratings and reviews for ${movie.title}.`;
+
+      document
+        .querySelector('meta[name="description"]')
+        .setAttribute("content", movieDescription);
+
+      document
+        .querySelector('meta[property="og:title"]')
+        .setAttribute("content", `${movie.title} | Find Your Next Favorite Movie`);
+
+      document
+        .querySelector('meta[property="og:description"]')
+        .setAttribute("content", movieDescription);
+
+      if (movie.poster_path) {
+        document
+          .querySelector('meta[property="og:image"]')
+          .setAttribute(
+            "content",
+            `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+          );
+      }
 
       document.getElementById("movie-title").textContent =
         `${movie.title} (${movie.release_date ? movie.release_date.substring(0, 4) : ""})`;
