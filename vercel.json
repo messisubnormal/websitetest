@@ -3,6 +3,10 @@
     {
       "source": "/sitemap.xml",
       "destination": "/api/movies?type=sitemap"
+    },
+    {
+      "source": "/news-sitemap.xml",
+      "destination": "/api/movies?type=news-sitemap"
     }
   ]
 }
