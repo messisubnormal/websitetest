@@ -88,6 +88,59 @@ export default async function handler(request, response) {
       return response.status(200).send(xml);
     }
 
+    if (request.query.type === "news-sitemap") {
+
+      const { neon } = await import("@neondatabase/serverless");
+      const sql = neon(process.env.DATABASE_URL);
+
+      const siteUrl =
+        process.env.SITE_URL || "https://find-your-next-favorite-movie.vercel.app";
+
+      const escapeXml = (value) =>
+        String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+
+      const recentArticles = await sql`
+        SELECT slug, title, published_at
+        FROM news_articles
+        WHERE published = true
+          AND published_at >= NOW() - INTERVAL '48 hours'
+        ORDER BY published_at DESC
+      `;
+
+      let urls = "";
+
+      recentArticles.forEach(article => {
+        const pubDate =
+          new Date(article.published_at).toISOString();
+
+        urls += `
+  <url>
+    <loc>${escapeXml(siteUrl + "/news-article.html?slug=" + article.slug)}</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Find Your Next Favorite Movie</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>${pubDate}</news:publication_date>
+      <news:title>${escapeXml(article.title)}</news:title>
+    </news:news>
+  </url>`;
+      });
+
+      const xml =
+        `<?xml version="1.0" encoding="UTF-8"?>\n` +
+        `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" ` +
+        `xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">` +
+        urls +
+        `\n</urlset>`;
+
+      response.setHeader("Content-Type", "application/xml");
+      return response.status(200).send(xml);
+    }
+
     if (request.query.type === "news") {
 
       const { neon } = await import("@neondatabase/serverless");
