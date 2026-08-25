@@ -4,7 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Search Movies — Find Your Next Favourite Movie</title>
+  <title>Search Movies — Find Your Next Favorite Movie</title>
+
+  <meta name="description" content="Search for any movie and find ratings, reviews, and where to stream it.">
+
+  <meta property="og:title" content="Search Movies | Find Your Next Favorite Movie">
+  <meta property="og:description" content="Search for any movie and find ratings, reviews, and where to stream it.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://find-your-next-favorite-movie.vercel.app/search.html">
+  <meta property="og:site_name" content="Find Your Next Favorite Movie">
+  <meta property="og:image" content="https://find-your-next-favorite-movie.vercel.app/og-image.png">
+
+  <meta name="robots" content="noindex">
 
   <style>
     * {
@@ -660,6 +671,9 @@ async function loadSearchResults() {
 
   searchQueryElement.textContent =
     query;
+
+  document.title =
+    `${query} — Search Results | Find Your Next Favorite Movie`;
 
 
   try {
