@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <title>Page Not Found | Find Your Next Favorite Movie</title>
+
+  <meta name="robots" content="noindex">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(37, 99, 235, 0.28), transparent 30%),
+        radial-gradient(circle at 85% 25%, rgba(59, 130, 246, 0.18), transparent 30%),
+        linear-gradient(135deg, #020617, #071b3a 50%, #06152d);
+      color: #ffffff;
+      font-family: Arial, Helvetica, sans-serif;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 25px;
+    }
+
+    .content {
+      max-width: 560px;
+    }
+
+    .reel {
+      width: 90px;
+      height: 90px;
+      margin: 0 auto 30px;
+      border-radius: 50%;
+      border: 4px solid rgba(96, 165, 250, 0.35);
+      position: relative;
+    }
+
+    .reel::before,
+    .reel::after {
+      content: "";
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: rgba(96, 165, 250, 0.35);
+    }
+
+    .reel::before {
+      top: 14px;
+      left: 14px;
+    }
+
+    .reel::after {
+      bottom: 14px;
+      right: 14px;
+    }
+
+    .code {
+      font-size: 90px;
+      font-weight: 800;
+      color: #60a5fa;
+      line-height: 1;
+      margin-bottom: 10px;
+      letter-spacing: 2px;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    p {
+      font-size: 16px;
+      color: #93c5fd;
+      line-height: 1.6;
+      margin-bottom: 34px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 14px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 13px 26px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      background: rgba(37, 99, 235, 0.85);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: rgba(37, 99, 235, 1);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: #93c5fd;
+      border: 1px solid rgba(96, 165, 250, 0.35);
+    }
+
+    .btn-secondary:hover {
+      color: #ffffff;
+      border-color: rgba(96, 165, 250, 0.6);
+    }
+
+    @media (max-width: 500px) {
+      .code {
+        font-size: 64px;
+      }
+
+      h1 {
+        font-size: 21px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="content">
+
+    <div class="reel"></div>
+
+    <div class="code">404</div>
+
+    <h1>This scene didn't make the final cut.</h1>
+
+    <p>
+      The page you're looking for doesn't exist, may have been moved,
+      or the link might be broken. Let's get you back on track.
+    </p>
+
+    <div class="actions">
+      <a href="/index.html" class="btn btn-primary">Back to Home</a>
+      <a href="/search.html" class="btn btn-secondary">Search Movies</a>
+    </div>
+
+  </div>
+
+</body>
+</html>
