@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
   <title>Find Your Next Favorite Movie</title>
 
   <meta name="description" content="Discover top-rated movies, personalized recommendations, and where to stream them. Real reviews, ratings, and the latest movie news in one place.">
@@ -1011,7 +1016,7 @@
           <div class="poster">
             ${
               poster
-                ? `<img src="${poster}" alt="${movie.title}">`
+                ? `<img src="${poster}" alt="${movie.title}" loading="lazy">`
                 : "NO POSTER"
             }
           </div>
@@ -1066,7 +1071,7 @@ async function loadUpcomingMovies() {
         <div class="poster">
           ${
             poster
-              ? `<img src="${poster}" alt="${movie.title}">`
+              ? `<img src="${poster}" alt="${movie.title}" loading="lazy">`
               : "NO POSTER"
           }
         </div>
@@ -1134,7 +1139,7 @@ movieElement.appendChild(
           <div class="poster">
             ${
               poster
-                ? `<img src="${poster}" alt="${movie.title}">`
+                ? `<img src="${poster}" alt="${movie.title}" loading="lazy">`
                 : "NO POSTER"
             }
           </div>
@@ -1197,6 +1202,7 @@ async function loadTrailers() {
           class="trailer-thumbnail"
           src="https://image.tmdb.org/t/p/w780${movie.backdrop_path}"
           alt="${movie.title}"
+          loading="lazy"
         >
 
         <div class="trailer-video-container"></div>
